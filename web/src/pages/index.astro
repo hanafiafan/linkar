@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
+import EntityMarquee from '../components/EntityMarquee.astro';
 import Footer from '../components/Footer.astro';
 import { getContent } from '../lib/content';
 
@@ -10,5 +11,6 @@ const content = await getContent();
 <Base title="LINKAR">
   <Navbar content={content} />
   <Hero content={content} />
+  <EntityMarquee content={content} />
   <Footer content={content} />
 </Base>
