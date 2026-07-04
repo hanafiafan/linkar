@@ -8,9 +8,8 @@ const links = buildNavLinks(content.programs.length, content.posts.length);
 ---
 <header class="navbar" id="navbar">
   <div class="wrap navbar__inner">
-    <a href="/" class="navbar__brand" aria-label="LINKAR">
+    <a href="/" class="navbar__brand">
       <img src="/images/brand/linkar-logo-white.png" alt="LINKAR" width="34" height="34" class="navbar__logo" />
-      <span class="navbar__wordmark">LINK<b class="accent">AR</b></span>
     </a>
 
     <input type="checkbox" id="navToggle" class="navbar__toggle" aria-hidden="true" />
@@ -46,8 +45,6 @@ const links = buildNavLinks(content.programs.length, content.posts.length);
 
   .navbar__brand{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
   .navbar__logo{ height:34px; width:auto; display:block; }
-  .navbar__wordmark{ font-weight:800; letter-spacing:-.01em; font-size:1.15rem; color:var(--text); }
-  .navbar__wordmark .accent{ color:var(--orange); }
 
   .navbar__nav{ display:flex; align-items:center; gap:32px; }
   .navbar__links{ display:flex; align-items:center; gap:28px; list-style:none; }
