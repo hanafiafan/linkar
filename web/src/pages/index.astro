@@ -6,6 +6,8 @@ import EntityMarquee from '../components/EntityMarquee.astro';
 import About from '../components/About.astro';
 import PortfolioSection from '../components/PortfolioSection.astro';
 import Services from '../components/Services.astro';
+import StatsLinkar from '../components/StatsLinkar.astro';
+import IndustryStats from '../components/IndustryStats.astro';
 import Commitments from '../components/Commitments.astro';
 import Footer from '../components/Footer.astro';
 import { getContent } from '../lib/content';
@@ -19,6 +21,8 @@ const content = await getContent();
   <About content={content} />
   <PortfolioSection content={content} />
   <Services content={content} />
+  <StatsLinkar content={content} />
+  <IndustryStats content={content} />
   <Commitments content={content} />
   <Footer content={content} />
 </Base>
