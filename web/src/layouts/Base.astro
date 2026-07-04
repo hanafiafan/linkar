@@ -1,0 +1,19 @@
+---
+import '../styles/global.css';
+interface Props { title: string; description?: string }
+const { title, description = 'LINKAR — Ecosystem Enabler oleh CV Rantai Usaha Nusantara. Merancang, mengeksekusi, dan mengukur program berdampak di Yogyakarta, Jawa Tengah, dan Jawa Timur.' } = Astro.props;
+---
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <slot name="head" />
+</head>
+<body>
+  <slot />
+  <script src="../scripts/animations.js"></script>
+</body>
+</html>

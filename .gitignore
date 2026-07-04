@@ -1,5 +1,10 @@
-Linkar/
-assets/
-_unpacked_pptx/
+/Linkar/
+/assets/
+/_unpacked_pptx/
 node_modules/
 .env
+.env.*
+!.env.example
+dist/
+.astro/
+.superpowers/
