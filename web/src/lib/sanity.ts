@@ -27,6 +27,10 @@ export async function fetchFromSanity(): Promise<SiteContent> {
   });
   const r = await client.fetch(query);
 
+  if (!r.settings || !r.home) {
+    throw new Error('Sanity: dokumen siteSettings/homePage tidak ditemukan — jalankan node studio/scripts/seed.mjs');
+  }
+
   return {
     settings: r.settings,
     home: r.home,
