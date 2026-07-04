@@ -1,0 +1,61 @@
+---
+import { toHTML } from '@portabletext/to-html';
+import Base from '../../layouts/Base.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import { getContent } from '../../lib/content';
+import type { PostDoc, SiteContent } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const content = await getContent();
+  return content.posts.map((post) => ({ params: { slug: post.slug }, props: { post, content } }));
+}
+
+interface Props { post: PostDoc; content: SiteContent }
+const { post, content } = Astro.props;
+
+const dateLabel = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(post.date));
+const paragraphs = typeof post.body === 'string' ? post.body.split(/\n\s*\n/) : null;
+const ptHtml = paragraphs === null
+  ? toHTML(post.body as never, { components: { types: { image: () => '<!-- pt-image: unresolved until Task 14 -->' } } })
+  : null;
+---
+<Base title={`${post.title} — LINKAR`} description={post.excerpt}>
+  <Navbar content={content} />
+
+  <section class="hero" style={`background-image:linear-gradient(rgba(10,17,40,.82),rgba(10,17,40,.82)),url('${post.cover}')`}>
+    <div class="wrap">
+      <h1>{post.title}</h1>
+      <p class="meta"><time datetime={post.date}>{dateLabel}</time> · {post.author}</p>
+    </div>
+  </section>
+
+  <section class="section body">
+    <div class="wrap prose">
+      {paragraphs !== null
+        ? paragraphs.map((p) => <p>{p}</p>)
+        : <div set:html={ptHtml} />}
+    </div>
+  </section>
+
+  <section class="section cta">
+    <div class="wrap">
+      <a href="/" class="back">← Kembali ke Beranda</a>
+    </div>
+  </section>
+
+  <Footer content={content} />
+</Base>
+
+<style>
+  .hero{background-size:cover;background-position:center;padding:120px 0 80px}
+  .hero h1{font-size:clamp(2rem,5.5vw,3.2rem);max-width:760px}
+  .hero .meta{color:var(--muted);font-weight:600;margin-top:16px}
+
+  .body{padding:72px 0}
+  .prose{max-width:720px}
+  .prose :global(p){margin-bottom:1.2em;color:var(--text)}
+
+  .cta{padding:0 0 72px}
+  .back{font-weight:700;color:var(--orange)}
+</style>
