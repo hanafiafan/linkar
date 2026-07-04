@@ -1,0 +1,56 @@
+---
+import type { SiteContent } from '../lib/content';
+import ExpandableGallery from './ExpandableGallery.astro';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const { about } = content.home;
+const featured = content.photos.filter((p) => p.featured);
+---
+<section id="about" class="section about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div class="about-col about-col--intro">
+        <span class="kicker" data-reveal="pop">{about.kicker}</span>
+        <h2 data-split>{about.title}</h2>
+      </div>
+      <div class="about-col about-col--body">
+        {about.paragraphs.map((para) => (
+          <p data-reveal>{para}</p>
+        ))}
+      </div>
+    </div>
+
+    {featured.length > 0 && <ExpandableGallery photos={featured} />}
+  </div>
+</section>
+
+<style>
+  .about{
+    background:var(--navy);
+  }
+  .about-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:28px;
+  }
+  .about-col--intro h2{
+    color:var(--text);
+    font-size:clamp(1.7rem, 3vw, 2.3rem);
+    margin-top:16px;
+  }
+  .about-col--body{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .about-col--body p{
+    color:var(--muted);
+  }
+  @media (min-width: 900px){
+    .about-grid{
+      grid-template-columns:1.05fr .95fr;
+      gap:46px;
+    }
+  }
+</style>
