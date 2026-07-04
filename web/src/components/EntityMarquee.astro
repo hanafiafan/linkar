@@ -14,8 +14,14 @@ const { entities } = content;
 
   <div class="marquee" aria-label="Entitas ekosistem LINKAR">
     <div class="marquee-track">
-      {[...entities, ...entities].map((e) => (
+      {entities.map((e) => (
         <figure class="chip" title={e.role}>
+          <img src={e.logo} alt={`Logo ${e.name}`} loading="lazy" />
+          <figcaption><b>{e.name}</b><span>{e.role}</span></figcaption>
+        </figure>
+      ))}
+      {entities.map((e) => (
+        <figure class="chip" title={e.role} aria-hidden="true">
           <img src={e.logo} alt={`Logo ${e.name}`} loading="lazy" />
           <figcaption><b>{e.name}</b><span>{e.role}</span></figcaption>
         </figure>
