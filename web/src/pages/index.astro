@@ -9,6 +9,7 @@ import Services from '../components/Services.astro';
 import StatsLinkar from '../components/StatsLinkar.astro';
 import IndustryStats from '../components/IndustryStats.astro';
 import Commitments from '../components/Commitments.astro';
+import ContactCta from '../components/ContactCta.astro';
 import Footer from '../components/Footer.astro';
 import { getContent } from '../lib/content';
 
@@ -24,5 +25,6 @@ const content = await getContent();
   <StatsLinkar content={content} />
   <IndustryStats content={content} />
   <Commitments content={content} />
+  <ContactCta content={content} />
   <Footer content={content} />
 </Base>

@@ -1,0 +1,134 @@
+---
+import type { SiteContent } from '../lib/content';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const { cta } = content.home;
+const web3formsKey = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '';
+---
+<section id="contact" class="section contact-cta">
+  <div class="wrap">
+    <h2 data-split>{cta.title}</h2>
+    <p class="sub-en" data-reveal>{cta.subEn}</p>
+    <p class="sub-id" data-reveal>{cta.subId}</p>
+
+    <form id="contact-form" data-key={web3formsKey} novalidate data-reveal>
+      <div class="field">
+        <label for="f-name">Nama<span class="req">*</span></label>
+        <input id="f-name" type="text" name="name" autocomplete="name" />
+      </div>
+      <div class="field">
+        <label for="f-org">Instansi/Perusahaan</label>
+        <input id="f-org" type="text" name="org" autocomplete="organization" />
+      </div>
+      <div class="field">
+        <label for="f-email">Email<span class="req">*</span></label>
+        <input id="f-email" type="email" name="email" autocomplete="email" />
+      </div>
+      <div class="field">
+        <label for="f-wa">No. WhatsApp</label>
+        <input id="f-wa" type="tel" name="wa" autocomplete="tel" />
+      </div>
+      <div class="field field--full">
+        <label for="f-need">Ceritakan kebutuhan Anda<span class="req">*</span></label>
+        <textarea id="f-need" name="need" rows="5"></textarea>
+      </div>
+
+      <div style="display:none" aria-hidden="true">
+        <input type="text" name="botcheck" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <button type="submit" class="btn btn-primary">{cta.submitLabel}</button>
+      <p class="form-status" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+<style>
+  .contact-cta{
+    padding:110px 0;
+    background:var(--navy);
+    border-top:1px solid rgba(255,255,255,.08);
+    text-align:center;
+  }
+  .contact-cta h2{
+    color:var(--text);
+    font-size:clamp(1.8rem, 3.4vw, 2.6rem);
+    max-width:720px;
+    margin:0 auto;
+  }
+  .sub-en{
+    font-style:italic;
+    color:var(--orange);
+    margin-top:18px;
+  }
+  .sub-id{
+    color:var(--muted);
+    max-width:640px;
+    margin:12px auto 0;
+  }
+
+  form{
+    max-width:640px;
+    margin:48px auto 0;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:18px;
+    text-align:left;
+  }
+  @media (min-width:700px){
+    form{ grid-template-columns:1fr 1fr; }
+    .field--full{ grid-column:1 / -1; }
+  }
+
+  .field label{
+    display:block;
+    font-size:.9rem;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:8px;
+  }
+  .req{ color:var(--orange); margin-left:2px; }
+
+  .field input,
+  .field textarea{
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:10px;
+    padding:13px 16px;
+    color:var(--text);
+    width:100%;
+    font-family:inherit;
+    font-size:1rem;
+    transition:border-color .2s;
+  }
+  .field input:focus,
+  .field textarea:focus{
+    outline:none;
+    border-color:var(--orange);
+  }
+  .field input.err,
+  .field textarea.err{
+    border-color:#ff5d2b;
+  }
+
+  form .btn{
+    grid-column:1 / -1;
+    width:100%;
+    text-align:center;
+  }
+
+  .form-status{
+    grid-column:1 / -1;
+    min-height:1.5em;
+    color:var(--muted);
+    font-size:.9rem;
+    text-align:center;
+    margin:0;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .field input,
+    .field textarea{ transition:none; }
+  }
+</style>
