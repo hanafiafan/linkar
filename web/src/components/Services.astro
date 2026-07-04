@@ -1,0 +1,126 @@
+---
+import type { SiteContent } from '../lib/content';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const { services } = content.home;
+
+const dotIndex = services.differentiator.indexOf('.');
+const first = dotIndex === -1 ? services.differentiator : services.differentiator.slice(0, dotIndex + 1);
+const rest = dotIndex === -1 ? '' : services.differentiator.slice(dotIndex + 1).trim();
+---
+<section id="services" class="section services">
+  <div class="wrap">
+    <span class="kicker" data-reveal="pop">{services.kicker}</span>
+    <h2 data-split>{services.title}</h2>
+
+    <div class="sgrid" data-stagger>
+      {services.cards.map((card) => (
+        <div class="scard">
+          <span class="no">{card.no}</span>
+          <h3>{card.title}</h3>
+          <p class="who">{card.who}</p>
+          <p class="body">{card.body}</p>
+          <p class="target">{card.target}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="diff" data-reveal>
+      <div class="diff-line" data-reveal="line"></div>
+      <p class="diff-text"><strong>{first}</strong> {rest}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .services{
+    background:var(--navy);
+  }
+  .services h2{
+    color:var(--text);
+    font-size:clamp(1.7rem, 3vw, 2.3rem);
+    margin-top:16px;
+  }
+
+  .sgrid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:22px;
+    margin-top:40px;
+  }
+  @media (min-width: 900px){
+    .sgrid{ grid-template-columns:repeat(3, 1fr); }
+  }
+
+  .scard{
+    background:var(--navy-panel);
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:var(--radius);
+    padding:32px;
+    transition:transform .25s, border-color .25s;
+  }
+  .scard:hover{
+    transform:translateY(-5px);
+    border-color:rgba(242,106,33,.45);
+  }
+
+  .no{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:46px;
+    height:46px;
+    border-radius:13px;
+    background:var(--orange);
+    color:#1c0d02;
+    font-weight:800;
+  }
+  .scard h3{
+    color:var(--text);
+    font-size:1.15rem;
+    margin-top:16px;
+  }
+  .who{
+    color:var(--orange);
+    font-weight:700;
+    font-size:.85rem;
+    letter-spacing:.4px;
+    margin:6px 0 12px;
+  }
+  .scard .body{
+    color:var(--muted);
+  }
+  .target{
+    font-size:.82rem;
+    background:rgba(255,255,255,.05);
+    border-radius:8px;
+    padding:8px 12px;
+    color:var(--text);
+    margin-top:16px;
+  }
+
+  .diff{
+    background:rgba(242,106,33,.06);
+    border:1px dashed rgba(242,106,33,.35);
+    border-radius:var(--radius);
+    padding:24px 28px;
+    display:flex;
+    gap:18px;
+    margin-top:28px;
+  }
+  .diff-line{
+    width:4px;
+    background:var(--orange);
+    border-radius:2px;
+    align-self:stretch;
+    flex:none;
+  }
+  .diff-text{
+    color:var(--text);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .scard{ transition:none; }
+  }
+</style>
