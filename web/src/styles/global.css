@@ -4,7 +4,7 @@
 @import "@fontsource/plus-jakarta-sans/700.css";
 @import "@fontsource/plus-jakarta-sans/800.css";
 
-/* Fallback: if fontsource not installed, system font stack will apply */
+/* system-ui fallback applies only if the webfont fails to load */
 
 :root{
   --navy:#0a1128; --navy-panel:#111a3d; --navy-logo:#1F2B5B;
