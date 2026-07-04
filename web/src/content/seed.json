@@ -57,5 +57,16 @@
     { "name": "Gumregah", "role": "Community & UMKM", "tagline": "Community · Impact", "logo": "/images/entities/gumregah.png" },
     { "name": "HAN", "role": "Trade & Distribution", "tagline": "Komersial · Retail", "logo": "/images/entities/han.png" },
     { "name": "Artha", "role": "Finance & Capital", "tagline": "Pendanaan · Investasi", "logo": "/images/entities/artha.png" } ],
-  "photos": [], "programs": [], "posts": []
+  "photos": [
+    { "src": "/images/portfolio/aktivasi-01.jpg", "alt": "Peserta program Artha Affiliate Kickstart berkumpul usai sesi, kompak mengangkat tanda salam", "program": "Peserta program Artha Affiliate Kickstart berkumpul usai sesi, kompak mengangkat tanda salam", "featured": true },
+    { "src": "/images/portfolio/aktivasi-02.jpg", "alt": "Buka puasa bersama manajemen ekosistem RUN, dihadiri puluhan anggota tim", "program": "Buka puasa bersama manajemen ekosistem RUN, dihadiri puluhan anggota tim", "featured": true },
+    { "src": "/images/portfolio/aktivasi-03.jpg", "alt": "Tim produksi berpose di panggung usai acara budaya bertema wayang", "program": "Tim produksi berpose di panggung usai acara budaya bertema wayang", "featured": true },
+    { "src": "/images/portfolio/aktivasi-04.jpg", "alt": "Kunjungan ke Yoso Farm Homestead bersama pengelola dan petani setempat", "program": "Kunjungan ke Yoso Farm Homestead bersama pengelola dan petani setempat", "featured": true },
+    { "src": "/images/portfolio/aktivasi-05.jpg", "alt": "Sesi kerja kolaboratif tim menggunakan laptop di ruang terbuka", "program": "Sesi kerja kolaboratif tim menggunakan laptop di ruang terbuka", "featured": true },
+    { "src": "/images/portfolio/aktivasi-06.jpg", "alt": "Diskusi perencanaan program di area outdoor bersama beberapa anggota tim", "program": "Diskusi perencanaan program di area outdoor bersama beberapa anggota tim", "featured": false },
+    { "src": "/images/portfolio/aktivasi-07.jpg", "alt": "Rapat koordinasi lintas tim di gudang mitra UMKM, membahas alur kerja produk", "program": "Rapat koordinasi lintas tim di gudang mitra UMKM, membahas alur kerja produk", "featured": false },
+    { "src": "/images/portfolio/aktivasi-08.jpg", "alt": "Rapat koordinasi lintas entitas di ruang meeting korporat", "program": "Rapat koordinasi lintas entitas di ruang meeting korporat", "featured": false },
+    { "src": "/images/portfolio/aktivasi-09.jpg", "alt": "Kunjungan tim ke kantor mitra platform digital", "program": "Kunjungan tim ke kantor mitra platform digital", "featured": false },
+    { "src": "/images/portfolio/aktivasi-10.jpg", "alt": "Kunjungan tim ke kantor mitra e-commerce", "program": "Kunjungan tim ke kantor mitra e-commerce", "featured": false }
+  ], "programs": [], "posts": []
 }
