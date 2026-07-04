@@ -5,4 +5,5 @@ export default defineCliConfig({
     projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'placeholder',
     dataset: process.env.SANITY_STUDIO_DATASET || 'production',
   },
+  studioHost: 'linkar',
 })

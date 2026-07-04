@@ -20,8 +20,7 @@ const ptHtml = paragraphs === null
   ? toHTML(program.body as never, { components: { types: { image: () => '<!-- pt-image: unresolved until Task 14 -->' } } })
   : null;
 
-// ponytail: ProgramDoc has no gallery field yet — reuse site photos matched by program title; Task 14 can add a real gallery field.
-const gallery = content.photos.filter((ph) => ph.program === program.title);
+const gallery = (program.gallery ?? []).map((src) => ({ src, cap: program.title }));
 ---
 <Base title={`${program.title} — LINKAR`} description={program.summary}>
   <Navbar content={content} />
@@ -61,8 +60,8 @@ const gallery = content.photos.filter((ph) => ph.program === program.title);
       <div class="wrap">
         <div class="ggrid" data-stagger>
           {gallery.map((ph, i) => (
-            <button class="gitem" data-lb-index={i} data-lb-src={ph.src} data-lb-cap={ph.program} aria-label={`Perbesar foto: ${ph.program}`}>
-              <img src={ph.src} alt={ph.alt} loading="lazy" />
+            <button class="gitem" data-lb-index={i} data-lb-src={ph.src} data-lb-cap={ph.cap} aria-label={`Perbesar foto: ${ph.cap}`}>
+              <img src={ph.src} alt={ph.cap} loading="lazy" />
               <span class="duo" aria-hidden="true"></span>
             </button>
           ))}

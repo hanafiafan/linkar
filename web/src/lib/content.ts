@@ -3,7 +3,7 @@ import seed from '../content/seed.json';
 export interface Stat { value: string; label: string; note?: string }
 export interface Entity { name: string; role: string; tagline: string; logo: string }
 export interface Photo { src: string; alt: string; program: string; featured: boolean }
-export interface ProgramDoc { slug: string; title: string; partner: string; period: string; location: string; summary: string; body: unknown; cover: string; impact: Stat[] }
+export interface ProgramDoc { slug: string; title: string; partner: string; period: string; location: string; summary: string; body: unknown; cover: string; gallery: string[]; impact: Stat[] }
 export interface PostDoc { slug: string; title: string; excerpt: string; cover: string; body: unknown; author: string; date: string }
 export interface SiteContent {
   settings: { formEmail: string; footerTagline: string; ctaLabel: string };
