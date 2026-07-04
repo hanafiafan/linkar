@@ -29,3 +29,16 @@ h1,h2,h3{font-weight:800;letter-spacing:-.02em;line-height:1.12}
 .btn-ghost{border:1.5px solid rgba(255,255,255,.35);color:var(--text)}
 .btn-ghost:hover{background:rgba(255,255,255,.08)}
 @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+
+#lb{border:0;padding:0;background:rgba(6,10,25,.94);width:100vw;height:100vh;max-width:100vw;max-height:100vh;display:none;align-items:center;justify-content:center}
+#lb[open]{display:flex}
+#lb::backdrop{background:transparent}
+#lb figure{margin:0;max-width:90vw;max-height:84vh;display:flex;flex-direction:column;gap:10px}
+#lb img{max-width:90vw;max-height:78vh;object-fit:contain;border-radius:8px}
+#lb figcaption{color:#cfd8f0;text-align:center;font-size:.9rem}
+#lb button{position:absolute;background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:50%;width:48px;height:48px;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#lb button:hover{background:rgba(255,255,255,.25)}
+#lb .lb-x{top:20px;right:24px}
+#lb .lb-prev{left:20px;top:50%;transform:translateY(-50%)}
+#lb .lb-next{right:20px;top:50%;transform:translateY(-50%)}
+#lb .lb-count{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#9fb0d8;font-size:.85rem}

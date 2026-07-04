@@ -1,0 +1,52 @@
+---
+import type { SiteContent } from '../lib/content';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const p = content.home.portfolio;
+const featured = content.photos.filter((ph) => ph.featured).slice(0, 4);
+const photos = content.photos;
+---
+<section id="portfolio" class="section section--light">
+  <div class="wrap">
+    <h2 class="giant" aria-label={`${p.titlePart1}${p.titlePart2}`}>
+      <span data-split aria-hidden="true">{p.titlePart1}</span>
+      <span class="strip" aria-hidden="true">
+        {featured.map((ph, i) => <img src={ph.src} alt="" class={i === 0 ? 'is-active' : ''} loading="lazy" />)}
+      </span>
+      <span data-split aria-hidden="true">{p.titlePart2}</span>
+    </h2>
+
+    <p class="intro" data-reveal>{p.intro}</p>
+
+    <div class="pgrid" data-stagger>
+      {photos.map((ph, i) => (
+        <button class="gitem" data-lb-index={i} data-lb-src={ph.src} data-lb-cap={ph.program} aria-label={`Perbesar foto: ${ph.program}`}>
+          <img src={ph.src} alt={ph.alt} loading="lazy" />
+          <span class="duo" aria-hidden="true"></span>
+          <span class="cap" aria-hidden="true">{ph.program}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .giant{display:flex;align-items:center;justify-content:center;gap:.05em;font-size:clamp(3rem,11vw,9rem);color:var(--ink);text-transform:uppercase;letter-spacing:-.03em;line-height:1}
+  .strip{width:1.6em;height:.72em;border-radius:.18em;overflow:hidden;position:relative;flex:none}
+  .strip img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s}
+  .strip img.is-active{opacity:1}
+  @media (prefers-reduced-motion: reduce){.strip img{transition:none}}
+
+  .intro{color:var(--ink-muted);text-align:center;max-width:560px;margin:24px auto 0}
+
+  .pgrid{columns:4 240px;column-gap:14px;margin-top:48px}
+  .gitem{position:relative;display:block;width:100%;break-inside:avoid;margin-bottom:14px;border-radius:12px;overflow:hidden;cursor:zoom-in;border:0;padding:0;background:none}
+  .gitem img{width:100%;height:auto;display:block;filter:grayscale(1) contrast(1.05) brightness(.95);transition:filter .4s,transform .4s}
+  .gitem .duo{position:absolute;inset:0;background:var(--navy-logo);mix-blend-mode:color;transition:opacity .4s}
+  .gitem:hover img,.gitem:focus-visible img{filter:none;transform:scale(1.03)}
+  .gitem:hover .duo,.gitem:focus-visible .duo{opacity:0}
+  .gitem .cap{position:absolute;left:0;right:0;bottom:0;padding:24px 12px 10px;background:linear-gradient(transparent,rgba(10,17,40,.85));color:#fff;font-size:.8rem;font-weight:600;opacity:0;transition:opacity .3s;text-align:left}
+  .gitem:hover .cap,.gitem:focus-visible .cap{opacity:1}
+  @media (prefers-reduced-motion: reduce){.gitem img,.gitem .duo,.gitem .cap{transition:none}}
+</style>

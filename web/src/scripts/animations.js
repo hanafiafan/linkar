@@ -36,5 +36,17 @@ if (motionOK) {
   const header = document.querySelector('header');
   if (header) ScrollTrigger.create({ start: 60, onEnter: () => header.classList.add('is-scrolled'), onLeaveBack: () => header.classList.remove('is-scrolled') });
 
+  // portfolio heading strip crossfade
+  document.querySelectorAll('.strip').forEach(strip => {
+    const imgs = [...strip.querySelectorAll('img')];
+    if (imgs.length < 2) return;
+    let cur = 0;
+    setInterval(() => {
+      imgs[cur].classList.remove('is-active');
+      cur = (cur + 1) % imgs.length;
+      imgs[cur].classList.add('is-active');
+    }, 1600);
+  });
+
   if (window.__linkarOdometer) window.__linkarOdometer(gsap, ScrollTrigger);
 }
