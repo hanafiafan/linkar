@@ -9,7 +9,7 @@ const links = buildNavLinks(content.programs.length, content.posts.length);
 <header class="navbar" id="navbar">
   <div class="wrap navbar__inner">
     <a href="/" class="navbar__brand">
-      <img src="/images/brand/linkar-logo-white.png" alt="LINKAR" width="34" height="34" class="navbar__logo" />
+      <img src="/images/brand/linkar-logo.png" alt="LINKAR" class="navbar__logo" />
     </a>
 
     <input type="checkbox" id="navToggle" class="navbar__toggle" aria-hidden="true" />
@@ -43,8 +43,16 @@ const links = buildNavLinks(content.programs.length, content.posts.length);
   }
   .navbar.is-scrolled .navbar__inner{ padding:12px 24px; }
 
-  .navbar__brand{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
-  .navbar__logo{ height:34px; width:auto; display:block; }
+  .navbar__brand{
+    display:inline-flex; align-items:center; gap:10px; flex-shrink:0;
+    background:#fff; border-radius:12px; padding:6px 12px;
+  }
+  .navbar__logo{ height:48px; width:auto; display:block; transition:height .3s; }
+  .navbar.is-scrolled .navbar__logo{ height:40px; }
+
+  @media (max-width: 900px){
+    .navbar__logo{ height:40px; }
+  }
 
   .navbar__nav{ display:flex; align-items:center; gap:32px; }
   .navbar__links{ display:flex; align-items:center; gap:28px; list-style:none; }

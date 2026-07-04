@@ -9,19 +9,21 @@ const photos = content.photos;
 ---
 <section id="portfolio" class="section section--light">
   <div class="wrap">
-    <h2 class="giant" aria-label={`${p.titlePart1}${p.titlePart2}`}>
-      <span data-split aria-hidden="true">{p.titlePart1}</span>
-      <span class="strip" aria-hidden="true">
-        {featured.map((ph, i) => <img src={ph.src} alt="" class={i === 0 ? 'is-active' : ''} loading="lazy" />)}
-      </span>
-      <span data-split aria-hidden="true">{p.titlePart2}</span>
-    </h2>
+    <div data-pin-intro>
+      <h2 class="giant" aria-label={`${p.titlePart1}${p.titlePart2}`}>
+        <span data-split aria-hidden="true">{p.titlePart1}</span>
+        <span class="strip" aria-hidden="true">
+          {featured.map((ph, i) => <img src={ph.src} alt="" class={i === 0 ? 'is-active' : ''} loading="lazy" />)}
+        </span>
+        <span data-split aria-hidden="true">{p.titlePart2}</span>
+      </h2>
 
-    <p class="intro" data-reveal>{p.intro}</p>
+      <p class="intro" data-reveal>{p.intro}</p>
+    </div>
 
     <div class="pgrid" data-stagger>
       {photos.map((ph, i) => (
-        <button class="gitem" data-lb-index={i} data-lb-src={ph.src} data-lb-cap={ph.program} aria-label={`Perbesar foto: ${ph.program}`}>
+        <button class="gitem" data-morph data-lb-index={i} data-lb-src={ph.src} data-lb-cap={ph.program} aria-label={`Perbesar foto: ${ph.program}`}>
           <img src={ph.src} alt={ph.alt} loading="lazy" />
           <span class="duo" aria-hidden="true"></span>
           <span class="cap" aria-hidden="true">{ph.program}</span>

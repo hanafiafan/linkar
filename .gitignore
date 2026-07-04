@@ -10,3 +10,6 @@ dist/
 .superpowers/
 /linkar.html
 .claude/
+
+.vercel
+.env*
