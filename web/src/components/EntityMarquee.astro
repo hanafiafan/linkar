@@ -1,5 +1,6 @@
 ---
 import type { SiteContent } from '../lib/content';
+import EcosystemStack from './EcosystemStack.astro';
 
 interface Props { content: SiteContent }
 const { content } = Astro.props;
@@ -28,6 +29,8 @@ const { entities } = content;
       ))}
     </div>
   </div>
+
+  <EcosystemStack content={content} />
 </section>
 
 <style>
