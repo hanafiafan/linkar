@@ -7,7 +7,7 @@ const { content } = Astro.props;
 const { about } = content.home;
 const featured = content.photos.filter((p) => p.featured);
 ---
-<section id="about" class="section about">
+<section id="about" class="section about" data-bg="#0a1128">
   <div class="wrap">
     <div class="about-grid">
       <div class="about-col about-col--intro">

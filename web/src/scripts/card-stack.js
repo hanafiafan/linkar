@@ -3,6 +3,8 @@
 import gsap from 'gsap';
 import { Draggable } from 'gsap/Draggable';
 
+gsap.registerPlugin(Draggable);
+
 const AUTO_ADVANCE_MS = 3500;
 const SWIPE_THRESHOLD_PX = 120;
 const SWIPE_VELOCITY = 500;

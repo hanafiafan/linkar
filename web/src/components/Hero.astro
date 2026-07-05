@@ -21,7 +21,7 @@ const folderPhotos = (hero.folderPhotos && hero.folderPhotos.length > 0)
   ? hero.folderPhotos
   : content.photos.filter((p) => p.featured).slice(0, 5).map((p) => p.src);
 ---
-<section class="hero">
+<section class="hero" data-bg="#0a1128">
   <div class:list={['wrap hero__inner', { 'hero__inner--full': mode === 'kosong' }]}>
     <div class="hero__content">
       <span class="kicker" data-reveal="pop">{hero.badge}</span>

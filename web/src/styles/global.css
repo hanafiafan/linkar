@@ -35,6 +35,21 @@ h1,h2,h3{font-weight:800;letter-spacing:-.02em;line-height:1.12}
 .btn-ghost:hover{background:rgba(255,255,255,.08)}
 @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
 
+/* Scroll-driven background morph (Step 3). #bg-morph is only inserted by JS when
+   motionOK; until then sections keep their own CSS backgrounds above (safe
+   default for no-JS/reduced-motion). When the engine takes over it adds
+   body.morph-active, which hands background painting to #bg-morph instead. */
+#bg-morph{ position:fixed; inset:0; z-index:-1; background:var(--navy); }
+body.morph-active .section,
+body.morph-active .hero,
+body.morph-active .footer{ background:transparent; }
+
+/* Navbar reveal (Step 4): hidden above the fold on the landing page until the
+   engine confirms motionOK, then slid down via .is-revealed. Always visible
+   otherwise (no-JS/reduced-motion/subpages never get body.navbar-gated). */
+body.navbar-gated header.navbar{ transform:translateY(-100%); transition:transform .4s ease; }
+body.navbar-gated header.navbar.is-revealed{ transform:translateY(0); }
+
 #lb{border:0;padding:0;background:rgba(6,10,25,.94);width:100vw;height:100vh;max-width:100vw;max-height:100vh;display:none;align-items:center;justify-content:center}
 #lb[open]{display:flex}
 #lb::backdrop{background:transparent}

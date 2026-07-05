@@ -6,7 +6,7 @@ const { content } = Astro.props;
 const { cta } = content.home;
 const web3formsKey = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '';
 ---
-<section id="contact" class="section contact-cta">
+<section id="contact" class="section contact-cta" data-bg="#0a1128">
   <div class="wrap">
     <h2 data-split>{cta.title}</h2>
     <p class="sub-en" data-reveal>{cta.subEn}</p>

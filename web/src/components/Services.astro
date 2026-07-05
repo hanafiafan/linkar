@@ -9,7 +9,7 @@ const dotIndex = services.differentiator.indexOf('.');
 const first = dotIndex === -1 ? services.differentiator : services.differentiator.slice(0, dotIndex + 1);
 const rest = dotIndex === -1 ? '' : services.differentiator.slice(dotIndex + 1).trim();
 ---
-<section id="services" class="section services">
+<section id="services" class="section services" data-bg="#0a1128">
   <div class="wrap">
     <span class="kicker" data-reveal="pop">{services.kicker}</span>
     <h2 data-split>{services.title}</h2>

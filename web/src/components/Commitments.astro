@@ -5,7 +5,7 @@ interface Props { content: SiteContent }
 const { content } = Astro.props;
 const { commitments } = content.home;
 ---
-<section id="commitment" class="section section--light commitments">
+<section id="commitment" class="section section--light commitments" data-bg="#fafafa">
   <div class="wrap">
     <h2 data-split>{commitments.title}</h2>
 
