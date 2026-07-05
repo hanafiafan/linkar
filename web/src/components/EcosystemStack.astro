@@ -22,7 +22,7 @@ const FALLBACK_IMAGE = '/images/portfolio/aktivasi-01.jpg';
     ))}
   </div>
 
-  <div class="stack-dots" role="tablist" aria-label="Pilih entitas">
+  <div class="stack-dots" role="group" aria-label="Pilih entitas">
     {cards.map((entity, i) => (
       <button type="button" aria-label={entity.name} aria-current={i === 0 ? 'true' : 'false'} class:list={{ 'is-active': i === 0 }}></button>
     ))}

@@ -85,6 +85,7 @@ export default function initCardStack(root) {
       const t = fanTransform(offset, opts);
       card.classList.toggle('is-active', offset === 0);
       card.setAttribute('aria-hidden', t.hidden ? 'true' : 'false');
+      card.setAttribute('tabindex', t.hidden ? '-1' : '0');
       card.style.pointerEvents = t.hidden ? 'none' : '';
       const vars = { x: t.x, y: t.y, rotateZ: t.rotateZ, scale: t.scale, zIndex: t.zIndex, opacity: t.opacity };
       if (animate && !reducedMotion) {
