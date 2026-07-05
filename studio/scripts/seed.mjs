@@ -49,12 +49,40 @@ async function main() {
   let docsWritten = 0;
 
   // siteSettings
-  await client.createOrReplace({ _id: 'siteSettings', _type: 'siteSettings', ...seed.settings });
+  const logoColorAssetId = await uploadImage('images/brand/linkar-logo.png');
+  const logoWhiteAssetId = await uploadImage('images/brand/linkar-logo-white.png');
+  assetsUploaded += 2;
+  await client.createOrReplace({
+    _id: 'siteSettings',
+    _type: 'siteSettings',
+    ...seed.settings,
+    logoColor: imageRef(logoColorAssetId),
+    logoWhite: imageRef(logoWhiteAssetId),
+  });
   docsWritten++;
 
   // homePage
   await client.createOrReplace({ _id: 'homePage', _type: 'homePage', ...seed.home });
   docsWritten++;
+
+  // activationPhoto (uploaded first so entities can round-robin reuse the asset refs for heroImage)
+  const photoAssetIds = [];
+  for (let i = 0; i < seed.photos.length; i++) {
+    const p = seed.photos[i];
+    const assetId = await uploadImage(p.src.replace(/^\//, ''));
+    assetsUploaded++;
+    photoAssetIds.push(assetId);
+    await client.createOrReplace({
+      _id: `photo-${String(i + 1).padStart(2, '0')}`,
+      _type: 'activationPhoto',
+      image: imageRef(assetId),
+      caption: p.alt,
+      program: p.program,
+      featured: p.featured,
+      orderRank: i + 1,
+    });
+    docsWritten++;
+  }
 
   // entities
   for (let i = 0; i < seed.entities.length; i++) {
@@ -69,23 +97,11 @@ async function main() {
       tagline: e.tagline,
       logo: imageRef(assetId),
       orderRank: i + 1,
-    });
-    docsWritten++;
-  }
-
-  // activationPhoto
-  for (let i = 0; i < seed.photos.length; i++) {
-    const p = seed.photos[i];
-    const assetId = await uploadImage(p.src.replace(/^\//, ''));
-    assetsUploaded++;
-    await client.createOrReplace({
-      _id: `photo-${String(i + 1).padStart(2, '0')}`,
-      _type: 'activationPhoto',
-      image: imageRef(assetId),
-      caption: p.alt,
-      program: p.program,
-      featured: p.featured,
-      orderRank: i + 1,
+      slug: { _type: 'slug', current: e.slug },
+      hasProfile: true,
+      description: e.description,
+      body: e.body,
+      heroImage: imageRef(photoAssetIds[i % photoAssetIds.length]),
     });
     docsWritten++;
   }
@@ -94,11 +110,11 @@ async function main() {
 
   // verify
   const counts = await client.fetch(
-    `{ "entities": count(*[_type=="entity"]), "photos": count(*[_type=="activationPhoto"]), "heroTitle": *[_id=="homePage"][0].hero.title }`
+    `{ "entities": count(*[_type=="entity"]), "photos": count(*[_type=="activationPhoto"]), "heroTitle": *[_id=="homePage"][0].hero.title, "entitiesWithProfile": count(*[_type=="entity" && defined(slug.current) && defined(description)]), "logoColor": defined(*[_id=="siteSettings"][0].logoColor) }`
   );
   console.log('Verify:', JSON.stringify(counts));
-  if (counts.entities !== 6 || counts.photos !== 10) {
-    console.error('WARNING: expected 6 entities and 10 photos.');
+  if (counts.entities !== 6 || counts.photos !== 10 || counts.entitiesWithProfile !== 6 || !counts.logoColor) {
+    console.error('WARNING: expected 6 entities (all with slug+description), 10 photos, and siteSettings.logoColor set.');
     process.exitCode = 1;
   }
 }

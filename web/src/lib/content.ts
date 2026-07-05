@@ -1,12 +1,15 @@
 import seed from '../content/seed.json';
 
 export interface Stat { value: string; label: string; note?: string }
-export interface Entity { name: string; role: string; tagline: string; logo: string }
+export interface Entity {
+  name: string; role: string; tagline: string; logo: string;
+  slug?: string; heroImage?: string; description?: string; body?: unknown; website?: string; hasProfile?: boolean;
+}
 export interface Photo { src: string; alt: string; program: string; featured: boolean }
 export interface ProgramDoc { slug: string; title: string; partner: string; period: string; location: string; summary: string; body: unknown; cover: string; gallery: string[]; impact: Stat[] }
 export interface PostDoc { slug: string; title: string; excerpt: string; cover: string; body: unknown; author: string; date: string }
 export interface SiteContent {
-  settings: { formEmail: string; footerTagline: string; ctaLabel: string };
+  settings: { formEmail: string; footerTagline: string; ctaLabel: string; logoColor?: string; logoWhite?: string };
   home: {
     hero: { badge: string; title: string; highlight: string; subEn: string; subId: string; primaryCta: string; secondaryCta: string; miniStats: Stat[] };
     marquee: { kicker: string; title: string };

@@ -8,9 +8,9 @@ const IMG = '?w=1600&q=75&auto=format';
 const withParams = (url: string | null | undefined) => (url ? `${url}${IMG}` : '');
 
 const query = `{
-  "settings": *[_id=="siteSettings"][0]{formEmail, footerTagline, ctaLabel},
+  "settings": *[_id=="siteSettings"][0]{formEmail, footerTagline, ctaLabel, "logoColor": logoColor.asset->url, "logoWhite": logoWhite.asset->url},
   "home": *[_id=="homePage"][0]{hero, marquee, about, portfolio, services, linkarStats, industry, commitments, cta},
-  "entities": *[_type=="entity"]|order(orderRank asc){name, role, tagline, "logo": logo.asset->url},
+  "entities": *[_type=="entity"]|order(orderRank asc){name, role, tagline, "logo": logo.asset->url, "slug": slug.current, "heroImage": heroImage.asset->url, description, body, website, hasProfile},
   "photos": *[_type=="activationPhoto"]|order(orderRank asc){"src": image.asset->url, "alt": caption, program, "featured": coalesce(featured, false)},
   "programs": *[_type=="program" && defined(slug.current)]{"slug": slug.current, title, partner, period, location, summary, body, "cover": cover.asset->url, "gallery": gallery[].asset->url, impact},
   "posts": *[_type=="post" && defined(slug.current)]|order(date desc){"slug": slug.current, title, excerpt, "cover": cover.asset->url, body, author, date}
@@ -32,11 +32,16 @@ export async function fetchFromSanity(): Promise<SiteContent> {
   }
 
   return {
-    settings: r.settings,
+    settings: {
+      ...r.settings,
+      logoColor: withParams(r.settings.logoColor),
+      logoWhite: withParams(r.settings.logoWhite),
+    },
     home: r.home,
-    entities: (r.entities ?? []).map((e: { name: string; role: string; tagline: string; logo: string }) => ({
+    entities: (r.entities ?? []).map((e: { logo: string; heroImage?: string }) => ({
       ...e,
       logo: withParams(e.logo),
+      heroImage: withParams(e.heroImage),
     })),
     photos: (r.photos ?? []).map((p: { src: string; alt: string; program: string; featured: boolean }) => ({
       ...p,

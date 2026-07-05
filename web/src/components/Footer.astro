@@ -11,7 +11,7 @@ const year = 2026;
   <div class="wrap">
     <div class="footer__top">
       <a href="/" class="footer__brand" aria-label="LINKAR">
-        <img src="/images/brand/linkar-logo-white.png" alt="LINKAR" width="42" height="42" class="footer__logo" />
+        <img src={content.settings.logoWhite || '/images/brand/linkar-logo-white.png'} alt="LINKAR" width="42" height="42" class="footer__logo" />
       </a>
       <p class="footer__tagline">{content.settings.footerTagline}</p>
     </div>
