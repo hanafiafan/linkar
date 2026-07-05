@@ -18,7 +18,8 @@
     "@portabletext/to-html": "^5.0.2",
     "@sanity/client": "^7.23.0",
     "astro": "^7.0.6",
-    "gsap": "^3.13.0"
+    "gsap": "^3.13.0",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "jsdom": "^24.0.0",
