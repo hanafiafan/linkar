@@ -14,12 +14,13 @@ if (trigger && mega) {
       mega.hidden = false;
       const h = mega.querySelector('.mega__inner').scrollHeight;
       if (motionOK) {
-        gsap.fromTo(mega, { height: 0 }, { height: h, duration: .35, ease: 'power2.out' });
+        gsap.fromTo(mega, { height: 0 }, { height: h, duration: .35, ease: 'power2.out', onComplete: () => { mega.style.height = 'auto'; } });
       } else {
         mega.style.height = `${h}px`;
       }
     } else {
       if (motionOK) {
+        gsap.set(mega, { height: mega.scrollHeight });
         gsap.to(mega, { height: 0, duration: .25, ease: 'power2.in', onComplete: () => { mega.hidden = true; } });
       } else {
         mega.style.height = '0px';

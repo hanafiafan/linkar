@@ -44,6 +44,21 @@ function imageRef(assetId) {
   return { _type: 'image', asset: { _type: 'reference', _ref: assetId } };
 }
 
+function randKey() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+// plain-string body -> portable-text block array (one block per \n\n-separated paragraph)
+function toPortableText(text) {
+  return text.split(/\n\s*\n/).map((para) => ({
+    _type: 'block',
+    _key: randKey(),
+    style: 'normal',
+    markDefs: [],
+    children: [{ _type: 'span', _key: randKey(), text: para, marks: [] }],
+  }));
+}
+
 async function main() {
   let assetsUploaded = 0;
   let docsWritten = 0;
@@ -100,7 +115,7 @@ async function main() {
       slug: { _type: 'slug', current: e.slug },
       hasProfile: true,
       description: e.description,
-      body: e.body,
+      body: typeof e.body === 'string' ? toPortableText(e.body) : e.body,
       heroImage: imageRef(photoAssetIds[i % photoAssetIds.length]),
     });
     docsWritten++;

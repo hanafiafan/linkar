@@ -16,6 +16,10 @@ if (typeof window !== 'undefined') {
     const errors = validateForm(data);
     form.querySelectorAll('.err').forEach(el => el.classList.remove('err'));
     const status = form.querySelector('.form-status');
+    if (!form.dataset.key) {
+      status.textContent = 'Form belum dikonfigurasi — hubungi kami via email.';
+      return;
+    }
     if (errors.length) {
       errors.forEach(n => form.querySelector(`[name=${n}]`)?.classList.add('err'));
       status.textContent = 'Mohon lengkapi kolom yang ditandai.';

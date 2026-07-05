@@ -36,14 +36,6 @@ if (motionOK) {
       scrollTrigger: { trigger: el, start: 'top 75%', end: 'bottom 45%', scrub: 1 } });
   });
 
-  // pinned section intro (settle-in) — pin only on wider viewports, cramped on mobile
-  if (window.matchMedia('(min-width: 900px)').matches) {
-    document.querySelectorAll('[data-pin-intro]').forEach(el => {
-      gsap.fromTo(el, { scale: .94, opacity: .85 }, { scale: 1, opacity: 1, ease: 'none',
-        scrollTrigger: { trigger: el, start: 'top 20%', end: '+=45%', pin: true, scrub: true, pinSpacing: true } });
-    });
-  }
-
   // clip-path trapezoid morph
   morphTargets().forEach(el => {
     gsap.fromTo(el, { clipPath: MORPH_FROM }, { clipPath: MORPH_TO, ease: 'none',

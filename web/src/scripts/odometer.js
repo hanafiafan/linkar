@@ -1,6 +1,7 @@
 export function buildOdometer(el) {
   const value = el.dataset.value ?? '';
   el.setAttribute('aria-label', value + (el.dataset.suffix ?? ''));
+  el.setAttribute('role', 'img');
   el.innerHTML = '';
   for (const ch of value) {
     if (/\d/.test(ch)) {

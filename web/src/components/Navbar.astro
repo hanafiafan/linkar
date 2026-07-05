@@ -14,7 +14,7 @@ const brandMenu = buildBrandMenu(content.entities);
     </a>
 
     <input type="checkbox" id="navToggle" class="navbar__toggle" aria-hidden="true" />
-    <label for="navToggle" class="navbar__burger" aria-label="Buka menu">
+    <label for="navToggle" class="navbar__burger" aria-label="Buka menu" tabindex="0" role="button" aria-expanded="false">
       <span></span><span></span><span></span>
     </label>
 
@@ -167,3 +167,20 @@ const brandMenu = buildBrandMenu(content.entities);
     .navbar__toggle:checked ~ .navbar__burger span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
   }
 </style>
+
+<script>
+  const toggle = document.getElementById('navToggle') as HTMLInputElement | null;
+  const burger = document.querySelector('.navbar__burger') as HTMLLabelElement | null;
+  if (toggle && burger) {
+    burger.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle.checked = !toggle.checked;
+        burger.setAttribute('aria-expanded', String(toggle.checked));
+      }
+    });
+    toggle.addEventListener('change', () => {
+      burger.setAttribute('aria-expanded', String(toggle.checked));
+    });
+  }
+</script>
