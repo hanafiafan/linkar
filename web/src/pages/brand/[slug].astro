@@ -24,7 +24,7 @@ const ptHtml = paragraphs === null && entity.body
 <Base title={`${entity.name} — LINKAR`} description={entity.description}>
   <Navbar content={content} />
 
-  <section class="hero" style={`background-image:linear-gradient(rgba(10,17,40,.82),rgba(10,17,40,.82)),url('${entity.heroImage}')`}>
+  <section class="hero" style={entity.heroImage ? `background-image:linear-gradient(rgba(10,17,40,.82),rgba(10,17,40,.82)),url('${entity.heroImage}')` : ''}>
     <div class="wrap">
       {entity.logo && (
         <span class="logo-chip"><img src={entity.logo} alt={`Logo ${entity.name}`} /></span>

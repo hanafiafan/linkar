@@ -23,14 +23,20 @@ const brandMenu = buildBrandMenu(content.entities);
         {links.map((link) => (
           link.href === '/#ecosystem' ? (
             <li>
-              <button type="button" aria-expanded="false" aria-controls="mega" class="navbar__mega-trigger">{link.label}</button>
-              {brandMenu.length > 0 && (
-                <ul class="navbar__mega-mobile">
-                  {brandMenu.map((b) => (
-                    <li><a href={b.href}>{b.name}</a></li>
-                  ))}
-                  <li><a href="/#ecosystem">Lihat semua di beranda →</a></li>
-                </ul>
+              {brandMenu.length > 0 ? (
+                <>
+                  <button type="button" aria-expanded="false" aria-controls="mega" class="navbar__mega-trigger">{link.label}</button>
+                  {brandMenu.length > 0 && (
+                    <ul class="navbar__mega-mobile">
+                      {brandMenu.map((b) => (
+                        <li><a href={b.href}>{b.name}</a></li>
+                      ))}
+                      <li><a href="/#ecosystem">Lihat semua di beranda →</a></li>
+                    </ul>
+                  )}
+                </>
+              ) : (
+                <a href={link.href}>{link.label}</a>
               )}
             </li>
           ) : (
@@ -98,6 +104,10 @@ const brandMenu = buildBrandMenu(content.entities);
   }
   .navbar__mega-trigger:hover, .navbar__mega-trigger[aria-expanded="true"]{ color:var(--text); }
   .navbar__mega-mobile{ display:none; }
+
+  @media (max-width: 899px){
+    .navbar__mega-trigger{ display:none; }
+  }
 
   .mega{
     position:absolute; top:100%; left:0; right:0; z-index:59;
