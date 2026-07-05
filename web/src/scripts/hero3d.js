@@ -162,7 +162,9 @@ export default async function initHero3D(panelEl, canvas) {
   scene.add(rimLight);
 
   const markGroup = await loadMarkGroup();
-  markGroup.scale.setScalar(1.6);
+  // multiplyScalar, NOT setScalar — setScalar would wipe the y=-1 SVG flip
+  // applied in loadMarkGroup and render the mark vertically mirrored.
+  markGroup.scale.multiplyScalar(1.6);
   scene.add(markGroup);
 
   // Fit the camera to the mesh's bounding sphere (rotation-invariant) so the mark
