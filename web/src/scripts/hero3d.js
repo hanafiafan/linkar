@@ -112,12 +112,18 @@ async function loadMarkGroup() {
     }
   }
 
-  // Center the group: SVG y-axis points down, flip and recenter on its bounding box.
-  group.scale.y *= -1;
-  const box = new THREE.Box3().setFromObject(group);
+  // Center the group on its bounding box, measured in local (pre-flip) geometry
+  // space — mixing world-space (post-flip) measurements with geometry.translate()
+  // (which is always local-space) double-counts the Y flip and throws the mesh
+  // wildly off-center. Center first, flip the group after.
+  const box = new THREE.Box3();
+  group.children.forEach((mesh) => box.expandByObject(mesh));
   const center = new THREE.Vector3();
   box.getCenter(center);
   group.children.forEach((mesh) => mesh.geometry.translate(-center.x, -center.y, -center.z));
+
+  // SVG y-axis points down; flip to three.js's up-is-positive-Y convention.
+  group.scale.y *= -1;
 
   return group;
 }
