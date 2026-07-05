@@ -18,7 +18,9 @@ if (motionOK) {
   });
 
   document.querySelectorAll('[data-stagger]').forEach(parent => {
-    gsap.from(parent.children, { y: 30, opacity: 0, rotation: () => gsap.utils.random(-2.5, 2.5), duration: .7, ease: 'power3.out', stagger: .12,
+    // data-stagger="flat" opts out of the random entrance tilt (cards stay straight)
+    const flat = parent.dataset.stagger === 'flat';
+    gsap.from(parent.children, { y: 30, opacity: 0, rotation: flat ? 0 : () => gsap.utils.random(-2.5, 2.5), duration: .7, ease: 'power3.out', stagger: .12,
       scrollTrigger: { trigger: parent, start: 'top 82%' } });
   });
 

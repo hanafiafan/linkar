@@ -12,7 +12,7 @@ const EXTRUDE_DEPTH_RATIO = 0.1; // ~10% of mark width
 const BEVEL_SIZE_RATIO = 0.015;
 const ROTATE_CLAMP = 0.4; // rad, both axes
 const LERP_SPEED = 0.08;
-const IDLE_ROTATE_SPEED = 0.08; // rad/sec
+const IDLE_SWAY_SPEED = 0.35; // rad/sec through the sway cycle
 const FIT_MARGIN = 1.2; // 20% breathing room around the mesh at max rotation
 
 /**
@@ -194,12 +194,18 @@ export default async function initHero3D(panelEl, canvas) {
   }
 
   let lastTime = performance.now();
+  let swayT = 0;
   function tick(now) {
     const dt = (now - lastTime) / 1000;
     lastTime = now;
 
+    // Idle motion is a bounded sway, never a full spin — an unbounded spin shows
+    // the mark's mirrored back face, which reads as a flipped logo.
     const idle = Math.abs(targetRotation.x - pointer.x) < 0.001 && Math.abs(targetRotation.y - pointer.y) < 0.001;
-    if (idle) targetRotation.y += IDLE_ROTATE_SPEED * dt;
+    if (idle) {
+      swayT += dt;
+      targetRotation.y = Math.sin(swayT * IDLE_SWAY_SPEED) * ROTATE_CLAMP * 0.6;
+    }
 
     pointer.x += (targetRotation.x - pointer.x) * LERP_SPEED;
     pointer.y += (targetRotation.y - pointer.y) * LERP_SPEED;

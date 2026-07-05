@@ -14,7 +14,7 @@ const rest = dotIndex === -1 ? '' : services.differentiator.slice(dotIndex + 1).
     <span class="kicker" data-reveal="pop">{services.kicker}</span>
     <h2 data-split>{services.title}</h2>
 
-    <div class="sgrid" data-stagger>
+    <div class="sgrid" data-stagger="flat">
       {services.cards.map((card) => (
         <div class="scard">
           <span class="no">{card.no}</span>
@@ -60,12 +60,11 @@ const rest = dotIndex === -1 ? '' : services.differentiator.slice(dotIndex + 1).
     padding:32px;
     transition:transform .3s ease,background .3s ease,border-color .3s ease;
   }
-  .scard:hover{background:var(--orange);border-color:var(--orange);transform:rotate(-2deg) translateY(-6px)}
+  .scard:hover{background:var(--orange);border-color:var(--orange);transform:translateY(-6px)}
   .scard:hover h3,.scard:hover p{color:#1c0d02}
   .scard:hover .who{color:#5a2400}
   .scard:hover .no{background:#1c0d02;color:var(--orange)}
   .scard:hover .target{background:rgba(0,0,0,.14);color:#1c0d02}
-  .scard:nth-child(even):hover{transform:rotate(2deg) translateY(-6px)}
 
   .no{
     display:inline-flex;

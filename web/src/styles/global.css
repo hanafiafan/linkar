@@ -14,7 +14,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;overflow-x:hidden}
-section[id]{scroll-margin-top:90px}
+section[id]{scroll-margin-top:24px}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--navy);color:var(--text);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
@@ -43,22 +43,6 @@ h1,h2,h3{font-weight:800;letter-spacing:-.02em;line-height:1.12}
 body.morph-active .section,
 body.morph-active .hero,
 body.morph-active .footer{ background:transparent; }
-
-/* Navbar reveal (Step 4): hidden above the fold on the landing page until the
-   engine confirms motionOK, then slid down via .is-revealed. Always visible
-   otherwise (no-JS/reduced-motion/subpages never get body.navbar-gated).
-   `header.navbar` switches to `position:fixed` for the whole gated lifecycle
-   (hidden AND revealed) instead of the default `sticky` — a fixed header at
-   top:0 looks identical to a "stuck" sticky one, but crucially it never
-   reserves layout space. With `sticky`, the hidden navbar still reserved its
-   full height at the top of the flow (transform doesn't affect layout),
-   pushing the hero section down and leaving an empty flat-color strip above
-   the hero's own gradient background — read as a leftover darker band.
-   (Toggling position:fixed <-> sticky on scroll was tried and rejected: it
-   breaks Chromium's sticky recalculation mid-scroll, leaving the header
-   scrolling away with the page instead of sticking.) */
-body.navbar-gated header.navbar{ position:fixed; top:0; left:0; right:0; transform:translateY(-100%); transition:transform .4s ease; }
-body.navbar-gated header.navbar.is-revealed{ transform:translateY(0); }
 
 #lb{border:0;padding:0;background:rgba(6,10,25,.94);width:100vw;height:100vh;max-width:100vw;max-height:100vh;display:none;align-items:center;justify-content:center}
 #lb[open]{display:flex}
