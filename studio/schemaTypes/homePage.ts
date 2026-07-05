@@ -66,6 +66,7 @@ export default defineType({
       title: 'Portofolio',
       type: 'object',
       fields: [
+        defineField({ name: 'titleTop', title: 'Kata di Baris Atas', type: 'string', description: 'Kata di baris atas judul raksasa — maks 12 karakter agar komposisinya tidak rusak', validation: (Rule) => Rule.max(12) }),
         defineField({ name: 'titlePart1', title: 'Judul Bagian 1', type: 'string', description: 'Bagian judul raksasa — maks 12 karakter agar komposisinya tidak rusak', validation: (Rule) => Rule.max(12) }),
         defineField({ name: 'titlePart2', title: 'Judul Bagian 2', type: 'string', description: 'Bagian judul raksasa — maks 12 karakter agar komposisinya tidak rusak', validation: (Rule) => Rule.max(12) }),
         defineField({ name: 'intro', title: 'Intro', type: 'text' }),

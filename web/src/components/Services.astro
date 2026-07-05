@@ -58,12 +58,14 @@ const rest = dotIndex === -1 ? '' : services.differentiator.slice(dotIndex + 1).
     border:1px solid rgba(255,255,255,.07);
     border-radius:var(--radius);
     padding:32px;
-    transition:transform .25s, border-color .25s;
+    transition:transform .3s ease,background .3s ease,border-color .3s ease;
   }
-  .scard:hover{
-    transform:translateY(-5px);
-    border-color:rgba(242,106,33,.45);
-  }
+  .scard:hover{background:var(--orange);border-color:var(--orange);transform:rotate(-2deg) translateY(-6px)}
+  .scard:hover h3,.scard:hover p{color:#1c0d02}
+  .scard:hover .who{color:#5a2400}
+  .scard:hover .no{background:#1c0d02;color:var(--orange)}
+  .scard:hover .target{background:rgba(0,0,0,.14);color:#1c0d02}
+  .scard:nth-child(even):hover{transform:rotate(2deg) translateY(-6px)}
 
   .no{
     display:inline-flex;

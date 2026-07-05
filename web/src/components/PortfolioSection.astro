@@ -9,14 +9,19 @@ const photos = content.photos;
 ---
 <section id="portfolio" class="section section--light">
   <div class="wrap">
-    <div data-pin-intro>
-      <h2 class="giant" aria-label={`${p.titlePart1}${p.titlePart2}`}>
-        <span data-split aria-hidden="true">{p.titlePart1}</span>
-        <span class="strip" aria-hidden="true">
-          {featured.map((ph, i) => <img src={ph.src} alt="" class={i === 0 ? 'is-active' : ''} loading="lazy" />)}
-        </span>
-        <span data-split aria-hidden="true">{p.titlePart2}</span>
-      </h2>
+    <div>
+      <div class="giant-wrap">
+        <h2 class="giant" aria-label={`${p.titleTop} ${p.titlePart1}${p.titlePart2}`}>
+          <span class="giant-top" data-split aria-hidden="true">{p.titleTop}</span>
+          <span class="giant-row" aria-hidden="true">
+            <span data-split>{p.titlePart1}</span>
+            <span class="strip" data-strip-grow>
+              {featured.slice(0, 4).map((ph, i) => <img src={ph.src} alt="" class={i === 0 ? 'is-active' : ''} loading="lazy" />)}
+            </span>
+            <span data-split>{p.titlePart2}</span>
+          </span>
+        </h2>
+      </div>
 
       <p class="intro" data-reveal>{p.intro}</p>
     </div>
@@ -34,8 +39,10 @@ const photos = content.photos;
 </section>
 
 <style>
-  .giant{display:flex;align-items:center;justify-content:center;gap:.05em;font-size:clamp(3rem,11vw,9rem);color:var(--ink);text-transform:uppercase;letter-spacing:-.03em;line-height:1}
-  .strip{width:1.6em;height:.72em;border-radius:.18em;overflow:hidden;position:relative;flex:none}
+  .giant{display:flex;flex-direction:column;align-items:center;color:var(--ink);text-transform:uppercase;letter-spacing:-.03em;line-height:1}
+  .giant-top{font-size:clamp(3.4rem,12vw,10rem)}
+  .giant-row{display:flex;align-items:center;justify-content:center;font-size:clamp(2.8rem,10vw,8.2rem)}
+  .strip{width:1.5em;height:.68em;border-radius:.16em;overflow:hidden;position:relative;flex:none;margin:0 .06em}
   .strip img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s}
   .strip img.is-active{opacity:1}
   @media (prefers-reduced-motion: reduce){.strip img{transition:none}}

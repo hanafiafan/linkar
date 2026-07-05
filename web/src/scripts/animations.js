@@ -59,6 +59,13 @@ if (motionOK) {
   const header = document.querySelector('header');
   if (header) ScrollTrigger.create({ start: 60, onEnter: () => header.classList.add('is-scrolled'), onLeaveBack: () => header.classList.remove('is-scrolled') });
 
+  // strip grows on scroll, shrinks on scroll-back (AKTI/VASI slide via flex)
+  document.querySelectorAll('[data-strip-grow]').forEach(strip => {
+    gsap.fromTo(strip, { width: 0, marginLeft: 0, marginRight: 0 }, {
+      width: '1.5em', marginLeft: '.06em', marginRight: '.06em', ease: 'none',
+      scrollTrigger: { trigger: strip.closest('.giant'), start: 'top 85%', end: 'top 35%', scrub: 1 } });
+  });
+
   // portfolio heading strip crossfade
   document.querySelectorAll('.strip').forEach(strip => {
     const imgs = [...strip.querySelectorAll('img')];

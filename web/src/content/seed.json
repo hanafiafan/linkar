@@ -21,7 +21,7 @@
         "Di bawah umbrella CV Rantai Usaha Nusantara, LINKAR menyatukan enam entitas yang beroperasi mandiri namun terkoordinasi — pendekatan multi-segmen dengan fleksibilitas eksekusi yang jarang dimiliki pemain tunggal.",
         "Kami mengisi celah yang dilewatkan pemain berbasis Jakarta: membangun ekosistem inovasi langsung dari komunitas — dengan dukungan ruang, pendanaan, mentorship, dan akses ke korporasi." ]
     },
-    "portfolio": { "titlePart1": "JEJAK AKTI", "titlePart2": "VASI", "intro": "Cuplikan program, pelatihan, dan aktivasi komunitas yang telah kami jalankan bersama mitra." },
+    "portfolio": { "titleTop": "JEJAK", "titlePart1": "AKTI", "titlePart2": "VASI", "intro": "Cuplikan program, pelatihan, dan aktivasi komunitas yang telah kami jalankan bersama mitra." },
     "services": {
       "kicker": "CARA KAMI BEKERJA · OUR MODEL", "title": "Tiga lini yang saling menguatkan.",
       "cards": [

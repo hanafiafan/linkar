@@ -7,5 +7,6 @@ describe('content layer (seed fallback)', () => {
     expect(c.home.hero.title).toBe('Menghubungkan komunitas, korporat, dan pemerintah dalam satu lingkar dampak.');
     expect(c.entities).toHaveLength(6);
     expect(c.programs).toHaveLength(0);
+    expect(c.home.portfolio.titleTop).toBe('JEJAK');
   });
 });

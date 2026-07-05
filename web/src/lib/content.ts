@@ -11,7 +11,7 @@ export interface SiteContent {
     hero: { badge: string; title: string; highlight: string; subEn: string; subId: string; primaryCta: string; secondaryCta: string; miniStats: Stat[] };
     marquee: { kicker: string; title: string };
     about: { kicker: string; title: string; paragraphs: string[] };
-    portfolio: { titlePart1: string; titlePart2: string; intro: string };
+    portfolio: { titleTop: string; titlePart1: string; titlePart2: string; intro: string };
     services: { kicker: string; title: string; cards: { no: string; title: string; who: string; body: string; target: string }[]; differentiator: string };
     linkarStats: { kicker: string; items: Stat[] };
     industry: { kicker: string; title: string; items: Stat[]; closing: string };
