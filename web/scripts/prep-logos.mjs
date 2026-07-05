@@ -6,6 +6,7 @@
 import sharp from 'sharp';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import fs from 'node:fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const sourceDir = path.resolve(__dirname, '../../assets/entities');
@@ -26,6 +27,7 @@ const logos = {
 };
 
 async function run() {
+  fs.mkdirSync(outDir, { recursive: true });
   for (const [name, sourceFile] of Object.entries(logos)) {
     const inputPath = path.join(sourceDir, sourceFile);
     const outputPath = path.join(outDir, `${name}.png`);

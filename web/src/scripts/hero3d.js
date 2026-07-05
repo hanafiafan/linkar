@@ -258,7 +258,10 @@ export default async function initHero3D(panelEl, canvas) {
     if (onVisibilityChange) document.removeEventListener('visibilitychange', onVisibilityChange);
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('resize', onResize);
-    markGroup.children.forEach((mesh) => mesh.geometry.dispose());
+    markGroup.children.forEach((mesh) => {
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+    });
     renderer.dispose();
   }
 
