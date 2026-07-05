@@ -13,6 +13,17 @@ describe('auto-hide nav', () => {
   });
 });
 
+describe('CMS-overridable nav labels', () => {
+  it('uses provided labels when given', () => {
+    const labels = buildNavLinks(0, 0, { about: 'About Us', ecosystem: 'Network' }).map(l => l.label);
+    expect(labels).toEqual(['About Us', 'Layanan', 'Portofolio', 'Network', 'Kontak']);
+  });
+  it('falls back to defaults per-key when only some are set', () => {
+    const labels = buildNavLinks(1, 1, { contact: 'Hubungi Kami' }).map(l => l.label);
+    expect(labels).toEqual(['Tentang', 'Layanan', 'Portofolio', 'Ekosistem', 'Program', 'Blog', 'Hubungi Kami']);
+  });
+});
+
 describe('mega-menu brand list', () => {
   const entities = [
     { name: 'RUN', role: 'Advisory', tagline: '', logo: '/a.png', slug: 'run', hasProfile: true },

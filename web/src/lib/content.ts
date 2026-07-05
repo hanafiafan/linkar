@@ -9,7 +9,10 @@ export interface Photo { src: string; alt: string; program: string; featured: bo
 export interface ProgramDoc { slug: string; title: string; partner: string; period: string; location: string; summary: string; body: unknown; cover: string; gallery: string[]; impact: Stat[] }
 export interface PostDoc { slug: string; title: string; excerpt: string; cover: string; body: unknown; author: string; date: string }
 export interface SiteContent {
-  settings: { formEmail: string; footerTagline: string; ctaLabel: string; logoColor?: string; logoWhite?: string };
+  settings: {
+    formEmail: string; footerTagline: string; ctaLabel: string; logoColor?: string; logoWhite?: string;
+    navLabels?: Partial<Record<'about' | 'services' | 'portfolio' | 'ecosystem' | 'contact' | 'program' | 'blog', string>>;
+  };
   home: {
     hero: { badge: string; title: string; highlight: string; subEn: string; subId: string; primaryCta: string; secondaryCta: string; miniStats: Stat[] };
     marquee: { kicker: string; title: string };

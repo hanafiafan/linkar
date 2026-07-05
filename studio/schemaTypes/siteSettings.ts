@@ -39,6 +39,21 @@ export default defineType({
       description: 'Logo untuk footer (latar gelap) — PNG transparan putih',
     }),
     defineField({
+      name: 'navLabels',
+      title: 'Label Menu Navigasi',
+      type: 'object',
+      description: 'Kosongkan untuk memakai label bawaan',
+      fields: [
+        defineField({ name: 'about', title: 'Menu: Tentang', type: 'string', validation: (Rule) => Rule.max(20) }),
+        defineField({ name: 'services', title: 'Menu: Layanan', type: 'string', validation: (Rule) => Rule.max(20) }),
+        defineField({ name: 'portfolio', title: 'Menu: Portofolio', type: 'string', validation: (Rule) => Rule.max(20) }),
+        defineField({ name: 'ecosystem', title: 'Menu: Ekosistem', type: 'string', validation: (Rule) => Rule.max(20) }),
+        defineField({ name: 'contact', title: 'Menu: Kontak', type: 'string', validation: (Rule) => Rule.max(20) }),
+        defineField({ name: 'program', title: 'Menu: Program', type: 'string', validation: (Rule) => Rule.max(20) }),
+        defineField({ name: 'blog', title: 'Menu: Blog', type: 'string', validation: (Rule) => Rule.max(20) }),
+      ],
+    }),
+    defineField({
       name: 'socialLinks',
       title: 'Tautan Sosial',
       type: 'array',

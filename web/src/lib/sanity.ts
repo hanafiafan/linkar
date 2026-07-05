@@ -8,7 +8,7 @@ const IMG = '?w=1600&q=75&auto=format';
 const withParams = (url: string | null | undefined) => (url ? `${url}${IMG}` : '');
 
 const query = `{
-  "settings": *[_id=="siteSettings"][0]{formEmail, footerTagline, ctaLabel, "logoColor": logoColor.asset->url, "logoWhite": logoWhite.asset->url},
+  "settings": *[_id=="siteSettings"][0]{formEmail, footerTagline, ctaLabel, navLabels, "logoColor": logoColor.asset->url, "logoWhite": logoWhite.asset->url},
   "home": *[_id=="homePage"][0]{hero, marquee, about, portfolio, services, linkarStats, industry, commitments, cta},
   "entities": *[_type=="entity"]|order(orderRank asc){name, role, tagline, "logo": logo.asset->url, "slug": slug.current, "heroImage": heroImage.asset->url, description, body, website, hasProfile},
   "photos": *[_type=="activationPhoto"]|order(orderRank asc){"src": image.asset->url, "alt": caption, program, "featured": coalesce(featured, false)},

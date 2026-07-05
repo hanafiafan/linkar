@@ -1,4 +1,4 @@
-import type { Entity } from './content';
+import type { Entity, SiteContent } from './content';
 
 export function buildBrandMenu(entities: Entity[]) {
   return entities
@@ -6,15 +6,28 @@ export function buildBrandMenu(entities: Entity[]) {
     .map((e) => ({ name: e.name, role: e.role, href: `/brand/${e.slug}`, logo: e.logo }));
 }
 
-export function buildNavLinks(programCount: number, postCount: number) {
+type NavLabels = SiteContent['settings']['navLabels'];
+
+const DEFAULT_LABELS = {
+  about: 'Tentang',
+  services: 'Layanan',
+  portfolio: 'Portofolio',
+  ecosystem: 'Ekosistem',
+  contact: 'Kontak',
+  program: 'Program',
+  blog: 'Blog',
+} as const;
+
+export function buildNavLinks(programCount: number, postCount: number, labels?: NavLabels) {
+  const l = { ...DEFAULT_LABELS, ...labels };
   const links = [
-    { href: '/#about', label: 'Tentang' },
-    { href: '/#services', label: 'Layanan' },
-    { href: '/#portfolio', label: 'Portofolio' },
-    { href: '/#ecosystem', label: 'Ekosistem' },
+    { href: '/#about', label: l.about },
+    { href: '/#services', label: l.services },
+    { href: '/#portfolio', label: l.portfolio },
+    { href: '/#ecosystem', label: l.ecosystem },
   ];
-  if (programCount > 0) links.push({ href: '/program', label: 'Program' });
-  if (postCount > 0) links.push({ href: '/blog', label: 'Blog' });
-  links.push({ href: '/#contact', label: 'Kontak' });
+  if (programCount > 0) links.push({ href: '/program', label: l.program });
+  if (postCount > 0) links.push({ href: '/blog', label: l.blog });
+  links.push({ href: '/#contact', label: l.contact });
   return links;
 }

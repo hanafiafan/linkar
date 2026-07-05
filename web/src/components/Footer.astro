@@ -4,7 +4,7 @@ import type { SiteContent } from '../lib/content';
 
 interface Props { content: SiteContent }
 const { content } = Astro.props;
-const links = buildNavLinks(content.programs.length, content.posts.length);
+const links = buildNavLinks(content.programs.length, content.posts.length, content.settings.navLabels);
 const year = 2026;
 ---
 <footer class="footer">
