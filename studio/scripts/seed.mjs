@@ -48,6 +48,33 @@ function randKey() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+// Recursively ensure every array-of-objects item has a `_key` (required by Sanity Studio
+// for editing; missing keys trigger "Missing keys" warnings and block list editing).
+// Leaves arrays of primitives (strings, numbers) untouched. Mutates and returns `value`.
+function ensureKeys(value) {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (item && typeof item === 'object' && !Array.isArray(item)) {
+        if (!item._key) item._key = keyId();
+        ensureKeys(item);
+      } else if (Array.isArray(item)) {
+        ensureKeys(item);
+      }
+    }
+  } else if (value && typeof value === 'object') {
+    for (const v of Object.values(value)) ensureKeys(v);
+  }
+  return value;
+}
+
+// 12-char alphanumeric key, matching Sanity's own _key format.
+function keyId() {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let out = '';
+  for (let i = 0; i < 12; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
+
 // plain-string body -> portable-text block array (one block per \n\n-separated paragraph)
 function toPortableText(text) {
   return text.split(/\n\s*\n/).map((para) => ({
@@ -67,17 +94,17 @@ async function main() {
   const logoColorAssetId = await uploadImage('images/brand/linkar-logo.png');
   const logoWhiteAssetId = await uploadImage('images/brand/linkar-logo-white.png');
   assetsUploaded += 2;
-  await client.createOrReplace({
+  await client.createOrReplace(ensureKeys({
     _id: 'siteSettings',
     _type: 'siteSettings',
     ...seed.settings,
     logoColor: imageRef(logoColorAssetId),
     logoWhite: imageRef(logoWhiteAssetId),
-  });
+  }));
   docsWritten++;
 
   // homePage
-  await client.createOrReplace({ _id: 'homePage', _type: 'homePage', ...seed.home });
+  await client.createOrReplace(ensureKeys({ _id: 'homePage', _type: 'homePage', ...seed.home }));
   docsWritten++;
 
   // activationPhoto (uploaded first so entities can round-robin reuse the asset refs for heroImage)
@@ -104,7 +131,7 @@ async function main() {
     const e = seed.entities[i];
     const assetId = await uploadImage(e.logo.replace(/^\//, ''));
     assetsUploaded++;
-    await client.createOrReplace({
+    await client.createOrReplace(ensureKeys({
       _id: `entity-${e.name.toLowerCase()}`,
       _type: 'entity',
       name: e.name,
@@ -117,7 +144,7 @@ async function main() {
       description: e.description,
       body: typeof e.body === 'string' ? toPortableText(e.body) : e.body,
       heroImage: imageRef(photoAssetIds[i % photoAssetIds.length]),
-    });
+    }));
     docsWritten++;
   }
 
