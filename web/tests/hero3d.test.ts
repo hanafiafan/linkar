@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { groupPathsByColor, fitDistanceForSphere } from '../src/scripts/hero3d.js';
+import { groupPathsByColor, fitDistanceForSphere, effectiveFovDeg } from '../src/scripts/hero3d.js';
 
 describe('groupPathsByColor', () => {
   it('groups paths under their color key', () => {
@@ -34,5 +34,16 @@ describe('fitDistanceForSphere', () => {
     const base = fitDistanceForSphere(10, 35);
     expect(fitDistanceForSphere(20, 35)).toBeCloseTo(base * 2, 5);
     expect(fitDistanceForSphere(10, 35, 1.5)).toBeGreaterThan(base);
+  });
+});
+
+describe('effectiveFovDeg', () => {
+  it('binds to horizontal FOV on a narrower-than-tall (portrait) panel', () => {
+    // 560x620 panel, vFov=35 -> horizontal ~31.79deg binds (smaller than vertical)
+    expect(effectiveFovDeg(35, 560 / 620)).toBeCloseTo(31.79, 1);
+  });
+
+  it('binds to vertical FOV on a wide (landscape) aspect', () => {
+    expect(effectiveFovDeg(35, 1.5)).toBeCloseTo(35, 5);
   });
 });

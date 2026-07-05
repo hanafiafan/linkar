@@ -115,17 +115,19 @@ export default function initFolderGallery(root) {
     if (e.key === 'Escape' && open) closeGallery();
   }
 
-  trigger.addEventListener('click', onTriggerClick);
   document.addEventListener('keydown', onKeydown);
 
   if (reducedMotion) {
     // Static fallback: open flat, no drag, no hint, no click needed to explore.
+    // Permanent state — trigger is inert, so no click listener is attached.
     openGallery();
     trigger.setAttribute('aria-disabled', 'true');
+  } else {
+    trigger.addEventListener('click', onTriggerClick);
   }
 
   function destroy() {
-    trigger.removeEventListener('click', onTriggerClick);
+    if (!reducedMotion) trigger.removeEventListener('click', onTriggerClick);
     document.removeEventListener('keydown', onKeydown);
     disableDragging();
   }

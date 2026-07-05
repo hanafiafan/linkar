@@ -46,6 +46,20 @@ export function fitDistanceForSphere(radius, fovDeg, margin = FIT_MARGIN) {
   return (radius / Math.sin(fovRad / 2)) * margin;
 }
 
+/**
+ * The binding FOV for fitting an object in frame is the SMALLER of vertical and
+ * horizontal FOV. `vFovDeg` is the camera's (vertical) fov; horizontal FOV is
+ * derived from aspect = width / height. Pure/unit-testable — no WebGL/DOM needed.
+ * @param {number} vFovDeg - vertical field of view, in degrees
+ * @param {number} aspect - width / height
+ * @returns {number} the smaller of vertical/horizontal FOV, in degrees
+ */
+export function effectiveFovDeg(vFovDeg, aspect) {
+  const v = (vFovDeg * Math.PI) / 180;
+  const h = 2 * Math.atan(Math.tan(v / 2) * aspect);
+  return (Math.min(v, h) * 180) / Math.PI;
+}
+
 function supportsWebGL() {
   try {
     const canvas = document.createElement('canvas');
@@ -150,8 +164,7 @@ export default async function initHero3D(panelEl, canvas) {
   const bounds = new THREE.Box3().setFromObject(markGroup);
   const sphere = new THREE.Sphere();
   bounds.getBoundingSphere(sphere);
-  const effectiveFov = width < height ? (2 * Math.atan(Math.tan((FOV * Math.PI) / 360) * (height / width)) * 180) / Math.PI : FOV;
-  camera.position.set(0, 0, fitDistanceForSphere(sphere.radius, effectiveFov));
+  camera.position.set(0, 0, fitDistanceForSphere(sphere.radius, effectiveFovDeg(FOV, width / height)));
 
   let rafId = null;
   let running = false;
