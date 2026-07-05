@@ -11,7 +11,8 @@
       "miniStats": [
         { "value": "6", "label": "Entitas terkoordinasi" },
         { "value": "4", "label": "Komunitas aktif" },
-        { "value": "3", "label": "Provinsi inti" } ]
+        { "value": "3", "label": "Provinsi inti" } ],
+      "visualMode": "logo3d"
     },
     "marquee": { "kicker": "OUR ECOSYSTEM", "title": "Satu lingkar, enam kekuatan" },
     "about": {

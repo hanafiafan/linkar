@@ -34,6 +34,30 @@ export default defineType({
           type: 'array',
           of: [statField()],
         }),
+        defineField({
+          name: 'visualMode',
+          title: 'Mode Visual Hero',
+          type: 'string',
+          description: 'Pilih tampilan panel visual di sisi kanan hero',
+          options: {
+            layout: 'radio',
+            list: [
+              { title: 'Kosong', value: 'kosong' },
+              { title: 'Logo 3D', value: 'logo3d' },
+              { title: 'Foto', value: 'foto' },
+              { title: 'Galeri Folder', value: 'folder' },
+            ],
+          },
+          initialValue: 'logo3d',
+        }),
+        defineField({
+          name: 'folderPhotos',
+          title: 'Foto Galeri Folder',
+          type: 'array',
+          description: 'Dipakai saat mode Galeri Folder — 3–5 foto',
+          of: [{ type: 'image', options: { hotspot: true } }],
+          validation: (Rule) => Rule.max(5),
+        }),
       ],
     }),
     defineField({

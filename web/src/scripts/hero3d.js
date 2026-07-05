@@ -13,6 +13,7 @@ const BEVEL_SIZE_RATIO = 0.015;
 const ROTATE_CLAMP = 0.4; // rad, both axes
 const LERP_SPEED = 0.08;
 const IDLE_ROTATE_SPEED = 0.08; // rad/sec
+const FIT_MARGIN = 1.2; // 20% breathing room around the mesh at max rotation
 
 /**
  * Group SVGLoader paths by fill color. Pure/unit-testable — no WebGL/DOM needed.
@@ -27,6 +28,22 @@ export function groupPathsByColor(paths) {
     groups.get(color).push(item.path);
   }
   return groups;
+}
+
+/**
+ * Camera distance that fits a sphere of `radius` fully inside the vertical FOV,
+ * with `margin` extra breathing room (1.2 = 20%) so the mesh never clips at its
+ * widest silhouette — i.e. when rotated to the max clamp on either axis, the
+ * effective bounding sphere (rotation-invariant) still fits within frame.
+ * Pure/unit-testable — no WebGL/DOM needed.
+ * @param {number} radius - bounding sphere radius of the mesh, in mesh units
+ * @param {number} fovDeg - vertical field of view, in degrees
+ * @param {number} margin - multiplier applied to the fitted distance (>1 = more room)
+ * @returns {number} camera distance along the view axis
+ */
+export function fitDistanceForSphere(radius, fovDeg, margin = FIT_MARGIN) {
+  const fovRad = (fovDeg * Math.PI) / 180;
+  return (radius / Math.sin(fovRad / 2)) * margin;
 }
 
 function supportsWebGL() {
@@ -112,7 +129,6 @@ export default async function initHero3D(panelEl, canvas) {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(FOV, width / height, 0.1, 1000);
-  camera.position.set(0, 0, 220);
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.5));
   const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
@@ -126,9 +142,16 @@ export default async function initHero3D(panelEl, canvas) {
   scene.add(rimLight);
 
   const markGroup = await loadMarkGroup();
-  // Fit the ~100-unit-wide mark into view given the camera distance/FOV.
   markGroup.scale.setScalar(1.6);
   scene.add(markGroup);
+
+  // Fit the camera to the mesh's bounding sphere (rotation-invariant) so the mark
+  // never clips the frame even at ROTATE_CLAMP on either axis, with a 20% margin.
+  const bounds = new THREE.Box3().setFromObject(markGroup);
+  const sphere = new THREE.Sphere();
+  bounds.getBoundingSphere(sphere);
+  const effectiveFov = width < height ? (2 * Math.atan(Math.tan((FOV * Math.PI) / 360) * (height / width)) * 180) / Math.PI : FOV;
+  camera.position.set(0, 0, fitDistanceForSphere(sphere.radius, effectiveFov));
 
   let rafId = null;
   let running = false;

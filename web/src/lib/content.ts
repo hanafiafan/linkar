@@ -14,7 +14,7 @@ export interface SiteContent {
     navLabels?: Partial<Record<'about' | 'services' | 'portfolio' | 'ecosystem' | 'contact' | 'program' | 'blog', string>>;
   };
   home: {
-    hero: { badge: string; title: string; highlight: string; subEn: string; subId: string; primaryCta: string; secondaryCta: string; miniStats: Stat[] };
+    hero: { badge: string; title: string; highlight: string; subEn: string; subId: string; primaryCta: string; secondaryCta: string; miniStats: Stat[]; visualMode?: 'kosong' | 'logo3d' | 'foto' | 'folder'; folderPhotos?: string[] };
     marquee: { kicker: string; title: string };
     about: { kicker: string; title: string; paragraphs: string[] };
     portfolio: { titleTop: string; titlePart1: string; titlePart2: string; intro: string };

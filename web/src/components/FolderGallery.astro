@@ -1,0 +1,172 @@
+---
+// Interactive folder gallery for the hero panel (mode: 'folder').
+// Markup only — interaction (open/close/drag) is lazy-loaded from folder-gallery.js,
+// mirroring how Hero.astro lazy-loads hero3d.js.
+interface Props { photos: string[] }
+const { photos } = Astro.props;
+---
+<div class="folder-gallery" data-folder-gallery>
+  <button
+    class="folder-gallery__trigger"
+    type="button"
+    aria-expanded="false"
+    aria-label="Buka galeri foto LINKAR"
+  >
+    <span class="folder-gallery__tab"></span>
+    <span class="folder-gallery__back"></span>
+    {photos.slice(0, 5).map((src, i) => (
+      <img class="folder-gallery__stack-photo" style={`--i:${i}`} src={src} alt="" loading="lazy" data-index={i} />
+    ))}
+    <span class="folder-gallery__front"></span>
+    <span class="folder-gallery__label">LINKAR.gallery</span>
+  </button>
+  <p class="folder-gallery__hint" data-folder-hint hidden>Tarik foto ke bawah untuk menutup</p>
+</div>
+
+<style>
+  .folder-gallery{
+    position:relative;
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .folder-gallery__trigger{
+    position:relative;
+    width:220px;
+    height:170px;
+    border:0;
+    padding:0;
+    background:none;
+    cursor:pointer;
+    font:inherit;
+  }
+
+  .folder-gallery__back,
+  .folder-gallery__front{
+    position:absolute;
+    inset:0;
+    border-radius:14px;
+    background:linear-gradient(160deg, var(--navy-panel), #0d1533);
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .folder-gallery__back{ z-index:1; }
+  .folder-gallery__tab{
+    position:absolute;
+    top:-14px; left:14px;
+    width:70px; height:20px;
+    border-radius:8px 8px 0 0;
+    background:linear-gradient(160deg, var(--navy-panel), #0d1533);
+    border:1px solid rgba(255,255,255,.1);
+    border-bottom:0;
+    z-index:0;
+  }
+  .folder-gallery__tab::after{
+    content:'';
+    position:absolute; right:-10px; top:6px;
+    width:8px; height:8px; border-radius:50%;
+    background:var(--orange);
+  }
+
+  .folder-gallery__stack-photo{
+    position:absolute;
+    left:50%; top:50%;
+    width:120px; height:150px;
+    object-fit:cover;
+    border-radius:10px;
+    border:2px solid rgba(255,255,255,.12);
+    box-shadow:0 10px 24px rgba(0,0,0,.35);
+    transform:translate(-50%,-50%) translateY(-10px) rotate(calc((var(--i) - 2) * 4deg));
+    transition:transform .3s ease;
+    z-index:2;
+  }
+  .folder-gallery__trigger:hover .folder-gallery__stack-photo,
+  .folder-gallery__trigger:focus-visible .folder-gallery__stack-photo{
+    transform:translate(-50%,-50%) translateY(-22px) rotate(calc((var(--i) - 2) * 8deg));
+  }
+
+  .folder-gallery__front{
+    z-index:3;
+    clip-path:polygon(0 30%, 100% 30%, 100% 100%, 0 100%);
+    transition:opacity .35s ease;
+  }
+
+  .folder-gallery__label{
+    position:absolute;
+    left:14px; bottom:10px;
+    z-index:4;
+    color:var(--muted);
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+
+  .folder-gallery__hint{
+    position:absolute;
+    bottom:-30px; left:0; right:0;
+    text-align:center;
+    color:var(--muted);
+    font-size:.72rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    opacity:0;
+    transition:opacity .3s ease;
+    pointer-events:none;
+  }
+  .folder-gallery__hint.is-visible{ opacity:1; }
+
+  /* Open state: JS drives inline transforms via GSAP; this just gets the front flap
+     out of the way and readies photos for absolute positioning across the panel. */
+  .folder-gallery.is-open .folder-gallery__front{ opacity:0; }
+  .folder-gallery.is-open .folder-gallery__stack-photo{ cursor:grab; }
+  .folder-gallery.is-open .folder-gallery__stack-photo:active{ cursor:grabbing; }
+
+  @media (prefers-reduced-motion: reduce){
+    .folder-gallery__stack-photo,
+    .folder-gallery__front,
+    .folder-gallery__hint{ transition:none; }
+  }
+</style>
+
+<script>
+  // Lazy-load the folder gallery interaction: desktop only, once the panel is
+  // in view and the page has settled (load/idle) — mirrors hero3d's loader in Hero.astro.
+  const root = document.querySelector<HTMLElement>('[data-folder-gallery]');
+
+  if (root && matchMedia('(min-width: 1000px)').matches) {
+    let triggered = false;
+
+    const activate = () => {
+      if (triggered) return;
+      triggered = true;
+      io.disconnect();
+
+      const start = () =>
+        import('../scripts/folder-gallery.js')
+          .then(({ default: initFolderGallery }) => initFolderGallery(root))
+          .catch((err) => {
+            console.warn('folder-gallery: interaction failed to load', err);
+          });
+
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(start, { timeout: 2000 });
+      } else {
+        setTimeout(start, 200);
+      }
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          if (document.readyState === 'complete') activate();
+          else window.addEventListener('load', activate, { once: true });
+        }
+      },
+      { threshold: 0.1 }
+    );
+    io.observe(root);
+  }
+</script>
