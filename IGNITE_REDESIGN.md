@@ -61,7 +61,7 @@ Dokumentasi ini dibuat untuk merekam seluruh perubahan, struktur arsitektur, dan
 ### 8. Page Transition Delay Curtain & Hover Leakage Fix
 * **File:** `web/src/layouts/Base.astro`, `web/src/styles/global.css`, `web/src/components/PortfolioSection.astro`
 * **Fitur:** 
-  * **Page Transition Curtain:** Menambahkan `.transition-curtain` yang menangkap klik tautan internal, memicu tirai hitam meluncur ke atas untuk menutupi viewport selama `0.85s`, lalu menahan layar kosong (hold blank screen) hingga total `1.4s` sebelum berpindah halaman. Halaman baru kemudian dimuat di bawah preloader yang meluncur keluar ke atas, menciptakan alur navigasi halaman yang mulus.
+  * **Page Transition Curtain:** Menambahkan `.transition-curtain` yang menangkap klik tautan internal, memicu tirai hitam meluncur ke atas untuk menutupi viewport selama `0.85s`, lalu menahan layar kosong (hold blank screen) hingga total `2.5s` sebelum berpindah halaman. Halaman baru kemudian dimuat di bawah preloader yang meluncur keluar ke atas, menciptakan alur navigasi halaman yang mulus.
   * **Hover Leakage Fix:** Menambahkan pengaman `mouseleave` pada seluruh seksi portofolio dan `mouseenter` pada bar navigasi untuk mereset skala preview melayang ke `0`, melenyapkan bug foto menggantung saat bergulir ke seksi lain.
 
 ---
