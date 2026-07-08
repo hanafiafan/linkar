@@ -1,0 +1,284 @@
+---
+import type { SiteContent } from '../lib/content';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const p = content.home.portfolio;
+const photos = content.photos;
+---
+<section id="portfolio" class="portfolio-section" data-bg="#ffffff">
+  <!-- Oversized Giant Running Marquee Header -->
+  <div class="portfolio-marquee-wrap">
+    <div class="portfolio-marquee">
+      <div class="portfolio-marquee-track">
+        {[...Array(4)].map(() => (
+          <span class="portfolio-marquee__text">RECENT PROJECTS ✦ PORTOFOLIO KAMI ✦ </span>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap portfolio__inner">
+    <div class="portfolio__header">
+      <p class="kicker portfolio__kicker">{p.titleTop || 'PORTOFOLIO'}</p>
+      <p class="portfolio__intro">{p.intro}</p>
+    </div>
+
+    <!-- Interactive Row List -->
+    <div class="portfolio-list">
+      {photos.map((ph, i) => (
+        <div class="portfolio-row" data-preview-img={ph.src} data-program-name={ph.program}>
+          <div class="portfolio-row__left">
+            <span class="portfolio-row__num">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="portfolio-row__title">{ph.program}</h3>
+          </div>
+          <div class="portfolio-row__right">
+            <span class="portfolio-row__category">{ph.alt || 'Ecosystem Project'}</span>
+            <div class="portfolio-row__btn-wrap">
+              <span class="portfolio-row__btn">LIHAT DETAIL <span class="arrow">→</span></span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Cursor-Following Photo Preview Box -->
+  <div class="portfolio-preview" id="portfolio-preview-box">
+    <div class="portfolio-preview__inner">
+      <img src="" id="portfolio-preview-img" alt="Project Preview" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .portfolio-section {
+    position: relative;
+    background: #ffffff;
+    color: #000000;
+    padding: 120px 0;
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  /* Giant Marquee Header */
+  .portfolio-marquee-wrap {
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 60px;
+  }
+
+  .portfolio-marquee {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  }
+
+  .portfolio-marquee-track {
+    display: inline-block;
+    animation: portfolio-marquee-run 25s linear infinite;
+  }
+
+  .portfolio-marquee__text {
+    font-size: clamp(2.5rem, 8vw, 6.5rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: rgba(0, 0, 0, 0.06);
+    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.15);
+  }
+
+  @keyframes portfolio-marquee-run {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+  }
+
+  .portfolio__header {
+    max-width: 680px;
+    margin-bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .portfolio__kicker {
+    align-self: flex-start;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--orange, #F26A21);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 99px;
+  }
+
+  .portfolio__intro {
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-weight: 600;
+    line-height: 1.5;
+    color: #444444;
+  }
+
+  /* Row List Layout */
+  .portfolio-list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .portfolio-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 36px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    position: relative;
+    transition: padding-left 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+  }
+
+  .portfolio-row:hover {
+    padding-left: 24px;
+    color: var(--orange, #F26A21);
+  }
+
+  .portfolio-row__left {
+    display: flex;
+    align-items: baseline;
+    gap: 30px;
+  }
+
+  .portfolio-row__num {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.35);
+  }
+
+  .portfolio-row__title {
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  .portfolio-row__right {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .portfolio-row__category {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0A72E4;
+    background: rgba(10, 114, 228, 0.06);
+    padding: 6px 14px;
+    border-radius: 99px;
+  }
+
+  .portfolio-row__btn {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-block;
+  }
+
+  .portfolio-row:hover .portfolio-row__btn {
+    transform: translateX(10px);
+  }
+
+  @media (max-width: 768px) {
+    .portfolio-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 28px 0;
+    }
+    .portfolio-row__right {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  /* Cursor-Following Preview Container */
+  .portfolio-preview {
+    position: fixed;
+    width: 320px;
+    height: 220px;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 14px;
+    opacity: 0;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.25);
+    border: 3px solid #ffffff;
+  }
+
+  .portfolio-preview__inner {
+    width: 100%;
+    height: 100%;
+  }
+
+  .portfolio-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+
+  const previewBox = document.getElementById('portfolio-preview-box');
+  const previewImg = document.getElementById('portfolio-preview-img') as HTMLImageElement;
+  const portfolioSec = document.getElementById('portfolio');
+  const rows = document.querySelectorAll('.portfolio-row');
+
+  if (previewBox && previewImg && portfolioSec && rows.length > 0) {
+    let mouseX = 0;
+    let mouseY = 0;
+    let boxX = 0;
+    let boxY = 0;
+
+    // Set initial centering and scale states in GSAP
+    gsap.set(previewBox, { xPercent: -50, yPercent: -50, scale: 0, opacity: 0 });
+
+    // Follow mouse coordinates
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    // Lerp smoothing loop using GSAP ticker
+    gsap.ticker.add(() => {
+      boxX += (mouseX - boxX) * 0.12;
+      boxY += (mouseY - boxY) * 0.12;
+      gsap.set(previewBox, {
+        x: boxX,
+        y: boxY
+      });
+    });
+
+    // Row hover trigger logic
+    rows.forEach((row) => {
+      row.addEventListener('mouseenter', () => {
+        const imgUrl = row.getAttribute('data-preview-img');
+        if (imgUrl) {
+          previewImg.src = imgUrl;
+          gsap.to(previewBox, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(1.2)' });
+        }
+      });
+
+      row.addEventListener('mouseleave', () => {
+        gsap.to(previewBox, { scale: 0, opacity: 0, duration: 0.35, ease: 'power2.inOut' });
+      });
+    });
+  }
+</script>

@@ -1,0 +1,162 @@
+---
+import type { SiteContent } from '../lib/content';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const { about } = content.home;
+---
+<section id="about" class="section_scrub-intro" data-bg="#000000">
+  <div class="wrap about-scrub__inner">
+    <!-- Centered Three.js 3D Canvas -->
+    <div id="about-3d-container" class="about-scrub__image-wrapper">
+      <canvas id="about-canvas" class="about-scrub__canvas"></canvas>
+    </div>
+
+    <div class="about-scrub__content-wrap">
+      <span class="kicker about-scrub__kicker">{about.kicker || 'TENTANG KAMI'}</span>
+      
+      <div class="about-scrub__paragraphs">
+        {about.paragraphs.map((para) => (
+          <div class="about-scrub__para-wrapper">
+            <p class="about-scrub__paragraph">{para}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section_scrub-intro {
+    position: relative;
+    background: #000000;
+    color: #ffffff;
+    min-height: 120vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 0;
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  .about-scrub__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 60px;
+    align-items: center;
+    position: relative;
+    width: 100%;
+  }
+
+  @media (min-width: 900px) {
+    .about-scrub__inner {
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 80px;
+    }
+  }
+
+  /* 3D Canvas Container */
+  .about-scrub__image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;
+    max-width: 460px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  .about-scrub__canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Content and Scroll-Scrub Text */
+  .about-scrub__content-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+    z-index: 2;
+  }
+
+  .about-scrub__kicker {
+    margin-bottom: 10px;
+  }
+
+  .about-scrub__paragraphs {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    width: 100%;
+  }
+
+  .about-scrub__para-wrapper {
+    width: 100%;
+  }
+
+  /* The characters inside will light up on scroll */
+  .about-scrub__paragraph {
+    font-size: clamp(1.2rem, 3.5vw, 1.85rem);
+    font-weight: 700;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.25);
+    margin: 0;
+  }
+
+  :global(.about-scrub__paragraph span) {
+    display: inline-block;
+    transition: color 0.15s ease;
+  }
+
+  :global(.about-scrub__paragraph span.highlight) {
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import initHero3D from '../scripts/hero3d.js';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // 1. Initialize Three.js logo canvas
+  const container = document.getElementById('about-3d-container');
+  const canvas = document.getElementById('about-canvas');
+  if (container && canvas) {
+    initHero3D(container, canvas).catch((err) => {
+      console.warn('3d logo init error inside About section:', err);
+    });
+  }
+
+  // 2. Build Scroll-Scrub Text Highlight Animation
+  const paragraphs = document.querySelectorAll('.about-scrub__paragraph');
+  paragraphs.forEach((p) => {
+    const text = p.textContent || '';
+    // Split by words
+    const words = text.split(' ');
+    p.innerHTML = words
+      .map((word) => `<span>${word}</span>`)
+      .join(' ');
+
+    const spans = p.querySelectorAll('span');
+
+    // Stagger opacity reveal tied to scroll progress
+    gsap.to(spans, {
+      className: 'highlight',
+      stagger: 0.05,
+      scrollTrigger: {
+        trigger: p,
+        start: 'top 80%',
+        end: 'bottom 50%',
+        scrub: 0.5,
+      }
+    });
+  });
+</script>

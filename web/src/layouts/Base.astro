@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+import Preloader from '../components/Preloader.astro';
+interface Props { title: string; description?: string }
+const { title, description = 'LINKAR — Ecosystem Enabler oleh CV Rantai Usaha Nusantara. Merancang, mengeksekusi, dan mengukur program berdampak di Yogyakarta, Jawa Tengah, dan Jawa Timur.' } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL('/og.png', Astro.site);
+---
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="id_ID" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:image" content={ogImageURL} />
+  <meta property="og:site_name" content="LINKAR" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImageURL} />
+
+  <slot name="head" />
+</head>
+<body>
+  <Preloader />
+  <slot />
+  <script src="../scripts/smooth.js"></script>
+  <script src="../scripts/odometer.js"></script>
+  <script src="../scripts/animations.js"></script>
+  <script src="../scripts/bgmorph.js"></script>
+  <script src="../scripts/megamenu.js"></script>
+  <script src="../scripts/gallery.js"></script>
+  <script src="../scripts/lightbox.js"></script>
+  <script src="../scripts/form.js"></script>
+  <script src="../scripts/cursor.js"></script>
+</body>
+</html>

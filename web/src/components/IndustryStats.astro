@@ -1,0 +1,75 @@
+---
+import type { SiteContent } from '../lib/content';
+import Odometer from './Odometer.astro';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const { industry } = content.home;
+---
+<section id="opportunity" class="section opportunity" data-bg="#000000">
+  <div class="wrap">
+    <span class="kicker" data-reveal="pop">{industry.kicker}</span>
+    <h2 data-split>{industry.title}</h2>
+
+    <div class="igrid" data-stagger>
+      {industry.items.map((item) => (
+        <div class="stat">
+          <div class="big"><Odometer value={item.value} /></div>
+          <div class="lbl">{item.label}</div>
+          <div class="note">{item.note}</div>
+        </div>
+      ))}
+    </div>
+
+    <p class="closing" data-reveal>{industry.closing}</p>
+  </div>
+</section>
+
+<style>
+  .opportunity{
+    background:var(--navy);
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .opportunity h2{
+    color:var(--text);
+    font-size:clamp(1.7rem, 3vw, 2.3rem);
+    margin-top:16px;
+  }
+
+  .igrid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:24px;
+    margin-top:40px;
+  }
+  @media (min-width: 900px){
+    .igrid{ grid-template-columns:repeat(3, 1fr); }
+  }
+
+  .stat{
+    text-align:center;
+  }
+  .big{
+    font-size:clamp(2.6rem, 6vw, 4rem);
+    font-weight:800;
+    color:var(--orange);
+  }
+  .lbl{
+    font-weight:600;
+    color:var(--text);
+    margin-top:8px;
+  }
+  .note{
+    font-size:.85rem;
+    color:var(--muted);
+    margin-top:4px;
+  }
+
+  .closing{
+    font-style:italic;
+    color:var(--muted);
+    max-width:720px;
+    margin:36px auto 0;
+    text-align:center;
+  }
+</style>

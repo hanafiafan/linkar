@@ -1,0 +1,532 @@
+---
+import { buildNavLinks, buildBrandMenu } from '../lib/nav';
+import type { SiteContent } from '../lib/content';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const links = buildNavLinks(content.programs.length, content.posts.length, content.settings.navLabels);
+const brandMenu = buildBrandMenu(content.entities);
+---
+<header class="navbar" id="navbar">
+  <div class="wrap navbar__inner">
+    <!-- Staggered Logo Slide Hover Animation -->
+    <a href="/" class="nav_logo-link" aria-label="LINKAR Logo">
+      <span class="logo-char" style="--i: 0" data-char="L">L</span>
+      <span class="logo-char" style="--i: 1" data-char="I">I</span>
+      <span class="logo-char" style="--i: 2" data-char="N">N</span>
+      <span class="logo-char" style="--i: 3" data-char="K">K</span>
+      <span class="logo-char" style="--i: 4" data-char="A">A</span>
+      <span class="logo-char" style="--i: 5" data-char="R">R</span>
+    </a>
+
+    <div class="navbar__right">
+      <!-- Premium Nav CTA Button -->
+      <a href="#contact" class="navbar__cta hide-mobile">
+        <span class="cta-inner">
+          <span class="cta-text">{content.settings.ctaLabel || 'Ajak Kolaborasi'}</span>
+          <span class="cta-arrow">→</span>
+        </span>
+      </a>
+
+      <!-- Menu Button -->
+      <button class="menu-btn" id="menu-btn" aria-label="Toggle Menu" aria-expanded="false">
+        <div class="menu-btn__labels">
+          <span class="menu-btn__lbl menu-btn__lbl--menu">MENU</span>
+          <span class="menu-btn__lbl menu-btn__lbl--close">CLOSE</span>
+        </div>
+        <div class="menu-btn__burger">
+          <span></span><span></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Fullscreen Ignite-Style Menu Overlay -->
+<div class="menu-overlay" id="menu-overlay">
+  <div class="menu-overlay__bg">
+    <div class="menu-overlay__panel"></div>
+    <div class="menu-overlay__panel"></div>
+  </div>
+
+  <div class="wrap menu-overlay__inner">
+    <div class="menu-overlay__grid">
+      <!-- Main Oversized Navigation Links -->
+      <div class="menu-overlay__main">
+        <ul class="menu-overlay__list">
+          <li style="--stagger: 0;">
+            <a href="/" class="menu-overlay__link">
+              <span class="menu-overlay__num">01</span>
+              <span class="menu-overlay__text" data-text="BERANDA">BERANDA</span>
+            </a>
+          </li>
+          <li style="--stagger: 1;">
+            <a href="/#about" class="menu-overlay__link">
+              <span class="menu-overlay__num">02</span>
+              <span class="menu-overlay__text" data-text="TENTANG">TENTANG</span>
+            </a>
+          </li>
+          <li style="--stagger: 2;">
+            <a href="/#portfolio" class="menu-overlay__link">
+              <span class="menu-overlay__num">03</span>
+              <span class="menu-overlay__text" data-text="PORTOFOLIO">PORTOFOLIO</span>
+            </a>
+          </li>
+          <li style="--stagger: 3;">
+            <a href="/#services" class="menu-overlay__link">
+              <span class="menu-overlay__num">04</span>
+              <span class="menu-overlay__text" data-text="LAYANAN">LAYANAN</span>
+            </a>
+          </li>
+          <li style="--stagger: 4;">
+            <a href="/#ecosystem" class="menu-overlay__link">
+              <span class="menu-overlay__num">05</span>
+              <span class="menu-overlay__text" data-text="EKOSISTEM">EKOSISTEM</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Side Information & Sub-brands list -->
+      <div class="menu-overlay__side">
+        <div class="menu-overlay__side-block" style="--stagger: 5;">
+          <p class="menu-overlay__side-title">ENTITAS EKOSISTEM</p>
+          <ul class="menu-overlay__side-list">
+            {brandMenu.slice(0, 5).map((b) => (
+              <li><a href={b.href} class="menu-overlay__side-link">{b.name}</a></li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="menu-overlay__side-block" style="--stagger: 6;">
+          <p class="menu-overlay__side-title">HUBUNGI KAMI</p>
+          <ul class="menu-overlay__side-list">
+            <li><a href={`mailto:${content.settings.formEmail}`} class="menu-overlay__side-link">{content.settings.formEmail}</a></li>
+            <li><a href="https://linkedin.com" target="_blank" class="menu-overlay__side-link">LinkedIn</a></li>
+            <li><a href="https://instagram.com" target="_blank" class="menu-overlay__side-link">Instagram</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom credits -->
+    <div class="menu-overlay__bottom" style="--stagger: 7;">
+      <p>CV Rantai Usaha Nusantara — Ecosystem Enabler</p>
+      <p>© 2026 LINKAR®</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    transition: background 0.4s ease;
+  }
+
+  .navbar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    padding: 0 24px;
+  }
+
+  .navbar__right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* Logo text slide up / duplicate hover effect */
+  .nav_logo-link {
+    display: flex;
+    font-weight: 800;
+    font-size: 1.45rem;
+    letter-spacing: 0.1em;
+    color: #ffffff;
+    overflow: hidden;
+    height: 1.8rem;
+    line-height: 1.8rem;
+    text-transform: uppercase;
+  }
+
+  .logo-char {
+    display: inline-block;
+    position: relative;
+    transition: transform 0.6s cubic-bezier(0.85, 0.09, 0.15, 0.91);
+    transition-delay: calc(var(--i) * 0.025s);
+  }
+
+  .logo-char::after {
+    content: attr(data-char);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    color: var(--orange, #F26A21);
+  }
+
+  .nav_logo-link:hover .logo-char {
+    transform: translateY(-100%);
+  }
+
+  /* Premium CTA Button */
+  .navbar__cta {
+    position: relative;
+    border-radius: 99px;
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    overflow: hidden;
+    display: inline-block;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .navbar__cta:hover {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+  }
+
+  .cta-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Menu Toggle Button */
+  .menu-btn {
+    background: none;
+    border: 0;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+    font-family: inherit;
+    z-index: 950;
+  }
+
+  .menu-btn__labels {
+    position: relative;
+    height: 1.2rem;
+    overflow: hidden;
+    width: 60px;
+    text-align: right;
+  }
+
+  .menu-btn__lbl {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    transition: transform 0.6s cubic-bezier(0.85, 0.09, 0.15, 0.91);
+  }
+
+  .menu-btn__lbl--close {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    color: var(--orange, #F26A21);
+  }
+
+  .menu-btn__burger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .menu-btn__burger span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transition: transform 0.6s cubic-bezier(0.85, 0.09, 0.15, 0.91);
+  }
+
+  /* Button active state transforms */
+  .navbar.is-menu-open .menu-btn__lbl--menu {
+    transform: translateY(-100%);
+  }
+
+  .navbar.is-menu-open .menu-btn__lbl--close {
+    transform: translateY(-100%);
+  }
+
+  .navbar.is-menu-open .menu-btn__burger span:nth-child(1) {
+    transform: translateY(4px) rotate(45deg);
+  }
+
+  .navbar.is-menu-open .menu-btn__burger span:nth-child(2) {
+    transform: translateY(-4px) rotate(-45deg);
+  }
+
+  /* Fullscreen Menu Overlay */
+  .menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 850;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  .menu-overlay.is-open {
+    pointer-events: auto;
+  }
+
+  .menu-overlay__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .menu-overlay__panel {
+    flex: 1;
+    background: #000000;
+    transition: transform 0.75s cubic-bezier(0.85, 0.09, 0.15, 0.91);
+  }
+
+  .menu-overlay__panel:nth-child(1) {
+    transform: translateY(-100%);
+  }
+
+  .menu-overlay__panel:nth-child(2) {
+    transform: translateY(100%);
+  }
+
+  .menu-overlay.is-open .menu-overlay__panel {
+    transform: translateY(0%);
+  }
+
+  .menu-overlay.is-open .menu-overlay__panel:nth-child(2) {
+    transition-delay: 0.08s;
+  }
+
+  .menu-overlay__inner {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 100px 24px 60px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .menu-overlay.is-open .menu-overlay__inner {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.3s;
+  }
+
+  .menu-overlay__grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  @media (max-width: 768px) {
+    .menu-overlay__grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .menu-overlay__side {
+      display: none;
+    }
+  }
+
+  /* Main Oversized Links */
+  .menu-overlay__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .menu-overlay__list li {
+    overflow: hidden;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+  }
+
+  .menu-overlay.is-open .menu-overlay__list li {
+    transform: translateY(0);
+    opacity: 1;
+    transition-delay: calc(0.35s + var(--stagger) * 0.07s);
+  }
+
+  .menu-overlay__link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 20px;
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+
+  .menu-overlay__num {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #007AFF;
+  }
+
+  .menu-overlay__text {
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+
+  .menu-overlay__text::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    color: var(--orange, #F26A21);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .menu-overlay__link:hover .menu-overlay__text {
+    transform: translateY(-100%);
+  }
+  .menu-overlay__link:hover .menu-overlay__text::after {
+    transform: translateY(-100%);
+  }
+
+  /* Side Links Styles */
+  .menu-overlay__side {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .menu-overlay__side-block {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .menu-overlay.is-open .menu-overlay__side-block {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: calc(0.35s + var(--stagger) * 0.07s);
+  }
+
+  .menu-overlay__side-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: #007AFF;
+    margin-bottom: 14px;
+  }
+
+  .menu-overlay__side-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .menu-overlay__side-link {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.3s ease, transform 0.3s ease;
+    display: inline-block;
+  }
+
+  .menu-overlay__side-link:hover {
+    color: #ffffff;
+    transform: translateX(6px);
+  }
+
+  /* Bottom Area */
+  .menu-overlay__bottom {
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.4);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .menu-overlay.is-open .menu-overlay__bottom {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: calc(0.35s + var(--stagger) * 0.07s);
+  }
+
+  @media (max-width: 500px) {
+    .menu-overlay__bottom {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+
+  .hide-mobile {
+    @media (max-width: 768px) {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  const menuBtn = document.getElementById('menu-btn');
+  const menuOverlay = document.getElementById('menu-overlay');
+  const navbar = document.getElementById('navbar');
+
+  if (menuBtn && menuOverlay && navbar) {
+    const toggleMenu = () => {
+      const isOpen = menuOverlay.classList.toggle('is-open');
+      navbar.classList.toggle('is-menu-open', isOpen);
+      menuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      
+      // Prevent scrolling when menu is open
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    };
+
+    menuBtn.addEventListener('click', toggleMenu);
+
+    // Close menu when a link inside is clicked
+    menuOverlay.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        menuOverlay.classList.remove('is-open');
+        navbar.classList.remove('is-menu-open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      });
+    });
+  }
+</script>

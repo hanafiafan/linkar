@@ -1,0 +1,421 @@
+---
+import type { SiteContent } from '../lib/content';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const { services } = content.home;
+---
+<div class="delight_section-wrapper">
+  <!-- Section 1: Matter.js Physics (Autopilot & Capabilities) -->
+  <section id="sectionDrive" class="section_delight_new section--dark" data-bg="#000000">
+    <div class="matter-canvas_wrapper">
+      <canvas id="matter-canvas-target" class="matter-canvas"></canvas>
+    </div>
+    
+    <div class="delight_component wrap">
+      <div class="delight_content-wrapper text-align-center">
+        <span class="kicker text-color-orange">{services.kicker || 'CAPABILITIES'}</span>
+        <h3 class="heading-style-h1">{services.title || 'Drive More Impact'}</h3>
+        <div class="max-width-large align-center">
+          <p class="text-size-large">
+            Ekosistem kami dirancang untuk bergerak aktif dan dinamis. Kami menghubungkan sumber daya, program, dan entitas pendukung untuk menghasilkan dampak sosial-ekonomi yang nyata dan terukur. Coba geser dan lempar kotak di latar belakang menggunakan mouse Anda.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Delight Confetti (UX Experts) -->
+  <section id="sectionDelight" class="section_delight_new section--dark" data-bg="#000000" data-cursor="delight">
+    <canvas id="confetti-canvas-target" class="confetti-canvas"></canvas>
+    
+    <div class="delight_component wrap">
+      <div class="delight_content-wrapper text-align-center">
+        <span class="kicker text-color-orange">USER EXPERIENCE & ENGAGEMENT</span>
+        <h3 class="heading-style-h1">Delight Your Community</h3>
+        <div class="max-width-large align-center">
+          <p class="text-size-large">
+            Menghadirkan kenyamanan interaksi adalah prioritas kami. Kami memandu komunitas Anda melalui alur keterlibatan yang positif dan interaktif, memastikan setiap program menghasilkan kesan yang mendalam. Klik di mana saja pada layar ini untuk menyebarkan keceriaan!
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Lini Bisnis & Model Ekosistem (from database cards) -->
+  <section id="sectionModel" class="section_delight_new section--dark" data-bg="#000000">
+    <div class="delight_component wrap">
+      <div class="delight_content-wrapper">
+        <span class="kicker text-color-orange">{services.kicker || 'CARA KAMI BEKERJA'}</span>
+        <h3 class="heading-style-h1 text-align-center">{services.title || 'OUR MODEL'}</h3>
+        
+        <div class="services-cards-grid">
+          {services.cards.map((card) => (
+            <div class="service-capability-card">
+              <span class="service-capability-num">{card.no}</span>
+              <div class="service-capability-content">
+                <h4 class="service-capability-title">{card.title}</h4>
+                <p class="service-capability-body">{card.body}</p>
+                <div class="service-capability-meta">
+                  <span class="service-meta-tag is-orange">{card.who}</span>
+                  <span class="service-meta-tag is-blue">{card.target}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .delight_section-wrapper {
+    position: relative;
+    background: #000000;
+  }
+
+  .section_delight_new {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #000000;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  /* Matter.js & Confetti Canvas wraps */
+  .matter-canvas_wrapper {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: auto;
+  }
+
+  .matter-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .confetti-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .delight_component {
+    position: relative;
+    z-index: 5;
+    pointer-events: none; /* Let clicks pass to matter canvas / click listener */
+  }
+
+  .delight_content-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  /* Target pointer events on headers so text edit/hover is responsive */
+  .heading-style-h1,
+  .kicker,
+  .text-size-large {
+    pointer-events: auto;
+  }
+
+  .heading-style-h1 {
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: #ffffff;
+  }
+
+  .text-size-large {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .text-align-center {
+    text-align: center;
+  }
+
+  .align-center {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .text-color-orange {
+    color: var(--orange, #F26A21) !important;
+    border-color: rgba(242, 106, 33, 0.3) !important;
+  }
+
+  /* Capability Cards Grid Styling */
+  .services-cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    width: 100%;
+    margin-top: 40px;
+    pointer-events: auto;
+  }
+
+  .service-capability-card {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 30px;
+    transition: border-color 0.3s ease;
+  }
+
+  .service-capability-card:hover {
+    border-color: var(--orange, #F26A21);
+  }
+
+  .service-capability-num {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: #007AFF;
+    line-height: 1;
+    min-width: 60px;
+  }
+
+  .service-capability-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .service-capability-title {
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .service-capability-body {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.65);
+    max-width: 680px;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .service-capability-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .service-meta-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  .service-meta-tag.is-orange {
+    background: rgba(242, 106, 33, 0.08);
+    border: 1px solid rgba(242, 106, 33, 0.2);
+    color: var(--orange, #F26A21);
+  }
+
+  .service-meta-tag.is-blue {
+    background: rgba(0, 122, 255, 0.08);
+    border: 1px solid rgba(0, 122, 255, 0.2);
+    color: #007AFF;
+  }
+</style>
+
+<script>
+  import Matter from 'matter-js';
+  import confetti from 'canvas-confetti';
+
+  // ═══════════════════════════════════════════════════════════════
+  // 1. Matter.js Physics Engine Setup (Section 1: sectionDrive)
+  // ═══════════════════════════════════════════════════════════════
+  const initPhysics = () => {
+    const canvas = document.getElementById('matter-canvas-target') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    // Create Matter Engine & World
+    const engine = Matter.Engine.create({
+      gravity: { y: 0.8 }
+    });
+    const world = engine.world;
+
+    // Get container dimensions
+    let width = container.clientWidth;
+    let height = container.clientHeight;
+
+    // Set canvas dimensions
+    canvas.width = width;
+    canvas.height = height;
+
+    // Add boundaries (walls and floor)
+    const wallOptions = { isStatic: true, render: { visible: false } };
+    const floor = Matter.Bodies.rectangle(width / 2, height + 30, width + 100, 60, wallOptions);
+    const leftWall = Matter.Bodies.rectangle(-30, height / 2, 60, height + 100, wallOptions);
+    const rightWall = Matter.Bodies.rectangle(width + 30, height / 2, 60, height + 100, wallOptions);
+    Matter.World.add(world, [floor, leftWall, rightWall]);
+
+    // Words to drop as physical boxes
+    const labels = [
+      'INCUBATION', 'ACTIVATION', 'ECOSYSTEM', 'MENTORSHIP',
+      'NETWORK', 'COLLABORATION', 'IMPACT', 'LINKAR', 'COMMUNITY'
+    ];
+
+    // Helper to calculate box width based on label length
+    const getBoxSize = (text: string) => {
+      const len = text.length;
+      return {
+        w: len * 11 + 36,
+        h: 46
+      };
+    };
+
+    // Create the physical bodies
+    const bodies: any[] = [];
+    labels.forEach((label, i) => {
+      const { w, h } = getBoxSize(label);
+      const x = Math.random() * (width - w - 100) + w / 2 + 50;
+      const y = -100 - i * 60; // staggered drop heights
+
+      const body = Matter.Bodies.rectangle(x, y, w, h, {
+        restitution: 0.6, // bounce
+        friction: 0.1,
+        chamfer: { radius: 8 }, // rounded corners
+        render: {
+          visible: false // custom renderer will draw text and background
+        }
+      });
+      // Attach the label so we can reference it in rendering
+      (body as any).label = label;
+      (body as any).boxWidth = w;
+      (body as any).boxHeight = h;
+      (body as any).isOrange = (i % 2 === 0);
+
+      bodies.push(body);
+    });
+
+    Matter.World.add(world, bodies);
+
+    // Mouse constraint for interaction
+    const mouse = Matter.Mouse.create(canvas);
+    const mouseConstraint = Matter.MouseConstraint.create(engine, {
+      mouse: mouse,
+      constraint: {
+        stiffness: 0.15,
+        render: { visible: false }
+      }
+    });
+    Matter.World.add(world, mouseConstraint);
+
+    // Run the engine
+    const runner = Matter.Runner.create();
+    Matter.Runner.run(runner, engine);
+
+    // Custom Canvas Renderer loop for text and boxes
+    const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+
+    const renderLoop = () => {
+      // Clear canvas
+      context.clearRect(0, 0, width, height);
+
+      // Draw all bodies
+      bodies.forEach((body) => {
+        const { x, y } = body.position;
+        const angle = body.angle;
+        const w = body.boxWidth;
+        const h = body.boxHeight;
+
+        context.save();
+        context.translate(x, y);
+        context.rotate(angle);
+
+        // Draw rounded rectangle background
+        context.beginPath();
+        const r = 8; // border radius
+        context.roundRect(-w / 2, -h / 2, w, h, r);
+        
+        // Alternating color logic using brand colors
+        const isOrange = (body as any).isOrange;
+        context.fillStyle = isOrange ? 'rgba(242, 106, 33, 0.08)' : 'rgba(0, 122, 255, 0.08)';
+        context.fill();
+        context.strokeStyle = isOrange ? '#F26A21' : '#007AFF';
+        context.lineWidth = 1.5;
+        context.stroke();
+
+        // Draw text
+        context.fillStyle = '#ffffff';
+        context.font = 'bold 12px "Plus Jakarta Sans", monospace';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(body.label, 0, 0.5);
+
+        context.restore();
+      });
+
+      requestAnimationFrame(renderLoop);
+    };
+
+    renderLoop();
+
+    // Handle resizing
+    const handleResize = () => {
+      if (!container) return;
+      width = container.clientWidth;
+      height = container.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
+
+      // Update static walls positions
+      Matter.Body.setPosition(floor, { x: width / 2, y: height + 30 });
+      Matter.Body.setPosition(rightWall, { x: width + 30, y: height / 2 });
+    };
+
+    window.addEventListener('resize', handleResize);
+  };
+
+  // Run on mount
+  initPhysics();
+
+  // ═══════════════════════════════════════════════════════════════
+  // 2. Confetti Click Handler (Section 2: sectionDelight)
+  // ═══════════════════════════════════════════════════════════════
+  const delightSec = document.getElementById('sectionDelight');
+  if (delightSec) {
+    delightSec.addEventListener('click', (e) => {
+      // Get click coordinate percentages relative to viewport
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+
+      // Fire confetti from clicked spot
+      confetti({
+        particleCount: 70,
+        spread: 60,
+        origin: { x, y },
+        colors: ['#F26A21', '#ffffff', '#007AFF']
+      });
+    });
+  }
+</script>

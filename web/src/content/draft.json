@@ -1,0 +1,288 @@
+{
+  "settings": {
+    "formEmail": "admin@neuverseacademy.com",
+    "footerTagline": "Everyone can be everyone's gateway",
+    "ctaLabel": "Ajak Kolaborasi"
+  },
+  "home": {
+    "visibility": {
+      "hero": true,
+      "marquee": true,
+      "about": true,
+      "portfolio": true,
+      "services": true,
+      "linkarStats": true,
+      "industry": true,
+      "commitments": true,
+      "cta": true
+    },
+    "hero": {
+      "badge": "ECOSYSTEM ENABLER · CV RANTAI USAHA NUSANTARA",
+      "title": "Menghubungkan komunitas, korporat, dan pemerintah dalam satu lingkar dampak.",
+      "highlight": "lingkar",
+      "subEn": "We enable ecosystems, not just events.",
+      "subId": "LINKAR merancang, mengeksekusi, dan mengukur program berdampak bagi UMKM, talenta muda, dan komunitas. Berakar di Yogyakarta, melayani Jawa Tengah & Jawa Timur.",
+      "primaryCta": "Ajak Kolaborasi →",
+      "secondaryCta": "Lihat Portofolio",
+      "visualMode": "folder",
+      "showDeco": false,
+      "heroImage": "/images/portfolio/aktivasi-01.jpg",
+      "miniStats": [
+        {
+          "value": "6",
+          "label": "Entitas terkoordinasi"
+        },
+        {
+          "value": "4",
+          "label": "Komunitas aktif"
+        },
+        {
+          "value": "3",
+          "label": "Provinsi inti"
+        }
+      ]
+    },
+    "marquee": {
+      "kicker": "OUR ECOSYSTEM",
+      "title": "Satu lingkar, enam kekuatan"
+    },
+    "about": {
+      "kicker": "TENTANG KAMI · WHO WE ARE",
+      "title": "Kami percaya pada kolaborasi ekosistem, bukan sekadar eksekusi acara.",
+      "paragraphs": [
+        "Di bawah umbrella CV Rantai Usaha Nusantara, LINKAR menyatukan enam entitas yang beroperasi mandiri namun terkoordinasi — pendekatan multi-segmen dengan fleksibilitas eksekusi yang jarang dimiliki pemain tunggal.",
+        "Kami mengisi celah yang dilewatkan pemain berbasis Jakarta: membangun ekosistem inovasi langsung dari komunitas — dengan dukungan ruang, pendanaan, mentorship, dan akses ke korporasi."
+      ]
+    },
+    "portfolio": {
+      "titleTop": "JEJAK",
+      "titlePart1": "AKTI",
+      "titlePart2": "VASI",
+      "intro": "Cuplikan program, pelatihan, dan aktivasi komunitas yang telah kami jalankan bersama mitra."
+    },
+    "services": {
+      "kicker": "CARA KAMI BEKERJA · OUR MODEL",
+      "title": "Tiga lini yang saling menguatkan.",
+      "differentiator": "Kami bermain di luar Jakarta. LINKAR menjadi anchor ekosistem di Yogyakarta, Jawa Tengah, dan Jawa Timur — celah yang dilewatkan pemain ibu kota.",
+      "cards": [
+        {
+          "no": "01",
+          "title": "Advisory & Consulting",
+          "who": "RUN",
+          "body": "Dari perancangan program, pemetaan pemangku kepentingan, hingga monitoring & evaluasi dampak.",
+          "target": "Untuk: Corporate CSR · BUMN · Pemda"
+        },
+        {
+          "no": "02",
+          "title": "Program & Event Execution",
+          "who": "Selara · Neuverse · Gumregah",
+          "body": "Eksekusi lapangan: pelatihan, event, kompetisi, inkubasi, dan aktivasi komunitas — multi-entitas, multi-segmen.",
+          "target": "Untuk: Kemenparekraf · Komdigi · Pertamina"
+        },
+        {
+          "no": "03",
+          "title": "Community Platform",
+          "who": "Digital Skill · UMKM · Mitra Tani · NGO",
+          "body": "Komunitas aktif sebagai bukti jangkauan dan kepercayaan — dari digital skill, UMKM, hingga mitra tani.",
+          "target": "Aset: diferensiasi & kredibilitas"
+        }
+      ]
+    },
+    "linkarStats": {
+      "kicker": "LINKAR DALAM ANGKA",
+      "items": [
+        {
+          "value": "6",
+          "label": "Entitas dalam satu ekosistem"
+        },
+        {
+          "value": "4",
+          "label": "Komunitas aktif dibina"
+        },
+        {
+          "value": "3",
+          "label": "Provinsi wilayah kerja"
+        },
+        {
+          "value": "20+",
+          "label": "Aktivasi terlaksana"
+        }
+      ]
+    },
+    "industry": {
+      "kicker": "KENAPA SEKARANG · THE OPPORTUNITY",
+      "title": "Pasar yang besar, eksekutor yang masih langka.",
+      "closing": "Kebutuhan eksekusi program tersebar lintas kementerian, BUMN, dan CSR korporat — dan belum ada pemain dominan di luar Jakarta.",
+      "items": [
+        {
+          "value": "1.400",
+          "label": "Ekonomi kreatif per tahun",
+          "note": "IDR triliun · ±7–8% PDB · #3 dunia"
+        },
+        {
+          "value": "15–20",
+          "label": "Anggaran CSR korporat",
+          "note": "IDR triliun · Pertamina, BRI, Mandiri, GoTo"
+        },
+        {
+          "value": "64",
+          "label": "UMKM menanti pendampingan",
+          "note": "juta unit · kontribusi 60% PDB"
+        }
+      ]
+    },
+    "commitments": {
+      "title": "Komitmen Kami",
+      "cards": [
+        {
+          "title": "Meningkatkan kualitas SDM",
+          "body": "Melalui program dan jaringan kami, kami menambah jumlah anak muda dan dewasa yang memiliki keterampilan relevan — teknis maupun vokasional — untuk pekerjaan layak dan kewirausahaan."
+        },
+        {
+          "title": "Mendampingi UMKM & wirausaha",
+          "body": "Kami menjalankan program berorientasi pengembangan yang mendukung aktivitas produktif dan membantu wirausaha — termasuk anak muda dan kelompok rentan — mencapai pekerjaan yang produktif."
+        },
+        {
+          "title": "Kolaborasi lintas pemangku kepentingan",
+          "body": "Bersama universitas, industri, dan komunitas, kami mendorong inovasi dan meningkatkan kapabilitas teknologi sektor-sektor produktif di daerah."
+        },
+        {
+          "title": "Kemitraan publik–swasta",
+          "body": "Kami mendorong kemitraan publik, publik-swasta, dan masyarakat sipil yang efektif — membangun pengalaman dan strategi kolaborasi sebagaimana di Provinsi Jawa Tengah."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Mari membangun ekosistem dampak bersama.",
+      "subEn": "Everyone can be everyone's gateway.",
+      "subId": "Punya program CSR, pelatihan, atau inisiatif komunitas yang butuh eksekusi terukur? Ceritakan kebutuhan Anda.",
+      "submitLabel": "Kirim Pesan →"
+    }
+  },
+  "entities": [
+    {
+      "name": "RUN",
+      "role": "Advisory & Consulting",
+      "tagline": "Consulting · B2B/B2G",
+      "logo": "/images/entities/run.png",
+      "slug": "run",
+      "description": "RUN adalah lini advisory dan konsultasi LINKAR untuk mitra korporat, BUMN, dan pemerintah. Kami merancang program, memetakan pemangku kepentingan, dan mengukur dampak dari perencanaan hingga evaluasi.",
+      "website": "",
+      "hasProfile": true
+    },
+    {
+      "name": "Neuverse",
+      "role": "Academy & Training",
+      "tagline": "Education · Digital",
+      "logo": "/images/entities/neuverse.png",
+      "slug": "neuverse",
+      "description": "Neuverse adalah akademi pelatihan LINKAR yang berfokus pada peningkatan keterampilan digital dan vokasional. Kami merancang kurikulum dan menjalankan program pelatihan untuk anak muda dan komunitas.",
+      "website": "",
+      "hasProfile": true
+    },
+    {
+      "name": "Selara",
+      "role": "Events & Program Execution",
+      "tagline": "Execution · Creative",
+      "logo": "/images/entities/selara.png",
+      "slug": "selara",
+      "description": "Selara menangani eksekusi acara dan program kreatif di lapangan — dari perencanaan produksi hingga hari pelaksanaan. Kami menjadi tangan eksekusi untuk aktivasi komunitas dan korporat.",
+      "website": "",
+      "hasProfile": true
+    },
+    {
+      "name": "Gumregah",
+      "role": "Community & UMKM",
+      "tagline": "Community · Impact",
+      "logo": "/images/entities/gumregah.png",
+      "slug": "gumregah",
+      "description": "Gumregah adalah lini pemberdayaan komunitas dan UMKM LINKAR, dengan fokus pada pendampingan pelaku usaha kecil dan komunitas agrikultur. Kami membangun program berkelanjutan, bukan bantuan sesaat.",
+      "website": "",
+      "hasProfile": true
+    },
+    {
+      "name": "HAN",
+      "role": "Trade & Distribution",
+      "tagline": "Komersial · Retail",
+      "logo": "/images/entities/han.png",
+      "slug": "han",
+      "description": "HAN menjalankan lini perdagangan dan distribusi LINKAR, menghubungkan produk mitra UMKM ke jaringan retail yang lebih luas. Kami menjembatani produksi komunitas dengan pasar komersial.",
+      "website": "",
+      "hasProfile": true
+    },
+    {
+      "name": "Artha",
+      "role": "Finance & Capital",
+      "tagline": "Pendanaan · Investasi",
+      "logo": "/images/entities/artha.png",
+      "slug": "artha",
+      "description": "Artha adalah lini finansial dan permodalan LINKAR, mendukung akses pendanaan bagi UMKM dan mitra program. Kami menghubungkan kebutuhan modal dengan skema pembiayaan yang sesuai.",
+      "website": "",
+      "hasProfile": true
+    }
+  ],
+  "photos": [
+    {
+      "src": "/images/portfolio/aktivasi-01.jpg",
+      "alt": "Peserta program Artha Affiliate Kickstart berkumpul usai sesi, kompak mengangkat tanda salam",
+      "program": "Peserta program Artha Affiliate Kickstart berkumpul usai sesi, kompak mengangkat tanda salam",
+      "featured": true
+    },
+    {
+      "src": "/images/portfolio/aktivasi-02.jpg",
+      "alt": "Buka puasa bersama manajemen ekosistem RUN, dihadiri puluhan anggota tim",
+      "program": "Buka puasa bersama manajemen ekosistem RUN, dihadiri puluhan anggota tim",
+      "featured": true
+    },
+    {
+      "src": "/images/portfolio/aktivasi-03.jpg",
+      "alt": "Tim produksi berpose di panggung usai acara budaya bertema wayang",
+      "program": "Tim produksi berpose di panggung usai acara budaya bertema wayang",
+      "featured": true
+    },
+    {
+      "src": "/images/portfolio/aktivasi-04.jpg",
+      "alt": "Kunjungan ke Yoso Farm Homestead bersama pengelola dan petani setempat",
+      "program": "Kunjungan ke Yoso Farm Homestead bersama pengelola dan petani setempat",
+      "featured": true
+    },
+    {
+      "src": "/images/portfolio/aktivasi-05.jpg",
+      "alt": "Sesi kerja kolaboratif tim menggunakan laptop di ruang terbuka",
+      "program": "Sesi kerja kolaboratif tim menggunakan laptop di ruang terbuka",
+      "featured": true
+    },
+    {
+      "src": "/images/portfolio/aktivasi-06.jpg",
+      "alt": "Diskusi perencanaan program di area outdoor bersama beberapa anggota tim",
+      "program": "Diskusi perencanaan program di area outdoor bersama beberapa anggota tim",
+      "featured": false
+    },
+    {
+      "src": "/images/portfolio/aktivasi-07.jpg",
+      "alt": "Rapat koordinasi lintas tim di gudang mitra UMKM, membahas alur kerja produk",
+      "program": "Rapat koordinasi lintas tim di gudang mitra UMKM, membahas alur kerja produk",
+      "featured": false
+    },
+    {
+      "src": "/images/portfolio/aktivasi-08.jpg",
+      "alt": "Rapat koordinasi lintas entitas di ruang meeting korporat",
+      "program": "Rapat koordinasi lintas entitas di ruang meeting korporat",
+      "featured": false
+    },
+    {
+      "src": "/images/portfolio/aktivasi-09.jpg",
+      "alt": "Kunjungan tim ke kantor mitra platform digital",
+      "program": "Kunjungan tim ke kantor mitra platform digital",
+      "featured": false
+    },
+    {
+      "src": "/images/portfolio/aktivasi-10.jpg",
+      "alt": "Kunjungan tim ke kantor mitra e-commerce",
+      "program": "Kunjungan tim ke kantor mitra e-commerce",
+      "featured": false
+    }
+  ],
+  "programs": [],
+  "posts": []
+}

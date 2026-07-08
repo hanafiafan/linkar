@@ -1,0 +1,1285 @@
+---
+import { getContent } from '../../lib/content';
+
+export const prerender = false;
+
+// Check authentication
+const session = Astro.cookies.get('linkar_admin_session')?.value;
+if (session !== 'authenticated') {
+  return Astro.redirect('/admin');
+}
+
+// Load draft data first, fallback to seed
+const content = await getContent(true);
+const vis = content.home.visibility ?? {
+  hero: true,
+  marquee: true,
+  about: true,
+  portfolio: true,
+  services: true,
+  linkarStats: true,
+  industry: true,
+  commitments: true,
+  cta: true
+};
+---
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WYSIWYG Expert CMS v3 — LINKAR</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #000000;
+      --navy-panel: #121212;
+      --navy-logo: #1F2B5B;
+      --orange: #F26A21;
+      --text: #eef1f8;
+      --muted: #9aa3bd;
+      --border: rgba(255, 255, 255, 0.08);
+      --radius: 12px;
+      --success: #00ff66;
+      --error: #ff5d2b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    
+    /* Grain overlay */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 9999;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: .025;
+      mix-blend-mode: overlay;
+    }
+
+    header {
+      background: var(--navy-panel);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      padding: 16px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header__title {
+      font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 10px;
+    }
+    .header__logo {
+      height: 32px; width: auto; background: white; padding: 4px 8px; border-radius: 6px;
+    }
+    .btn-logout {
+      background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text); padding: 8px 16px; border-radius: 8px;
+      font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.3s;
+    }
+    .btn-logout:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Main Split-Screen Container */
+    .main-wrapper {
+      display: grid;
+      grid-template-columns: 240px 1fr 1fr;
+      height: calc(100vh - 65px);
+      overflow: hidden;
+    }
+    @media (max-width: 1000px) {
+      .main-wrapper {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+      }
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: rgba(10, 17, 40, 0.5);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      overflow-y: auto;
+    }
+    .tab-btn {
+      background: transparent; border: 0; color: var(--muted);
+      padding: 12px 16px; border-radius: 8px; font-weight: 600;
+      text-align: left; font-size: 0.95rem; cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.04); color: var(--text);
+    }
+    .tab-btn.is-active {
+      background: rgba(242, 106, 33, 0.1); color: var(--orange);
+    }
+
+    /* Editor Form Panel */
+    .editor-panel {
+      padding: 32px;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 28px;
+    }
+    .tab-content {
+      display: none; flex-direction: column; gap: 24px;
+    }
+    .tab-content.is-active {
+      display: flex;
+    }
+
+    /* Form Fields styling */
+    h2 { font-size: 1.4rem; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 8px; }
+    h3 { font-size: 1.1rem; font-weight: 700; color: var(--orange); margin-top: 12px; }
+    
+    .field-group {
+      display: grid; grid-template-columns: 1fr; gap: 16px;
+    }
+    @media (min-width: 768px) {
+      .field-group--2 { grid-template-columns: repeat(2, 1fr); }
+      .field-group--3 { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .field input, .field textarea, .field select {
+      background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border);
+      border-radius: 8px; padding: 11px 14px; color: var(--text);
+      font-family: inherit; font-size: 0.95rem; width: 100%;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(242, 106, 33, 0.15);
+    }
+
+    /* Switch Toggles styling */
+    .switch-group {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;
+      background: rgba(255, 255, 255, 0.01); padding: 16px; border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .switch-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; background: rgba(0, 0, 0, 0.15); border-radius: 8px;
+    }
+    .switch-item label { font-size: 0.8rem; font-weight: 700; color: var(--text); }
+    .switch { position: relative; display: inline-block; width: 42px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0; background-color: rgba(255, 255, 255, 0.12);
+      transition: .25s; border-radius: 22px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 14px; width: 14px; left: 4px; bottom: 4px;
+      background-color: white; transition: .25s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--orange); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    /* Buttons helper */
+    .btn-action {
+      background: transparent; border: 1px dashed var(--orange); color: var(--orange);
+      padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 0.85rem;
+      cursor: pointer; transition: background .3s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 12px; align-self: flex-start;
+    }
+    .btn-action:hover { background: rgba(242, 106, 33, 0.08); }
+    
+    .btn-delete {
+      background: var(--error); color: white; border: 0;
+      padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; transition: opacity .2s;
+    }
+    .btn-delete:hover { opacity: 0.9; }
+
+    /* Visual CRUD Asset Preview Panel inside card */
+    .photo-card {
+      display: flex; gap: 20px; align-items: center;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; background: rgba(255, 255, 255, 0.02); position: relative;
+    }
+    @media (max-width: 600px) {
+      .photo-card { flex-direction: column; align-items: stretch; }
+    }
+    .photo-card__preview {
+      width: 100px; height: 100px; border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--border); background: var(--navy);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .photo-card__preview img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .photo-card__fields {
+      flex: 1; display: flex; flex-direction: column; gap: 12px;
+    }
+
+    .entity-card {
+      display: flex; gap: 20px; align-items: flex-start;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; background: rgba(255, 255, 255, 0.02); position: relative;
+    }
+    @media (max-width: 600px) {
+      .entity-card { flex-direction: column; align-items: stretch; }
+    }
+    .entity-card__preview {
+      width: 80px; height: 80px; border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--border); background: #fff; padding: 6px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .entity-card__preview img {
+      width: 100%; height: 100%; object-fit: contain;
+    }
+    .entity-card__fields {
+      flex: 1; display: flex; flex-direction: column; gap: 12px;
+    }
+
+    /* Live Preview Panel */
+    .preview-panel {
+      padding: 32px;
+      background: #070c1d;
+      display: flex; flex-direction: column; gap: 32px;
+      position: relative;
+      overflow-y: auto;
+    }
+    .preview-header-badge {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(242, 106, 33, 0.15); border: 1px solid var(--orange);
+      color: var(--orange); font-size: 0.7rem; font-weight: 800;
+      padding: 4px 8px; border-radius: 6px; text-transform: uppercase;
+      letter-spacing: 1px; z-index: 10;
+    }
+
+    /* Mockup Visual Elements inside Live Preview */
+    .mock-section {
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px; padding: 24px;
+      background: var(--navy-panel);
+      position: relative;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .mock-section--hidden {
+      opacity: 0.25;
+      text-decoration: line-through;
+    }
+    .mock-section__badge {
+      position: absolute; top: -10px; left: 16px;
+      background: var(--navy); border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; color: var(--muted);
+      font-weight: 700; text-transform: uppercase;
+    }
+    .mock-kicker {
+      font-size: 0.65rem; text-transform: uppercase; font-weight: 700;
+      letter-spacing: 1px; color: var(--orange); margin-bottom: 6px;
+    }
+    .mock-title {
+      font-size: 1.25rem; font-weight: 800; line-height: 1.2; margin-bottom: 12px;
+    }
+    .mock-title span.accent {
+      background: linear-gradient(90deg, var(--orange), #ffb347);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .mock-desc {
+      font-size: 0.85rem; color: var(--muted); margin-bottom: 16px;
+    }
+    .mock-badge-eyebrow {
+      display: inline-block; font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px;
+      padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(242,106,33,0.2); color: var(--orange); margin-bottom: 12px;
+    }
+
+    /* Mock brand grid */
+    .mock-brand-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;
+    }
+    .mock-brand-card {
+      background: var(--navy); border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px; padding: 10px; text-align: center; font-size: 0.75rem;
+    }
+    .mock-brand-card strong { color: var(--orange); display: block; }
+    .mock-brand-card span { font-size: 0.65rem; color: var(--muted); }
+
+    /* Mock photo bento */
+    .mock-photo-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    }
+    .mock-photo-card {
+      background: var(--navy); border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);
+      height: 70px; display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; text-align: center; color: var(--muted); font-weight: 600;
+      position: relative; overflow: hidden; padding: 4px;
+    }
+    .mock-photo-card--featured {
+      grid-column: span 2; background: rgba(242, 106, 33, 0.05); border-color: rgba(242, 106, 33, 0.2);
+    }
+    .mock-photo-card__badge {
+      position: absolute; top: 4px; left: 4px; font-size: 0.55rem;
+      background: var(--navy-panel); color: var(--orange); padding: 1px 4px; border-radius: 3px;
+    }
+
+    /* Action panels scoped under each tab */
+    .action-panel {
+      display: flex; gap: 14px; justify-content: flex-end; align-items: center;
+      border-top: 1px solid var(--border); padding-top: 20px; margin-top: 24px;
+    }
+    .btn-draft-action {
+      background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text); padding: 11px 22px; border-radius: 8px; font-weight: 600;
+      font-size: 0.85rem; cursor: pointer; transition: background 0.3s;
+    }
+    .btn-draft-action:hover { background: rgba(255, 255, 255, 0.05); }
+
+    .btn-publish-action {
+      background: linear-gradient(135deg, #F26A21, #ffb347); color: #1c0d02; border: 0;
+      padding: 11px 24px; border-radius: 8px; font-weight: 700;
+      font-size: 0.9rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-publish-action:hover {
+      transform: translateY(-1px); box-shadow: 0 4px 12px rgba(242, 106, 33, 0.35);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header__title">
+      <img src="/images/brand/linkar-logo.png" alt="" class="header__logo" />
+      <span>LINKAR Custom CMS v3</span>
+    </div>
+    <button class="btn-logout" id="btn-logout">Keluar</button>
+  </header>
+
+  <div class="main-wrapper">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <button class="tab-btn is-active" data-tab="hero">✦ Hero & Toggles</button>
+      <button class="tab-btn" data-tab="about">✦ Tentang & Layanan</button>
+      <button class="tab-btn" data-tab="portfolio">✦ Portofolio & Foto</button>
+      <button class="tab-btn" data-tab="entities">✦ Entitas Ekosistem ({content.entities.length})</button>
+    </div>
+
+    <!-- EDITOR PANEL (LEFT COLUMN) -->
+    <div class="editor-panel">
+      <!-- HERO & TOGGLES -->
+      <div class="tab-content is-active" id="hero-tab">
+        <h2>Hero & Settings</h2>
+        
+        <div class="field-group field-group--2">
+          <div class="field">
+            <label for="set-email">Email Form Kontak</label>
+            <input type="email" id="set-email" value={content.settings.formEmail} />
+          </div>
+          <div class="field">
+            <label for="set-cta">Teks Tombol CTA</label>
+            <input type="text" id="set-cta" value={content.settings.ctaLabel} />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="set-tagline">Tagline di Footer</label>
+          <input type="text" id="set-tagline" value={content.settings.footerTagline} />
+        </div>
+
+        <h3>Section Toggles (ON/OFF)</h3>
+        <div class="switch-group">
+          <div class="switch-item">
+            <label>Hero Header</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-hero" checked={vis.hero !== false} />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-item">
+            <label>Marquee</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-marquee" checked={vis.marquee !== false} />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-item">
+            <label>Tentang (About)</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-about" checked={vis.about !== false} />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-item">
+            <label>Portofolio Grid</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-portfolio" checked={vis.portfolio !== false} />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-item">
+            <label>Layanan (Services)</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-services" checked={vis.services !== false} />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-item">
+            <label>Statistik</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-stats" checked={vis.linkarStats !== false} />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-item">
+            <label>Industri / Peluang</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-industry" checked={vis.industry !== false} />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-item">
+            <label>Komitmen</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-commitments" checked={vis.commitments !== false} />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-item">
+            <label>Form CTA</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-cta" checked={vis.cta !== false} />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <h3>Konfigurasi Hero Utama</h3>
+        <div class="field">
+          <label for="hero-badge">Hero Eyebrow / Kicker</label>
+          <input type="text" id="hero-badge" value={content.home.hero.badge} />
+        </div>
+
+        <div class="field">
+          <label for="hero-title">Judul Utama (Hero Title)</label>
+          <input type="text" id="hero-title" value={content.home.hero.title} />
+        </div>
+
+        <div class="field-group field-group--2">
+          <div class="field">
+            <label for="hero-highlight">Kata Sorot Highlight</label>
+            <input type="text" id="hero-highlight" value={content.home.hero.highlight} />
+          </div>
+          <div class="field">
+            <label for="hero-visual">Visual Mode Hero</label>
+            <select id="hero-visual">
+              <option value="logo3d" selected={content.home.hero.visualMode === 'logo3d'}>Interactive 3D Logo</option>
+              <option value="foto" selected={content.home.hero.visualMode === 'foto'}>Single Photo</option>
+              <option value="folder" selected={content.home.hero.visualMode === 'folder'}>Folder Gallery</option>
+              <option value="kosong" selected={content.home.hero.visualMode === 'kosong'}>Kosong</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="hero-sub-en">Deskripsi Inggris (Italic)</label>
+          <input type="text" id="hero-sub-en" value={content.home.hero.subEn} />
+        </div>
+
+        <div class="field">
+          <label for="hero-sub-id">Deskripsi Indonesia</label>
+          <textarea id="hero-sub-id" rows="3">{content.home.hero.subId}</textarea>
+        </div>
+
+        <div class="field-group field-group--2">
+          <div class="field">
+            <label for="hero-cta-p">Label CTA Utama</label>
+            <input type="text" id="hero-cta-p" value={content.home.hero.primaryCta} />
+          </div>
+          <div class="field">
+            <label for="hero-cta-s">Label CTA Sekunder</label>
+            <input type="text" id="hero-cta-s" value={content.home.hero.secondaryCta} />
+          </div>
+        </div>
+
+        <div class="field" style="margin-top: 12px; display: flex; flex-direction: row; gap: 12px; align-items: center;">
+          <div class="photo-card__preview" style="width: 60px; height: 60px;">
+            <img id="hero-image-preview" src={content.home.hero.heroImage || "/images/portfolio/aktivasi-01.jpg"} alt="" onerror="this.src='/favicon.png';" />
+          </div>
+          <div style="flex: 1;">
+            <label for="hero-image">Gambar Hero (Mode Foto)</label>
+            <input type="text" id="hero-image" value={content.home.hero.heroImage || "/images/portfolio/aktivasi-01.jpg"} />
+          </div>
+        </div>
+
+        <!-- Scoped action bar for Hero -->
+        <div class="action-panel">
+          <button type="button" class="btn-draft-action btn-save-draft" data-scope="hero">Simpan Draf Hero</button>
+          <button type="button" class="btn-publish-action btn-publish" data-scope="hero">Publikasikan Hero 🚀</button>
+        </div>
+      </div>
+
+      <!-- TENTANG & LAYANAN -->
+      <div class="tab-content" id="about-tab">
+        <h2>Tentang Kami</h2>
+        
+        <div class="field-group field-group--2">
+          <div class="field">
+            <label for="about-kicker">Eyebrow Tentang Kami</label>
+            <input type="text" id="about-kicker" value={content.home.about.kicker} />
+          </div>
+          <div class="field">
+            <label for="about-title">Judul Tentang Kami</label>
+            <input type="text" id="about-title" value={content.home.about.title} />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="about-p1">Paragraf 1</label>
+          <textarea id="about-p1" rows="3">{content.home.about.paragraphs[0]}</textarea>
+        </div>
+        <div class="field">
+          <label for="about-p2">Paragraf 2</label>
+          <textarea id="about-p2" rows="3">{content.home.about.paragraphs[1]}</textarea>
+        </div>
+
+        <h2>Sektor Layanan</h2>
+        <div class="field">
+          <label for="svc-title">Judul Seksi Layanan</label>
+          <input type="text" id="svc-title" value={content.home.services.title} />
+        </div>
+
+        <div class="field">
+          <label for="svc-diff">Diferensiasi LINKAR</label>
+          <textarea id="svc-diff" rows="2">{content.home.services.differentiator}</textarea>
+        </div>
+
+        <!-- Scoped action bar for About -->
+        <div class="action-panel">
+          <button type="button" class="btn-draft-action btn-save-draft" data-scope="about">Simpan Draf Layanan</button>
+          <button type="button" class="btn-publish-action btn-publish" data-scope="about">Publikasikan Layanan 🚀</button>
+        </div>
+      </div>
+
+      <!-- PORTFOLIO -->
+      <div class="tab-content" id="portfolio-tab">
+        <h2>Portofolio & Jejak</h2>
+        
+        <div class="field-group field-group--3">
+          <div class="field">
+            <label for="port-top">Jejak Title (Baris 1)</label>
+            <input type="text" id="port-top" value={content.home.portfolio.titleTop} />
+          </div>
+          <div class="field">
+            <label for="port-p1">Title Part 1</label>
+            <input type="text" id="port-p1" value={content.home.portfolio.titlePart1} />
+          </div>
+          <div class="field">
+            <label for="port-p2">Title Part 2</label>
+            <input type="text" id="port-p2" value={content.home.portfolio.titlePart2} />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="port-intro">Keterangan Intro Portofolio</label>
+          <textarea id="port-intro" rows="2">{content.home.portfolio.intro}</textarea>
+        </div>
+
+        <h3 style="border-top: 1px solid var(--border); padding-top: 24px; margin-top: 16px;">Kelola Galeri Foto Portofolio ({content.photos.length})</h3>
+        
+        <div id="photos-container" style="display: flex; flex-direction: column; gap: 20px;">
+          {content.photos.map((ph, index) => (
+            <div class="photo-card" data-index={index}>
+              <!-- Visual CRUD Preview Box -->
+              <div class="photo-card__preview">
+                <img src={ph.src} alt="" onerror="this.src='/favicon.png';" />
+              </div>
+              <div class="photo-card__fields">
+                <button type="button" class="btn-delete" style="position: absolute; top: 20px; right: 20px;">Hapus Foto</button>
+                
+                <div class="field-group field-group--2">
+                  <div class="field">
+                    <label>Path URL Gambar</label>
+                    <input type="text" class="photo-src" value={ph.src} />
+                  </div>
+                  <div class="field">
+                    <label>Nama Program Utama</label>
+                    <input type="text" class="photo-program" value={ph.program} />
+                  </div>
+                </div>
+
+                <div class="field-group field-group--2">
+                  <div class="field">
+                    <label>Keterangan Foto (Alt Text)</label>
+                    <input type="text" class="photo-alt" value={ph.alt} />
+                  </div>
+                  <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 24px;">
+                    <input type="checkbox" class="photo-featured" checked={ph.featured} style="width: 20px; height: 20px; cursor: pointer;" />
+                    <label style="margin-bottom: 0; cursor: pointer;">Tampilkan di Galeri Unggulan (Featured)</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button class="btn-action" id="btn-add-photo">+ Tambah Foto Portofolio</button>
+
+        <!-- Scoped action bar for Portfolio -->
+        <div class="action-panel">
+          <button type="button" class="btn-draft-action btn-save-draft" data-scope="portfolio">Simpan Draf Portofolio</button>
+          <button type="button" class="btn-publish-action btn-publish" data-scope="portfolio">Publikasikan Portofolio 🚀</button>
+        </div>
+      </div>
+
+      <!-- ENTITAS EKOSISTEM -->
+      <div class="tab-content" id="entities-tab">
+        <h2>Entitas Ekosistem</h2>
+        <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 8px;">Kelola entitas brand yang tergabung di dalam ekosistem LINKAR:</p>
+        
+        <div id="entities-container" style="display: flex; flex-direction: column; gap: 24px;">
+          {content.entities.map((entity, index) => (
+            <div class="entity-card" data-index={index}>
+              <!-- Visual CRUD Brand Logo Preview -->
+              <div class="entity-card__preview">
+                <img src={entity.logo} alt="" onerror="this.src='/favicon.png';" />
+              </div>
+              <div class="entity-card__fields">
+                <button type="button" class="btn-delete" style="position: absolute; top: 20px; right: 20px;">Hapus Entitas</button>
+                <h3 style="font-size: 1.1rem; color: var(--orange); margin-bottom: 16px;">
+                  <span>Edit Entitas: {entity.name}</span>
+                </h3>
+                
+                <div class="field-group field-group--3" style="margin-bottom: 12px;">
+                  <div class="field">
+                    <label>Nama Entitas</label>
+                    <input type="text" class="entity-name" value={entity.name} />
+                  </div>
+                  <div class="field">
+                    <label>Peran / Role</label>
+                    <input type="text" class="entity-role" value={entity.role} />
+                  </div>
+                  <div class="field">
+                    <label>Tagline</label>
+                    <input type="text" class="entity-tagline" value={entity.tagline} />
+                  </div>
+                </div>
+
+                <div class="field-group field-group--2" style="margin-bottom: 12px;">
+                  <div class="field">
+                    <label>Logo Path</label>
+                    <input type="text" class="entity-logo" value={entity.logo} />
+                  </div>
+                  <div class="field">
+                    <label>Slug Halaman</label>
+                    <input type="text" class="entity-slug" value={entity.slug} />
+                  </div>
+                </div>
+
+                <div class="field" style="margin-bottom: 12px;">
+                  <label>Deskripsi Ringkas</label>
+                  <textarea class="entity-desc" rows="2">{entity.description}</textarea>
+                </div>
+
+                <div class="field-group field-group--2">
+                  <div class="field">
+                    <label>Website Link</label>
+                    <input type="text" class="entity-web" value={entity.website} />
+                  </div>
+                  <div class="field">
+                    <label>Punya Profil Detail?</label>
+                    <select class="entity-profile">
+                      <option value="true" selected={entity.hasProfile === true}>Ya, Aktif</option>
+                      <option value="false" selected={entity.hasProfile !== true}>Tidak</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button class="btn-action" id="btn-add-entity">+ Tambah Brand/Entitas Baru</button>
+
+        <!-- Scoped action bar for Entities -->
+        <div class="action-panel">
+          <button type="button" class="btn-draft-action btn-save-draft" data-scope="entities">Simpan Draf Entitas</button>
+          <button type="button" class="btn-publish-action btn-publish" data-scope="entities">Publikasikan Entitas 🚀</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE WYSIWYG PREVIEW (RIGHT COLUMN) -->
+    <div class="preview-panel">
+      <span class="preview-header-badge">Live Visual Preview</span>
+      
+      <!-- HERO MOCK -->
+      <div class="mock-section" id="prev-hero-section">
+        <span class="mock-section__badge">Hero Section</span>
+        <span class="mock-badge-eyebrow" id="prev-hero-badge">EYEBROW TEXT</span>
+        <h1 class="mock-title" id="prev-hero-title">Judul Utama <span class="accent">Sorotan</span></h1>
+        <p class="mock-desc" id="prev-hero-sub-en" style="font-style: italic;">English translation subtitle</p>
+        <p class="mock-desc" id="prev-hero-sub-id">Indonesian translation subtitle</p>
+        <span style="font-size:0.7rem; color:var(--orange); font-weight:700; border:1px solid; padding:4px 8px; border-radius:4px;" id="prev-hero-visual-mode">Visual: Logo 3D</span>
+      </div>
+
+      <!-- ABOUT MOCK -->
+      <div class="mock-section" id="prev-about-section">
+        <span class="mock-section__badge">Tentang Kami (About)</span>
+        <span class="mock-kicker" id="prev-about-kicker">KICKER</span>
+        <h1 class="mock-title" id="prev-about-title">Judul Tentang Kami</h1>
+        <p class="mock-desc" id="prev-about-p1">Paragraf 1</p>
+        <p class="mock-desc" id="prev-about-p2">Paragraf 2</p>
+      </div>
+
+      <!-- SERVICES MOCK -->
+      <div class="mock-section" id="prev-services-section">
+        <span class="mock-section__badge">Layanan (Services)</span>
+        <span class="mock-kicker">CARA KAMI BEKERJA</span>
+        <h1 class="mock-title" id="prev-svc-title">Tiga Lini</h1>
+        <p class="mock-desc" id="prev-svc-diff">Diferensiator LINKAR...</p>
+      </div>
+
+      <!-- PORTFOLIO MOCK -->
+      <div class="mock-section" id="prev-portfolio-section">
+        <span class="mock-section__badge">Portofolio</span>
+        <h1 class="mock-title" id="prev-port-title">JEJAK AKTIVASI</h1>
+        <p class="mock-desc" id="prev-port-intro">Keterangan Intro...</p>
+        <div class="mock-photo-grid" id="prev-photo-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- ENTITIES MOCK -->
+      <div class="mock-section" id="prev-entities-section">
+        <span class="mock-section__badge">Ecosystem Brands</span>
+        <div class="mock-brand-grid" id="prev-brand-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATES FOR DYNAMIC CARD INSERTIONS -->
+  <template id="photo-template">
+    <div class="photo-card">
+      <div class="photo-card__preview">
+        <img src="/favicon.png" alt="" onerror="this.src='/favicon.png';" />
+      </div>
+      <div class="photo-card__fields">
+        <button type="button" class="btn-delete" style="position: absolute; top: 20px; right: 20px;">Hapus Foto</button>
+        
+        <div class="field-group field-group--2">
+          <div class="field">
+            <label>Path URL Gambar</label>
+            <input type="text" class="photo-src" placeholder="/images/portfolio/aktivasi-01.jpg" />
+          </div>
+          <div class="field">
+            <label>Nama Program Utama</label>
+            <input type="text" class="photo-program" placeholder="Program baru" />
+          </div>
+        </div>
+
+        <div class="field-group field-group--2">
+          <div class="field">
+            <label>Keterangan Foto (Alt Text)</label>
+            <input type="text" class="photo-alt" placeholder="Deskripsi foto..." />
+          </div>
+          <div class="field" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 24px;">
+            <input type="checkbox" class="photo-featured" style="width: 20px; height: 20px; cursor: pointer;" />
+            <label style="margin-bottom: 0; cursor: pointer;">Tampilkan di Galeri Unggulan (Featured)</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="entity-template">
+    <div class="entity-card" style="border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; background: rgba(255, 255, 255, 0.02); position: relative; display: flex; gap: 20px; align-items: flex-start;">
+      <div class="entity-card__preview">
+        <img src="/favicon.png" alt="" onerror="this.src='/favicon.png';" />
+      </div>
+      <div class="entity-card__fields">
+        <button type="button" class="btn-delete" style="position: absolute; top: 20px; right: 20px;">Hapus Entitas</button>
+        <h3 style="font-size: 1.1rem; color: var(--orange); margin-bottom: 16px;">Entitas Baru</h3>
+        
+        <div class="field-group field-group--3" style="margin-bottom: 12px;">
+          <div class="field">
+            <label>Nama Entitas</label>
+            <input type="text" class="entity-name" placeholder="Nama Baru" />
+          </div>
+          <div class="field">
+            <label>Peran / Role</label>
+            <input type="text" class="entity-role" placeholder="Role Baru" />
+          </div>
+          <div class="field">
+            <label>Tagline</label>
+            <input type="text" class="entity-tagline" placeholder="Tagline Baru" />
+          </div>
+        </div>
+
+        <div class="field-group field-group--2" style="margin-bottom: 12px;">
+          <div class="field">
+            <label>Logo Path</label>
+            <input type="text" class="entity-logo" placeholder="/images/entities/artha.png" />
+          </div>
+          <div class="field">
+            <label>Slug Halaman</label>
+            <input type="text" class="entity-slug" placeholder="slug-baru" />
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom: 12px;">
+          <label>Deskripsi Ringkas</label>
+          <textarea class="entity-desc" rows="2" placeholder="Deskripsi ringkas entitas baru..."></textarea>
+        </div>
+
+        <div class="field-group field-group--2">
+          <div class="field">
+            <label>Website Link</label>
+            <input type="text" class="entity-web" placeholder="https://example.com" />
+          </div>
+          <div class="field">
+            <label>Punya Profil Detail?</label>
+            <select class="entity-profile">
+              <option value="true">Ya, Aktif</option>
+              <option value="false">Tidak</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <div class="toast" id="toast">Perubahan draf berhasil disimpan!</div>
+
+  <script>
+    // Tab switching logic
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        
+        tabBtns.forEach(b => b.classList.remove('is-active'));
+        tabContents.forEach(c => c.classList.remove('is-active'));
+
+        btn.classList.add('is-active');
+        document.getElementById(`${tab}-tab`)?.classList.add('is-active');
+
+        // Scroll preview to target section
+        const previewSec = document.getElementById(`prev-${tab}-section`);
+        if (previewSec) {
+          previewSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
+
+    // Real-time WYSIWYG Visual Syncing & Inline CRUD Previews
+    function syncPreviews() {
+      // Inline Photo and Entity card previews
+      const photoCards = document.querySelectorAll('.photo-card');
+      photoCards.forEach(card => {
+        const srcInput = card.querySelector('.photo-src') as HTMLInputElement;
+        const imgEl = card.querySelector('.photo-card__preview img') as HTMLImageElement;
+        if (srcInput && imgEl && srcInput.value && imgEl.src !== window.location.origin + srcInput.value) {
+          imgEl.src = srcInput.value;
+        }
+      });
+
+      const entityCards = document.querySelectorAll('.entity-card');
+      entityCards.forEach(card => {
+        const logoInput = card.querySelector('.entity-logo') as HTMLInputElement;
+        const imgEl = card.querySelector('.entity-card__preview img') as HTMLImageElement;
+        if (logoInput && imgEl && logoInput.value && imgEl.src !== window.location.origin + logoInput.value) {
+          imgEl.src = logoInput.value;
+        }
+      });
+
+      // Hero image and showDeco sync
+      const heroImgInput = document.getElementById('hero-image') as HTMLInputElement;
+      const heroImgPrev = document.getElementById('hero-image-preview') as HTMLImageElement;
+      if (heroImgInput && heroImgPrev && heroImgInput.value) {
+        heroImgPrev.src = heroImgInput.value;
+      }
+      
+      // showDeco removed
+
+      // 1. Hero sync
+      const badgeVal = (document.getElementById('hero-badge') as HTMLInputElement).value;
+      const titleVal = (document.getElementById('hero-title') as HTMLInputElement).value;
+      const highlightVal = (document.getElementById('hero-highlight') as HTMLInputElement).value;
+      const subEnVal = (document.getElementById('hero-sub-en') as HTMLInputElement).value;
+      const subIdVal = (document.getElementById('hero-sub-id') as HTMLTextAreaElement).value;
+      const visualModeVal = (document.getElementById('hero-visual') as HTMLSelectElement).value;
+
+      const prevBadge = document.getElementById('prev-hero-badge');
+      const prevTitle = document.getElementById('prev-hero-title');
+      const prevSubEn = document.getElementById('prev-hero-sub-en');
+      const prevSubId = document.getElementById('prev-hero-sub-id');
+      const prevVisual = document.getElementById('prev-hero-visual-mode');
+
+      if (prevBadge) prevBadge.textContent = badgeVal;
+      if (prevSubEn) prevSubEn.textContent = subEnVal;
+      if (prevSubId) prevSubId.textContent = subIdVal;
+      if (prevVisual) prevVisual.textContent = `Visual: ${visualModeVal.toUpperCase()}`;
+
+      if (prevTitle) {
+        if (highlightVal && titleVal.includes(highlightVal)) {
+          const parts = titleVal.split(highlightVal);
+          prevTitle.innerHTML = `${parts[0]}<span class="accent">${highlightVal}</span>${parts[1]}`;
+        } else {
+          prevTitle.textContent = titleVal;
+        }
+      }
+
+      // 2. About sync
+      const aboutKickerVal = (document.getElementById('about-kicker') as HTMLInputElement).value;
+      const aboutTitleVal = (document.getElementById('about-title') as HTMLInputElement).value;
+      const aboutP1Val = (document.getElementById('about-p1') as HTMLTextAreaElement).value;
+      const aboutP2Val = (document.getElementById('about-p2') as HTMLTextAreaElement).value;
+
+      const prevAbKicker = document.getElementById('prev-about-kicker');
+      const prevAbTitle = document.getElementById('prev-about-title');
+      const prevAbP1 = document.getElementById('prev-about-p1');
+      const prevAbP2 = document.getElementById('prev-about-p2');
+
+      if (prevAbKicker) prevAbKicker.textContent = aboutKickerVal;
+      if (prevAbTitle) prevAbTitle.textContent = aboutTitleVal;
+      if (prevAbP1) prevAbP1.textContent = aboutP1Val;
+      if (prevAbP2) prevAbP2.textContent = aboutP2Val;
+
+      // 3. Services sync
+      const svcTitleVal = (document.getElementById('svc-title') as HTMLInputElement).value;
+      const svcDiffVal = (document.getElementById('svc-diff') as HTMLTextAreaElement).value;
+      
+      const prevSvcTitle = document.getElementById('prev-svc-title');
+      const prevSvcDiff = document.getElementById('prev-svc-diff');
+
+      if (prevSvcTitle) prevSvcTitle.textContent = svcTitleVal;
+      if (prevSvcDiff) prevSvcDiff.textContent = svcDiffVal;
+
+      // 4. Portfolio sync
+      const portTopVal = (document.getElementById('port-top') as HTMLInputElement).value;
+      const portP1Val = (document.getElementById('port-p1') as HTMLInputElement).value;
+      const portP2Val = (document.getElementById('port-p2') as HTMLInputElement).value;
+      const portIntroVal = (document.getElementById('port-intro') as HTMLTextAreaElement).value;
+
+      const prevPortTitle = document.getElementById('prev-port-title');
+      const prevPortIntro = document.getElementById('prev-port-intro');
+
+      if (prevPortTitle) prevPortTitle.textContent = `${portTopVal} ${portP1Val}${portP2Val}`;
+      if (prevPortIntro) prevPortIntro.textContent = portIntroVal;
+
+      // 5. Visibility toggles sync
+      const toggleHero = document.getElementById('toggle-hero') as HTMLInputElement;
+      const toggleAbout = document.getElementById('toggle-about') as HTMLInputElement;
+      const toggleServices = document.getElementById('toggle-services') as HTMLInputElement;
+      const togglePortfolio = document.getElementById('toggle-portfolio') as HTMLInputElement;
+
+      const prevHeroSec = document.getElementById('prev-hero-section');
+      const prevAboutSec = document.getElementById('prev-about-section');
+      const prevSvcSec = document.getElementById('prev-services-section');
+      const prevPortSec = document.getElementById('prev-portfolio-section');
+
+      if (prevHeroSec) prevHeroSec.classList.toggle('mock-section--hidden', !toggleHero.checked);
+      if (prevAboutSec) prevAboutSec.classList.toggle('mock-section--hidden', !toggleAbout.checked);
+      if (prevSvcSec) prevSvcSec.classList.toggle('mock-section--hidden', !toggleServices.checked);
+      if (prevPortSec) prevPortSec.classList.toggle('mock-section--hidden', !togglePortfolio.checked);
+
+      // 6. Sync entities / brands list
+      const brandGrid = document.getElementById('prev-brand-grid');
+      if (brandGrid) {
+        brandGrid.innerHTML = '';
+        entityCards.forEach(card => {
+          const nameInput = card.querySelector('.entity-name') as HTMLInputElement;
+          const roleInput = card.querySelector('.entity-role') as HTMLInputElement;
+          if (nameInput && roleInput && nameInput.value) {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'mock-brand-card';
+            cardEl.innerHTML = `<strong>${nameInput.value}</strong><span>${roleInput.value}</span>`;
+            brandGrid.appendChild(cardEl);
+          }
+        });
+      }
+
+      // 7. Sync photos list
+      const photoGrid = document.getElementById('prev-photo-grid');
+      if (photoGrid) {
+        photoGrid.innerHTML = '';
+        photoCards.forEach((card, index) => {
+          const programInput = card.querySelector('.photo-program') as HTMLInputElement;
+          const isFeatured = card.querySelector('.photo-featured') as HTMLInputElement;
+          if (programInput && programInput.value) {
+            const cardEl = document.createElement('div');
+            cardEl.className = `mock-photo-card ${isFeatured?.checked ? 'mock-photo-card--featured' : ''}`;
+            cardEl.innerHTML = `<span class="mock-photo-card__badge">${String(index + 1).padStart(2, '0')}</span>${programInput.value}`;
+            photoGrid.appendChild(cardEl);
+          }
+        });
+      }
+    }
+
+    // Attach listeners for instant sync
+    document.addEventListener('input', syncPreviews);
+    document.addEventListener('change', syncPreviews);
+
+    // Initial sync run
+    syncPreviews();
+
+    // Delete item handler
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('btn-delete')) {
+        const card = target.closest('.photo-card, .entity-card');
+        if (card && confirm('Apakah Anda yakin ingin menghapus item ini?')) {
+          card.remove();
+          syncPreviews();
+        }
+      }
+    });
+
+    // Add Photo handler
+    const photosContainer = document.getElementById('photos-container');
+    const photoTemplate = document.getElementById('photo-template') as HTMLTemplateElement;
+    document.getElementById('btn-add-photo')?.addEventListener('click', () => {
+      if (photosContainer && photoTemplate) {
+        const clone = photoTemplate.content.cloneNode(true);
+        photosContainer.appendChild(clone);
+        syncPreviews();
+        showToast('Form foto baru ditambahkan!');
+      }
+    });
+
+    // Add Entity handler
+    const entitiesContainer = document.getElementById('entities-container');
+    const entityTemplate = document.getElementById('entity-template') as HTMLTemplateElement;
+    document.getElementById('btn-add-entity')?.addEventListener('click', () => {
+      if (entitiesContainer && entityTemplate) {
+        const clone = entityTemplate.content.cloneNode(true);
+        entitiesContainer.appendChild(clone);
+        syncPreviews();
+        showToast('Form entitas baru ditambahkan!');
+      }
+    });
+
+    // Logout logic
+    document.getElementById('btn-logout')?.addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/admin';
+    });
+
+    // Toast feedback utility
+    const toast = document.getElementById('toast');
+    function showToast(message: string, isError = false) {
+      if (!toast) return;
+      toast.textContent = message;
+      if (isError) {
+        toast.classList.add('toast--error');
+      } else {
+        toast.classList.remove('toast--error');
+      }
+      toast.classList.add('is-visible');
+      setTimeout(() => {
+        toast.classList.remove('is-visible');
+      }, 3000);
+    }
+
+    // Helper to gather editor fields into full JSON payload
+    function getEditorPayload() {
+      const entityCards = document.querySelectorAll('.entity-card');
+      const entities = Array.from(entityCards).map(card => {
+        return {
+          name: (card.querySelector('.entity-name') as HTMLInputElement).value,
+          role: (card.querySelector('.entity-role') as HTMLInputElement).value,
+          tagline: (card.querySelector('.entity-tagline') as HTMLInputElement).value,
+          logo: (card.querySelector('.entity-logo') as HTMLInputElement).value,
+          slug: (card.querySelector('.entity-slug') as HTMLInputElement).value,
+          description: (card.querySelector('.entity-desc') as HTMLTextAreaElement).value,
+          website: (card.querySelector('.entity-web') as HTMLInputElement).value,
+          hasProfile: (card.querySelector('.entity-profile') as HTMLSelectElement).value === 'true',
+        };
+      });
+
+      const photoCards = document.querySelectorAll('.photo-card');
+      const photos = Array.from(photoCards).map(card => {
+        return {
+          src: (card.querySelector('.photo-src') as HTMLInputElement).value,
+          alt: (card.querySelector('.photo-alt') as HTMLInputElement).value,
+          program: (card.querySelector('.photo-program') as HTMLInputElement).value,
+          featured: (card.querySelector('.photo-featured') as HTMLInputElement).checked,
+        };
+      });
+
+      return {
+        settings: {
+          formEmail: (document.getElementById('set-email') as HTMLInputElement).value,
+          footerTagline: (document.getElementById('set-tagline') as HTMLInputElement).value,
+          ctaLabel: (document.getElementById('set-cta') as HTMLInputElement).value,
+        },
+        home: {
+          visibility: {
+            hero: (document.getElementById('toggle-hero') as HTMLInputElement).checked,
+            marquee: (document.getElementById('toggle-marquee') as HTMLInputElement).checked,
+            about: (document.getElementById('toggle-about') as HTMLInputElement).checked,
+            portfolio: (document.getElementById('toggle-portfolio') as HTMLInputElement).checked,
+            services: (document.getElementById('toggle-services') as HTMLInputElement).checked,
+            linkarStats: (document.getElementById('toggle-stats') as HTMLInputElement).checked,
+            industry: (document.getElementById('toggle-industry') as HTMLInputElement).checked,
+            commitments: (document.getElementById('toggle-commitments') as HTMLInputElement).checked,
+            cta: (document.getElementById('toggle-cta') as HTMLInputElement).checked
+          },
+          hero: {
+            badge: (document.getElementById('hero-badge') as HTMLInputElement).value,
+            title: (document.getElementById('hero-title') as HTMLInputElement).value,
+            highlight: (document.getElementById('hero-highlight') as HTMLInputElement).value,
+            subEn: (document.getElementById('hero-sub-en') as HTMLInputElement).value,
+            subId: (document.getElementById('hero-sub-id') as HTMLTextAreaElement).value,
+            primaryCta: (document.getElementById('hero-cta-p') as HTMLInputElement).value,
+            secondaryCta: (document.getElementById('hero-cta-s') as HTMLInputElement).value,
+            visualMode: (document.getElementById('hero-visual') as HTMLSelectElement).value,
+            heroImage: (document.getElementById('hero-image') as HTMLInputElement).value,
+            miniStats: [
+              { value: "6", label: "Entitas terkoordinasi" },
+              { value: "4", label: "Komunitas aktif" },
+              { value: "3", label: "Provinsi inti" }
+            ]
+          },
+          marquee: { kicker: "OUR ECOSYSTEM", title: "Satu lingkar, enam kekuatan" },
+          about: {
+            kicker: (document.getElementById('about-kicker') as HTMLInputElement).value,
+            title: (document.getElementById('about-title') as HTMLInputElement).value,
+            paragraphs: [
+              (document.getElementById('about-p1') as HTMLTextAreaElement).value,
+              (document.getElementById('about-p2') as HTMLTextAreaElement).value
+            ]
+          },
+          portfolio: {
+            titleTop: (document.getElementById('port-top') as HTMLInputElement).value,
+            titlePart1: (document.getElementById('port-p1') as HTMLInputElement).value,
+            titlePart2: (document.getElementById('port-p2') as HTMLInputElement).value,
+            intro: (document.getElementById('port-intro') as HTMLTextAreaElement).value
+          },
+          services: {
+            kicker: "CARA KAMI BEKERJA · OUR MODEL",
+            title: (document.getElementById('svc-title') as HTMLInputElement).value,
+            differentiator: (document.getElementById('svc-diff') as HTMLTextAreaElement).value,
+            cards: [
+              { no: "01", title: "Advisory & Consulting", who: "RUN", body: "Dari perancangan program, pemetaan pemangku kepentingan, hingga monitoring & evaluasi dampak.", target: "Untuk: Corporate CSR · BUMN · Pemda" },
+              { no: "02", title: "Program & Event Execution", who: "Selara · Neuverse · Gumregah", body: "Eksekusi lapangan: pelatihan, event, kompetisi, inkubasi, dan aktivasi komunitas — multi-entitas, multi-segmen.", target: "Untuk: Kemenparekraf · Komdigi · Pertamina" },
+              { no: "03", title: "Community Platform", who: "Digital Skill · UMKM · Mitra Tani · NGO", body: "Komunitas aktif sebagai bukti jangkauan dan kepercayaan — dari digital skill, UMKM, hingga mitra tani.", target: "Aset: diferensiasi & kredibilitas" }
+            ]
+          },
+          linkarStats: {
+            kicker: "LINKAR DALAM ANGKA",
+            items: [
+              { value: "6", label: "Entitas dalam satu ekosistem" },
+              { value: "4", label: "Komunitas aktif dibina" },
+              { value: "3", label: "Provinsi wilayah kerja" },
+              { value: "20+", label: "Aktivasi terlaksana" }
+            ]
+          },
+          industry: {
+            kicker: "KENAPA SEKARANG · THE OPPORTUNITY",
+            title: "Pasar yang besar, eksekutor yang masih langka.",
+            closing: "Kebutuhan eksekusi program tersebar lintas kementerian, BUMN, dan CSR korporat — dan belum ada pemain dominan di luar Jakarta.",
+            items: [
+              { value: "1.400", label: "Ekonomi kreatif per tahun", note: "IDR triliun · ±7–8% PDB · #3 dunia" },
+              { value: "15–20", label: "Anggaran CSR korporat", note: "IDR triliun · Pertamina, BRI, Mandiri, GoTo" },
+              { value: "64", label: "UMKM menanti pendampingan", note: "juta unit · kontribusi 60% PDB" }
+            ]
+          },
+          commitments: {
+            title: "Komitmen Kami",
+            cards: [
+              { title: "Meningkatkan kualitas SDM", body: "Melalui program dan jaringan kami, kami menambah jumlah anak muda dan dewasa yang memiliki keterampilan relevan — teknis maupun vokasional — untuk pekerjaan layak dan kewirausahaan." },
+              { title: "Mendampingi UMKM & wirausaha", body: "Kami menjalankan program berorientasi pengembangan yang mendukung aktivitas produktif dan membantu wirausaha — termasuk anak muda dan kelompok rentan — mencapai pekerjaan yang produktif." },
+              { title: "Kolaborasi lintas pemangku kepentingan", body: "Bersama universitas, industri, dan komunitas, kami mendorong inovasi dan meningkatkan kapabilitas teknologi sektor-sektor produktif di daerah." },
+              { title: "Kemitraan publik–swasta", body: "Kami mendorong kemitraan publik, publik-swasta, dan masyarakat sipil yang efektif — membangun pengalaman dan strategi kolaborasi sebagaimana di Provinsi Jawa Tengah." }
+            ]
+          },
+          cta: {
+            title: "Mari membangun ekosistem dampak bersama.",
+            subEn: "Everyone can be everyone's gateway.",
+            subId: "Punya program CSR, pelatihan, atau inisiatif komunitas yang butuh eksekusi terukur? Ceritakan kebutuhan Anda.",
+            submitLabel: "Kirim Pesan →"
+          }
+        },
+        entities: entities,
+        photos: photos,
+        programs: [],
+        posts: []
+      };
+    }
+
+    // Attach Save Draft events
+    document.querySelectorAll('.btn-save-draft').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const scope = btn.getAttribute('data-scope');
+        const payload = getEditorPayload();
+        try {
+          const res = await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            showToast(`Draf bagian ${scope?.toUpperCase()} berhasil disimpan!`);
+          } else {
+            const data = await res.json();
+            showToast(data.error || 'Gagal menyimpan draf', true);
+          }
+        } catch (err) {
+          showToast('Gagal menghubungi server', true);
+        }
+      });
+    });
+
+    // Attach Publish events
+    document.querySelectorAll('.btn-publish').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const scope = btn.getAttribute('data-scope');
+        if (!scope || !confirm(`Apakah Anda yakin ingin mempublikasikan bagian ${scope.toUpperCase()} ke Live Website?`)) return;
+
+        // Save current draft first
+        const payload = getEditorPayload();
+        try {
+          const saveRes = await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!saveRes.ok) {
+            showToast('Gagal menyimpan draf sebelum publikasi', true);
+            return;
+          }
+
+          // Publish with scope parameter
+          const pubRes = await fetch('/api/publish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scope: scope })
+          });
+
+          if (pubRes.ok) {
+            showToast(`Sukses! Bagian ${scope.toUpperCase()} telah dipublikasikan ke Live Website! 🚀`);
+          } else {
+            const data = await pubRes.json();
+            showToast(data.error || 'Gagal mempublikasikan', true);
+          }
+        } catch (err) {
+          showToast('Gagal menghubungi server', true);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
