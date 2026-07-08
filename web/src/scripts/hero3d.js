@@ -122,10 +122,9 @@ async function loadMarkGroup() {
   box.getCenter(center);
   group.children.forEach((mesh) => mesh.geometry.translate(-center.x, -center.y, -center.z));
 
-  // SVG y-axis points down; flip to three.js's up-is-positive-Y convention.
-  group.scale.y *= -1;
-  // SVGLoader outputs mirrored horizontally, un-mirror it
-  group.scale.x *= -1;
+  // Correct scale orientation to match flat brand logo precisely (upright, un-mirrored)
+  group.scale.x = -1;
+  group.scale.y = 1;
 
   return group;
 }

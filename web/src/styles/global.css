@@ -251,7 +251,7 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:non
   background: #000000;
   transform: translateY(100%);
   pointer-events: none;
-  transition: transform 0.6s cubic-bezier(0.85, 0.09, 0.15, 0.91);
+  transition: transform 0.85s cubic-bezier(0.85, 0.09, 0.15, 0.91);
 }
 .transition-curtain.is-active {
   transform: translateY(0%);
