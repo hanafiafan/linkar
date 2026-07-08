@@ -58,6 +58,12 @@ Dokumentasi ini dibuat untuk merekam seluruh perubahan, struktur arsitektur, dan
 * **File:** `web/src/components/ContactCta.astro` & `web/src/components/Footer.astro`
 * **Fitur:** Form input bergaya borderless (hanya garis bawah) yang berubah oranye saat aktif, dan label di atasnya berubah biru. Footer minimalis dengan outline tag marquee berjalan.
 
+### 8. Page Transition Delay Curtain & Hover Leakage Fix
+* **File:** `web/src/layouts/Base.astro`, `web/src/styles/global.css`, `web/src/components/PortfolioSection.astro`
+* **Fitur:** 
+  * **Page Transition Curtain:** Menambahkan `.transition-curtain` yang menangkap klik tautan internal, memicu tirai hitam meluncur ke atas untuk menutupi viewport selama `0.6s` sebelum berpindah halaman. Halaman baru kemudian dimuat di bawah preloader yang meluncur keluar ke atas, menciptakan alur navigasi halaman yang mulus.
+  * **Hover Leakage Fix:** Menambahkan pengaman `mouseleave` pada seluruh seksi portofolio dan `mouseenter` pada bar navigasi untuk mereset skala preview melayang ke `0`, melenyapkan bug foto menggantung saat bergulir ke seksi lain.
+
 ---
 
 ## ⚙️ Petunjuk untuk Melanjutkan di Device Baru
