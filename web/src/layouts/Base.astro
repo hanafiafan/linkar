@@ -66,10 +66,10 @@ const ogImageURL = new URL('/og.png', Astro.site);
         if (curtain) {
           curtain.classList.add('is-active');
         }
-        // Delay navigation until animation finishes
+        // Delay navigation to hold a blank screen momentarily for a premium pacing gap
         setTimeout(() => {
           window.location.href = a.href;
-        }, 900);
+        }, 1400);
       }
     });
   </script>
