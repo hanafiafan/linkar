@@ -122,10 +122,6 @@ async function loadMarkGroup() {
   box.getCenter(center);
   group.children.forEach((mesh) => mesh.geometry.translate(-center.x, -center.y, -center.z));
 
-  // Correct scale orientation to match flat brand logo precisely (upright, un-mirrored)
-  group.scale.x = -1;
-  group.scale.y = 1;
-
   return group;
 }
 
@@ -163,7 +159,7 @@ export default async function initHero3D(panelEl, canvas) {
   scene.add(rimLight);
 
   const markGroup = await loadMarkGroup();
-  markGroup.scale.setScalar(1.6);
+  markGroup.scale.set(1.6, -1.6, 1.6);
   scene.add(markGroup);
 
   // Fit the camera to the mesh's bounding sphere (rotation-invariant) so the mark
