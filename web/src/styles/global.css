@@ -242,3 +242,18 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:non
   .link-hover::after{transition:none}
   .cursor__ring{transition:none}
 }
+
+/* Page Transition Curtain */
+.transition-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  background: #000000;
+  transform: translateY(100%);
+  pointer-events: none;
+  transition: transform 0.6s cubic-bezier(0.85, 0.09, 0.15, 0.91);
+}
+.transition-curtain.is-active {
+  transform: translateY(0%);
+  pointer-events: auto;
+}

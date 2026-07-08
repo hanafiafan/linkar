@@ -280,5 +280,14 @@ const photos = content.photos;
         gsap.to(previewBox, { scale: 0, opacity: 0, duration: 0.35, ease: 'power2.inOut' });
       });
     });
+
+    // Bulletproof: Hide preview when leaving the entire section or entering header
+    portfolioSec.addEventListener('mouseleave', () => {
+      gsap.to(previewBox, { scale: 0, opacity: 0, duration: 0.3, ease: 'power2.inOut' });
+    });
+
+    document.getElementById('navbar')?.addEventListener('mouseenter', () => {
+      gsap.to(previewBox, { scale: 0, opacity: 0, duration: 0.25 });
+    });
   }
 </script>
