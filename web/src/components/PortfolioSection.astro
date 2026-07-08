@@ -281,7 +281,7 @@ const photos = content.photos;
       });
     });
 
-    // Bulletproof: Hide preview when leaving the entire section or entering header
+    // Bulletproof: Hide preview when leaving the entire section, entering header, or scrolling
     portfolioSec.addEventListener('mouseleave', () => {
       gsap.to(previewBox, { scale: 0, opacity: 0, duration: 0.3, ease: 'power2.inOut' });
     });
@@ -289,5 +289,9 @@ const photos = content.photos;
     document.getElementById('navbar')?.addEventListener('mouseenter', () => {
       gsap.to(previewBox, { scale: 0, opacity: 0, duration: 0.25 });
     });
+
+    window.addEventListener('scroll', () => {
+      gsap.to(previewBox, { scale: 0, opacity: 0, duration: 0.2 });
+    }, { passive: true });
   }
 </script>

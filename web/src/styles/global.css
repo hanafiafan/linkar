@@ -257,3 +257,18 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:non
   transform: translateY(0%);
   pointer-events: auto;
 }
+
+/* Background Morph Section Transparency Override */
+body.morph-active .hero,
+body.morph-active .ecosystem,
+body.morph-active .section_scrub-intro,
+body.morph-active .portfolio-section,
+body.morph-active .delight_section-wrapper,
+body.morph-active .section_delight_new,
+body.morph-active .stats,
+body.morph-active .opportunity,
+body.morph-active .commitments,
+body.morph-active .contact-cta,
+body.morph-active .footer {
+  background: transparent !important;
+}
