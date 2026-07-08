@@ -38,7 +38,9 @@ const ogImageURL = new URL('/og.png', Astro.site);
 <body>
   <Preloader />
   <div class="transition-curtain" id="transition-curtain"></div>
-  <slot />
+  <div id="page-content-wrapper" style="transition: opacity 0.8s ease-in-out; opacity: 1; width: 100%; height: 100%;">
+    <slot />
+  </div>
   <script src="../scripts/smooth.js"></script>
   <script src="../scripts/odometer.js"></script>
   <script src="../scripts/animations.js"></script>
@@ -50,7 +52,7 @@ const ogImageURL = new URL('/og.png', Astro.site);
   <script src="../scripts/cursor.js"></script>
 
   <script>
-    // Premium exit page transitions with custom timing delay
+    // Premium exit page transitions with content dissolve + curtain hold
     document.addEventListener('click', (e) => {
       const a = (e.target as HTMLElement).closest('a');
       if (
@@ -62,11 +64,22 @@ const ogImageURL = new URL('/og.png', Astro.site);
       ) {
         // Prevent immediate jump
         e.preventDefault();
-        const curtain = document.getElementById('transition-curtain');
-        if (curtain) {
-          curtain.classList.add('is-active');
+        
+        // 1. Dissolve content wrapper to reveal blank morph background
+        const wrapper = document.getElementById('page-content-wrapper');
+        if (wrapper) {
+          wrapper.style.opacity = '0';
         }
-        // Delay navigation to hold a blank screen momentarily for a premium pacing gap
+        
+        // 2. Slide up solid transition curtain after content dissolves
+        setTimeout(() => {
+          const curtain = document.getElementById('transition-curtain');
+          if (curtain) {
+            curtain.classList.add('is-active');
+          }
+        }, 400);
+
+        // 3. Delay navigation to hold a blank screen momentarily for a premium pacing gap
         setTimeout(() => {
           window.location.href = a.href;
         }, 1400);
