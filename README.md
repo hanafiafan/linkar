@@ -7,8 +7,11 @@ Marketing site + lightweight custom CMS for RUN's ecosystem-enabler brand LINKAR
 - `web/` — Astro 7 site, deployed to Vercel. Contains the public site, the
   `/admin` CMS dashboard, and its API routes (`web/src/pages/api/*`).
 - `docs/` — design/redesign notes and planning docs (this plan included).
-- `studio/` — **not currently used.** Historical Sanity Studio scaffold, kept
-  only in git history after removal (see `docs/superpowers/plans/2026-07-13-repo-structure-cleanup.md`).
+
+**Removed:** a `studio/` Sanity Studio scaffold was deleted as dead code —
+the site never read from it (see
+`docs/superpowers/plans/2026-07-13-repo-structure-cleanup.md`, now tracked
+in git, for why). Recoverable via `git log -- studio` if ever needed.
 
 ## Local development
 
