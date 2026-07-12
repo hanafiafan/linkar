@@ -10,7 +10,7 @@ dist/
 studio/.sanity/
 /linkar.html
 .claude/
-
 .vercel
 .env*
 !.env.example
+.DS_Store
