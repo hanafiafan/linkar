@@ -14,7 +14,11 @@ export async function getStaticPaths() {
 interface Props { post: PostDoc; content: SiteContent }
 const { post, content } = Astro.props;
 
-const dateLabel = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(post.date));
+// Tanggal dari CMS bisa saja kosong/salah format — jangan gagalkan build
+const parsedDate = new Date(post.date);
+const dateLabel = isNaN(parsedDate.getTime())
+  ? post.date
+  : new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(parsedDate);
 const paragraphs = typeof post.body === 'string' ? post.body.split(/\n\s*\n/) : null;
 const ptHtml = paragraphs === null
   ? toHTML(post.body as never, { components: { types: { image: () => '<!-- pt-image: unresolved until Task 14 -->' } } })

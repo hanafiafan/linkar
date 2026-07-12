@@ -73,7 +73,7 @@ export default function initCardStack(root) {
   const mobile = matchMedia('(max-width: 700px)').matches;
   const opts = mobile
     ? { spacing: 46, stepDeg: 6, depth: 14, maxVisible: 1 }
-    : { spacing: 90, stepDeg: 8, depth: 24, maxVisible: 2 };
+    : { spacing: 150, stepDeg: 8, depth: 32, maxVisible: 2 };
 
   let active = 0;
   let draggable = null;

@@ -35,8 +35,8 @@ const { photos } = Astro.props;
 
   .folder-gallery__trigger{
     position:relative;
-    width:220px;
-    height:170px;
+    width:340px;
+    height:260px;
     border:0;
     padding:0;
     background:none;
@@ -49,23 +49,24 @@ const { photos } = Astro.props;
     position:absolute;
     inset:0;
     border-radius:14px;
-    background:linear-gradient(160deg, var(--navy-panel), #0d1533);
-    border:1px solid rgba(255,255,255,.1);
+    background:linear-gradient(165deg, #0A72E4, #004D9F);
+    border:1px solid rgba(255,255,255,.2);
+    box-shadow:0 12px 28px rgba(0,0,0,.35);
   }
   .folder-gallery__back{ z-index:1; }
   .folder-gallery__tab{
     position:absolute;
-    top:-14px; left:14px;
-    width:70px; height:20px;
-    border-radius:8px 8px 0 0;
-    background:linear-gradient(160deg, var(--navy-panel), #0d1533);
-    border:1px solid rgba(255,255,255,.1);
+    top:-18px; left:20px;
+    width:100px; height:24px;
+    border-radius:10px 10px 0 0;
+    background:linear-gradient(165deg, #0A72E4, #004D9F);
+    border:1px solid rgba(255,255,255,.2);
     border-bottom:0;
     z-index:0;
   }
   .folder-gallery__tab::after{
     content:'';
-    position:absolute; right:-10px; top:6px;
+    position:absolute; right:-14px; top:8px;
     width:8px; height:8px; border-radius:50%;
     background:var(--orange);
   }
@@ -73,23 +74,31 @@ const { photos } = Astro.props;
   .folder-gallery__stack-photo{
     position:absolute;
     left:50%; top:50%;
-    width:120px; height:150px;
+    width:200px;
+    height:250px;
     object-fit:cover;
-    border-radius:10px;
-    border:2px solid rgba(255,255,255,.12);
-    box-shadow:0 10px 24px rgba(0,0,0,.35);
+    border-radius:12px;
+    border:2.5px solid rgba(255,255,255,.15);
+    box-shadow:0 12px 32px rgba(0,0,0,.4);
     transform:translate(-50%,-50%) translateY(-10px) rotate(calc((var(--i) - 2) * 4deg));
-    transition:transform .3s ease;
     z-index:2;
   }
-  .folder-gallery__trigger:hover .folder-gallery__stack-photo,
-  .folder-gallery__trigger:focus-visible .folder-gallery__stack-photo{
+  
+  .folder-gallery:not(.js-active) .folder-gallery__stack-photo {
+    transition: transform .3s ease;
+  }
+  
+  .folder-gallery:not(.js-active) .folder-gallery__trigger:hover .folder-gallery__stack-photo,
+  .folder-gallery:not(.js-active) .folder-gallery__trigger:focus-visible .folder-gallery__stack-photo{
     transform:translate(-50%,-50%) translateY(-22px) rotate(calc((var(--i) - 2) * 8deg));
   }
 
   .folder-gallery__front{
     z-index:3;
     clip-path:polygon(0 30%, 100% 30%, 100% 100%, 0 100%);
+    background:linear-gradient(165deg, #1A82F4, #0A59B3);
+    border:1px solid rgba(255,255,255,.2);
+    box-shadow:0 12px 28px rgba(0,0,0,.35);
     transition:opacity .35s ease;
   }
 

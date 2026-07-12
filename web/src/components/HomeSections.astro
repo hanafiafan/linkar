@@ -1,0 +1,31 @@
+---
+// Satu-satunya sumber susunan section homepage — dipakai halaman utama (/)
+// dan pratinjau draf CMS (/admin/preview) supaya keduanya tidak pernah drift.
+import Navbar from './Navbar.astro';
+import Hero from './Hero.astro';
+import EntityMarquee from './EntityMarquee.astro';
+import About from './About.astro';
+import PortfolioSection from './PortfolioSection.astro';
+import Services from './Services.astro';
+import StatsLinkar from './StatsLinkar.astro';
+import IndustryStats from './IndustryStats.astro';
+import Commitments from './Commitments.astro';
+import ContactCta from './ContactCta.astro';
+import Footer from './Footer.astro';
+import type { SiteContent } from '../lib/content';
+
+interface Props { content: SiteContent }
+const { content } = Astro.props;
+const vis = content.home.visibility ?? {};
+---
+<Navbar content={content} />
+{vis.hero !== false && <Hero content={content} />}
+{vis.marquee !== false && <EntityMarquee content={content} />}
+{vis.about !== false && <About content={content} />}
+{vis.portfolio !== false && <PortfolioSection content={content} />}
+{vis.services !== false && <Services content={content} />}
+{vis.linkarStats !== false && <StatsLinkar content={content} />}
+{vis.industry !== false && <IndustryStats content={content} />}
+{vis.commitments !== false && <Commitments content={content} />}
+{vis.cta !== false && <ContactCta content={content} />}
+<Footer content={content} />
