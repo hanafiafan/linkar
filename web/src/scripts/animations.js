@@ -8,24 +8,26 @@ const motionOK = window.matchMedia('(prefers-reduced-motion: no-preference)').ma
 if (motionOK) {
   gsap.registerPlugin(ScrollTrigger, SplitText);
 
+
+
   document.querySelectorAll('[data-reveal]').forEach(el => {
     const kind = el.getAttribute('data-reveal');
     const from = kind === 'pop' ? { scale: 0, opacity: 0 }
                : kind === 'line' ? { scaleY: 0, transformOrigin: 'top', opacity: 1 }
                : { y: 26, opacity: 0 };
     gsap.from(el, { ...from, duration: .8, ease: 'power3.out',
-      scrollTrigger: { trigger: el, start: 'top 85%' } });
+      scrollTrigger: { trigger: el, start: 'top 40%' } });
   });
 
   document.querySelectorAll('[data-stagger]').forEach(parent => {
     gsap.from(parent.children, { y: 30, opacity: 0, rotation: () => gsap.utils.random(-2.5, 2.5), duration: .7, ease: 'power3.out', stagger: .12,
-      scrollTrigger: { trigger: parent, start: 'top 82%' } });
+      scrollTrigger: { trigger: parent, start: 'top 38%' } });
   });
 
   document.querySelectorAll('[data-split]').forEach(el => {
     const split = new SplitText(el, { type: 'words', mask: 'words' });
     gsap.from(split.words, { yPercent: 110, duration: .9, ease: 'power4.out', stagger: .06,
-      scrollTrigger: { trigger: el, start: 'top 85%' } });
+      scrollTrigger: { trigger: el, start: 'top 40%' } });
   });
 
   // scrub word color wipe
@@ -71,6 +73,29 @@ if (motionOK) {
   });
 
   if (window.__linkarOdometer) window.__linkarOdometer(gsap, ScrollTrigger);
+
+  // --- Magnetic Buttons Effect ---
+  document.querySelectorAll('[data-magnetic]').forEach((btn) => {
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      gsap.to(btn, {
+        x: x * 0.35,
+        y: y * 0.35,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    });
+    btn.addEventListener('mouseleave', () => {
+      gsap.to(btn, {
+        x: 0,
+        y: 0,
+        duration: 0.5,
+        ease: 'elastic.out(1, 0.3)'
+      });
+    });
+  });
 
   document.addEventListener('visibilitychange', () => {
     gsap.globalTimeline[document.hidden ? 'pause' : 'resume']();

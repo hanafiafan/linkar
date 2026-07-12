@@ -16,12 +16,25 @@ if (motionOK) {
     document.body.prepend(bg);
     document.body.classList.add('morph-active');
 
-    gsap.set(bg, { backgroundColor: sections[0].dataset.bg });
+    // Direct URL hash check on page load to set correct background color instantly
+    if (window.location.hash) {
+      const hash = window.location.hash.slice(1);
+      const target = document.getElementById(hash);
+      if (target) {
+        const targetBg = target.getAttribute('data-bg');
+        if (targetBg) {
+          gsap.set(bg, { backgroundColor: targetBg });
+        }
+      }
+    } else {
+      gsap.set(bg, { backgroundColor: sections[0].dataset.bg });
+    }
+
     sections.forEach((section) => {
       ScrollTrigger.create({
         trigger: section,
-        start: 'top 60%',
-        end: 'bottom 60%',
+        start: 'top 15%',
+        end: 'bottom 15%',
         onEnter: () => gsap.to(bg, { backgroundColor: section.dataset.bg, duration: 0.6, ease: 'power2.out' }),
         onEnterBack: () => gsap.to(bg, { backgroundColor: section.dataset.bg, duration: 0.6, ease: 'power2.out' }),
       });
@@ -29,10 +42,10 @@ if (motionOK) {
   }
 
   // --- Step 4: navbar reveal (landing page only). Subpages (brand/program/blog)
-  // reuse the ".hero" class for their own banner, so we key off ".hero__stats"
-  // instead — a class unique to Hero.astro's landing-page markup.
+  // reuse the ".hero" class for their own banner, so we key off the logo
+  // marquee wrapper — markup yang hanya ada di Hero.astro halaman utama.
   const hero = document.querySelector('.hero');
-  const heroIsLanding = !!document.querySelector('.hero__stats');
+  const heroIsLanding = !!document.querySelector('.hero-logo-marquee-wrap');
   const header = document.getElementById('navbar');
   if (hero && heroIsLanding && header) {
     document.body.classList.add('navbar-gated');

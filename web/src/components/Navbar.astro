@@ -6,9 +6,20 @@ interface Props { content: SiteContent }
 const { content } = Astro.props;
 const links = buildNavLinks(content.programs.length, content.posts.length, content.settings.navLabels);
 const brandMenu = buildBrandMenu(content.entities);
+const menuItems = [{ href: '/', label: 'Beranda' }, ...links];
+const social = content.settings.social ?? {};
+const year = new Date().getFullYear();
 ---
 <header class="navbar" id="navbar">
   <div class="wrap navbar__inner">
+    <!-- SVG LINKAR Brand Logo for shrunk state -->
+    <div class="shrunk-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="25 0 50.5 50.91" class="shrunk-logo-svg">
+        <path d="M 51.931 0.036 C 51.786 0.053, 51.496 0.085, 51.286 0.106 C 48.353 0.396, 45.051 2.002, 42.615 4.322 L 42.306 4.617 44.368 5.758 C 45.502 6.386, 46.442 6.905, 46.457 6.911 C 46.473 6.917, 46.656 6.804, 46.864 6.660 C 48.433 5.578, 50.015 4.941, 51.681 4.721 C 53.881 4.431, 57.065 5.140, 59.826 6.535 C 66.732 10.024, 71.209 17.732, 71.020 25.808 C 70.931 29.598, 69.871 33.134, 67.844 36.394 C 65.474 40.206, 61.771 43.295, 57.760 44.804 C 57.538 44.887, 57.339 44.973, 57.318 44.994 C 57.297 45.015, 57.252 45.166, 57.219 45.330 C 56.710 47.830, 54.647 49.935, 52.019 50.637 L 51.633 50.740 52.113 50.720 C 55.088 50.598, 58.704 49.588, 61.710 48.038 C 68.195 44.694, 72.839 38.847, 74.667 31.724 C 75.314 29.202, 75.596 26.387, 75.456 23.841 C 75.000 15.526, 70.925 8.295, 64.185 3.842 C 61.142 1.831, 57.409 0.443, 54.089 0.087 C 53.477 0.022, 52.281 -0.007, 51.931 0.036 M 49.421 8.993 C 47.334 9.172, 45.358 9.760, 43.200 10.844 L 42.842 11.023 42.651 11.349 C 40.549 14.927, 39.486 18.704, 39.308 23.225 C 39.297 23.514, 39.296 23.742, 39.306 23.732 C 39.316 23.722, 39.365 23.478, 39.413 23.190 C 40.259 18.197, 44.165 14.396, 49.228 13.639 C 49.736 13.563, 51.141 13.533, 51.710 13.586 C 54.356 13.834, 56.801 15.026, 58.745 17.017 C 60.526 18.839, 61.595 21.091, 61.926 23.718 C 62.012 24.402, 62.012 25.878, 61.926 26.563 C 61.263 31.826, 57.723 35.812, 52.897 36.727 C 52.445 36.813, 51.716 36.902, 51.440 36.905 C 51.262 36.908, 51.280 36.915, 51.664 36.994 C 53.586 37.393, 55.380 38.605, 56.373 40.177 C 56.431 40.269, 56.496 40.344, 56.519 40.344 C 56.611 40.344, 57.390 40.007, 57.851 39.767 C 63.914 36.613, 67.286 30.001, 66.396 23.011 C 65.428 15.401, 59.435 9.627, 51.843 8.990 C 51.348 8.948, 49.923 8.950, 49.421 8.993" fill="#F26A21" fill-rule="evenodd"/>
+        <path d="M 48.876 0.037 C 47.292 0.096, 46.046 0.284, 44.313 0.724 C 35.968 2.840, 29.074 9.433, 26.561 17.701 C 26.066 19.330, 25.731 21.038, 25.581 22.705 C 25.533 23.235, 25.527 24.936, 25.527 37.074 L 25.527 50.843 38.158 50.842 C 46.390 50.842, 50.900 50.830, 51.106 50.807 C 52.075 50.699, 53.333 50.231, 54.196 49.659 C 55.802 48.595, 56.835 47.071, 57.253 45.154 C 57.367 44.629, 57.410 43.604, 57.341 43.023 C 57.161 41.492, 56.600 40.263, 55.582 39.174 C 54.555 38.075, 52.920 37.192, 51.510 36.976 C 51.369 36.955, 49.000 36.935, 45.316 36.923 C 42.036 36.913, 39.346 36.900, 39.340 36.894 C 39.306 36.860, 39.325 22.437, 39.360 21.998 C 39.594 19.077, 40.263 16.317, 41.307 13.964 C 41.746 12.974, 42.731 11.091, 42.846 11.020 C 42.874 11.002, 42.877 10.981, 42.854 10.959 C 42.810 10.916, 39.031 8.819, 38.973 8.805 C 38.862 8.780, 37.627 11.126, 37.102 12.360 C 35.945 15.077, 35.195 18.012, 34.833 21.243 C 34.628 23.073, 34.638 22.481, 34.638 32.426 L 34.638 41.555 42.960 41.573 L 51.282 41.591 51.282 41.591 L 51.282 41.591 L 51.282 41.591 L 51.282 41.591 L 51.509 41.713 C 51.975 41.965, 52.481 42.595, 52.695 43.192 C 52.933 43.854, 52.716 44.773, 52.166 45.438 C 51.941 45.709, 51.715 45.883, 51.382 46.041 L 51.141 46.155 40.634 46.164 L 30.126 46.173 30.118 38.861 C 30.098 22.786, 30.087 23.724, 30.322 22.086 C 31.070 16.865, 33.827 12.063, 37.889 8.905 C 38.448 8.470, 38.896 8.154, 39.325 7.892 C 39.684 7.672, 39.698 7.658, 39.996 7.242 C 42.332 3.985, 45.706 1.505, 49.138 0.520 C 49.971 0.281, 50.494 0.186, 51.791 0.039 C 52.124 0.001, 49.866 -0.000, 48.876 0.037" fill="#1F2B5B" fill-rule="evenodd"/>
+      </svg>
+    </div>
+
     <!-- Staggered Logo Slide Hover Animation -->
     <a href="/" class="nav_logo-link" aria-label="LINKAR Logo">
       <span class="logo-char" style="--i: 0" data-char="L">L</span>
@@ -21,7 +32,7 @@ const brandMenu = buildBrandMenu(content.entities);
 
     <div class="navbar__right">
       <!-- Premium Nav CTA Button -->
-      <a href="#contact" class="navbar__cta hide-mobile">
+      <a href="#contact" class="navbar__cta hide-mobile" data-magnetic>
         <span class="cta-inner">
           <span class="cta-text">{content.settings.ctaLabel || 'Ajak Kolaborasi'}</span>
           <span class="cta-arrow">→</span>
@@ -29,7 +40,7 @@ const brandMenu = buildBrandMenu(content.entities);
       </a>
 
       <!-- Menu Button -->
-      <button class="menu-btn" id="menu-btn" aria-label="Toggle Menu" aria-expanded="false">
+      <button class="menu-btn" id="menu-btn" aria-label="Toggle Menu" aria-expanded="false" data-magnetic>
         <div class="menu-btn__labels">
           <span class="menu-btn__lbl menu-btn__lbl--menu">MENU</span>
           <span class="menu-btn__lbl menu-btn__lbl--close">CLOSE</span>
@@ -54,36 +65,14 @@ const brandMenu = buildBrandMenu(content.entities);
       <!-- Main Oversized Navigation Links -->
       <div class="menu-overlay__main">
         <ul class="menu-overlay__list">
-          <li style="--stagger: 0;">
-            <a href="/" class="menu-overlay__link">
-              <span class="menu-overlay__num">01</span>
-              <span class="menu-overlay__text" data-text="BERANDA">BERANDA</span>
-            </a>
-          </li>
-          <li style="--stagger: 1;">
-            <a href="/#about" class="menu-overlay__link">
-              <span class="menu-overlay__num">02</span>
-              <span class="menu-overlay__text" data-text="TENTANG">TENTANG</span>
-            </a>
-          </li>
-          <li style="--stagger: 2;">
-            <a href="/#portfolio" class="menu-overlay__link">
-              <span class="menu-overlay__num">03</span>
-              <span class="menu-overlay__text" data-text="PORTOFOLIO">PORTOFOLIO</span>
-            </a>
-          </li>
-          <li style="--stagger: 3;">
-            <a href="/#services" class="menu-overlay__link">
-              <span class="menu-overlay__num">04</span>
-              <span class="menu-overlay__text" data-text="LAYANAN">LAYANAN</span>
-            </a>
-          </li>
-          <li style="--stagger: 4;">
-            <a href="/#ecosystem" class="menu-overlay__link">
-              <span class="menu-overlay__num">05</span>
-              <span class="menu-overlay__text" data-text="EKOSISTEM">EKOSISTEM</span>
-            </a>
-          </li>
+          {menuItems.map((item, i) => (
+            <li style={`--stagger: ${i};`}>
+              <a href={item.href} class="menu-overlay__link">
+                <span class="menu-overlay__num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="menu-overlay__text" data-text={item.label}>{item.label}</span>
+              </a>
+            </li>
+          ))}
         </ul>
       </div>
 
@@ -102,8 +91,8 @@ const brandMenu = buildBrandMenu(content.entities);
           <p class="menu-overlay__side-title">HUBUNGI KAMI</p>
           <ul class="menu-overlay__side-list">
             <li><a href={`mailto:${content.settings.formEmail}`} class="menu-overlay__side-link">{content.settings.formEmail}</a></li>
-            <li><a href="https://linkedin.com" target="_blank" class="menu-overlay__side-link">LinkedIn</a></li>
-            <li><a href="https://instagram.com" target="_blank" class="menu-overlay__side-link">Instagram</a></li>
+            {social.linkedin && <li><a href={social.linkedin} target="_blank" rel="noopener noreferrer" class="menu-overlay__side-link">LinkedIn</a></li>}
+            {social.instagram && <li><a href={social.instagram} target="_blank" rel="noopener noreferrer" class="menu-overlay__side-link">Instagram</a></li>}
           </ul>
         </div>
       </div>
@@ -112,7 +101,7 @@ const brandMenu = buildBrandMenu(content.entities);
     <!-- Bottom credits -->
     <div class="menu-overlay__bottom" style="--stagger: 7;">
       <p>CV Rantai Usaha Nusantara — Ecosystem Enabler</p>
-      <p>© 2026 LINKAR®</p>
+      <p>© {year} LINKAR®</p>
     </div>
   </div>
 </div>
@@ -120,15 +109,217 @@ const brandMenu = buildBrandMenu(content.entities);
 <style>
   .navbar {
     position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    max-width: var(--maxw);
+    height: 74px;
+    border-radius: 99px;
+    z-index: 900;
+    
+    /* 3D Glassmorphism parameters */
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    
+    /* 3D Inner reflection highlights & double drop shadow layers */
+    box-shadow: 
+      inset 0 2px 4px rgba(255, 255, 255, 0.22),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.35),
+      inset 0 0 12px rgba(255, 255, 255, 0.05),
+      0 4px 10px rgba(0, 0, 0, 0.35),
+      0 20px 48px rgba(0, 0, 0, 0.55);
+      
+    transition: 
+      background 0.4s ease, 
+      border-color 0.4s ease, 
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+      top 0.4s ease, 
+      width 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+      height 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+      border-radius 0.4s ease, 
+      box-shadow 0.4s ease;
+  }
+
+  .navbar.is-menu-open {
     top: 0;
     left: 0;
-    right: 0;
-    z-index: 900;
-    background: rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    transition: background 0.4s ease;
+    transform: translateX(0);
+    width: 100%;
+    max-width: 100%;
+    height: 72px;
+    border-radius: 0;
+    background: rgba(0, 0, 0, 0.95);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+  }
+
+  /* Shrunk Navbar State: positioned at bottom-left corner */
+  .navbar.navbar--shrunk:not(.is-menu-open) {
+    top: calc(100vh - 88px);
+    left: 24px;
+    transform: translateX(0);
+  }
+
+  /* Shrunk Default (not hovered): 64px circle */
+  .navbar.navbar--shrunk:not(.is-menu-open):not(:hover) {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    box-shadow: 
+      inset 0 2px 4px rgba(255, 255, 255, 0.3),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.4),
+      0 4px 12px rgba(0, 0, 0, 0.4),
+      0 16px 36px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Shrunk Hovered: expands to a vertical glass dock panel right at the bottom-left! */
+  .navbar.navbar--shrunk:not(.is-menu-open):hover {
+    width: 74px;
+    height: 220px;
+    top: calc(100vh - 244px); /* 220px height + 24px bottom gap */
+    border-radius: 40px;
+    box-shadow: 
+      inset 0 2px 4px rgba(255, 255, 255, 0.22),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.35),
+      0 4px 12px rgba(0, 0, 0, 0.35),
+      0 20px 48px rgba(0, 0, 0, 0.55);
+  }
+
+  .navbar.navbar--shrunk:not(.is-menu-open):not(:hover) .navbar__inner {
+    padding: 0;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Vertical Flex layout when hovered in shrunk state */
+  .navbar.navbar--shrunk:not(.is-menu-open):hover .navbar__inner {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Shrunk Logo display toggle */
+  .shrunk-logo {
+    display: none;
+    width: 36px;
+    height: auto;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .navbar.navbar--shrunk:not(.is-menu-open) .shrunk-logo {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Vertical stack for buttons when hovered in shrunk state */
+  .navbar.navbar--shrunk:not(.is-menu-open):hover .navbar__right {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 20px;
+    opacity: 1;
+    pointer-events: auto;
+    width: auto;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Make CTA a round button with only the arrow "→" when vertical */
+  .navbar.navbar--shrunk:not(.is-menu-open):hover .navbar__cta {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: unset;
+  }
+
+  .navbar.navbar--shrunk:not(.is-menu-open):hover .navbar__cta .cta-text {
+    display: none;
+  }
+
+  .navbar.navbar--shrunk:not(.is-menu-open):hover .navbar__cta .cta-arrow {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  /* Hide MENU text label, keep burger lines only when vertical */
+  .navbar.navbar--shrunk:not(.is-menu-open):hover .menu-btn__labels {
+    display: none;
+  }
+
+  .navbar.navbar--shrunk:not(.is-menu-open):hover .menu-btn {
+    padding: 10px;
+    justify-content: center;
+  }
+
+  /* Hide normal elements when shrunk and not hovered */
+  .navbar.navbar--shrunk:not(.is-menu-open):not(:hover) .nav_logo-link,
+  .navbar.navbar--shrunk:not(.is-menu-open):not(:hover) .navbar__right {
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Keep full text logo hidden when vertical on hover */
+  .navbar.navbar--shrunk:not(.is-menu-open):hover .nav_logo-link {
+    display: none;
+  }
+
+  .nav_logo-link, .navbar__right {
+    transition: opacity 0.3s ease, width 0.3s ease, transform 0.3s ease;
+  }
+
+  /* Premium Light Glass Theme (for white sections like Portfolio/Commitments) */
+  .navbar.navbar--light:not(.is-menu-open) {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 
+      inset 0 2px 4px rgba(255, 255, 255, 0.8),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.05),
+      0 4px 10px rgba(0, 0, 0, 0.05),
+      0 20px 48px rgba(0, 0, 0, 0.08);
+  }
+
+  .navbar.navbar--light:not(.is-menu-open) .nav_logo-link {
+    color: #000000;
+  }
+
+  .navbar.navbar--light:not(.is-menu-open) .navbar__cta {
+    color: #000000;
+    background: rgba(255, 255, 255, 0.4);
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 
+      inset 0 1px 2px rgba(255, 255, 255, 0.6),
+      0 2px 5px rgba(0, 0, 0, 0.04);
+  }
+
+  .navbar.navbar--light:not(.is-menu-open) .navbar__cta:hover {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+  }
+
+  .navbar.navbar--light:not(.is-menu-open) .menu-btn {
+    color: #000000;
   }
 
   .navbar__inner {
@@ -183,7 +374,7 @@ const brandMenu = buildBrandMenu(content.entities);
     border-radius: 99px;
     padding: 10px 24px;
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #ffffff;
     font-size: 0.85rem;
     font-weight: 700;
@@ -191,13 +382,18 @@ const brandMenu = buildBrandMenu(content.entities);
     text-transform: uppercase;
     overflow: hidden;
     display: inline-block;
-    transition: background 0.3s ease, border-color 0.3s ease;
+    box-shadow: 
+      inset 0 1px 2px rgba(255, 255, 255, 0.2),
+      0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
 
   .navbar__cta:hover {
     background: #ffffff;
     color: #000000;
     border-color: #ffffff;
+    box-shadow: 
+      0 4px 12px rgba(255, 255, 255, 0.3);
   }
 
   .cta-inner {
@@ -387,12 +583,22 @@ const brandMenu = buildBrandMenu(content.entities);
     gap: 20px;
     color: #ffffff;
     text-transform: uppercase;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .menu-overlay__link:hover {
+    transform: translateX(16px);
   }
 
   .menu-overlay__num {
     font-size: 0.9rem;
     font-weight: 800;
     color: #007AFF;
+    transition: color 0.3s ease;
+  }
+
+  .menu-overlay__link:hover .menu-overlay__num {
+    color: #ffffff;
   }
 
   .menu-overlay__text {
@@ -400,25 +606,12 @@ const brandMenu = buildBrandMenu(content.entities);
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1;
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-  }
-
-  .menu-overlay__text::after {
-    content: attr(data-text);
-    position: absolute;
-    left: 0;
-    top: 100%;
-    color: var(--orange, #F26A21);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    color: #ffffff;
+    transition: color 0.35s ease;
   }
 
   .menu-overlay__link:hover .menu-overlay__text {
-    transform: translateY(-100%);
-  }
-  .menu-overlay__link:hover .menu-overlay__text::after {
-    transform: translateY(-100%);
+    color: var(--orange, #F26A21);
   }
 
   /* Side Links Styles */
@@ -503,6 +696,9 @@ const brandMenu = buildBrandMenu(content.entities);
 </style>
 
 <script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
   const menuBtn = document.getElementById('menu-btn');
   const menuOverlay = document.getElementById('menu-overlay');
   const navbar = document.getElementById('navbar');
@@ -528,5 +724,39 @@ const brandMenu = buildBrandMenu(content.entities);
         document.body.style.overflow = '';
       });
     });
+
+    // Scroll shrink logic for capsule navbar
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 120) {
+        navbar.classList.add('navbar--shrunk');
+      } else {
+        navbar.classList.remove('navbar--shrunk');
+      }
+    }, { passive: true });
+
+    // Theme swapping trigger for floating glass navbar
+    const sections = document.querySelectorAll('[data-bg]');
+    if (sections.length > 0) {
+      gsap.registerPlugin(ScrollTrigger);
+
+      sections.forEach((section) => {
+        const bg = (section as HTMLElement).dataset.bg;
+        const isLightBg = bg === '#ffffff' || bg === '#fafafa';
+
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top 50px',
+          end: 'bottom 50px',
+          onEnter: () => {
+            if (isLightBg) navbar.classList.add('navbar--light');
+            else navbar.classList.remove('navbar--light');
+          },
+          onEnterBack: () => {
+            if (isLightBg) navbar.classList.add('navbar--light');
+            else navbar.classList.remove('navbar--light');
+          }
+        });
+      });
+    }
   }
 </script>

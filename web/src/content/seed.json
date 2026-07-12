@@ -100,6 +100,7 @@
     "industry": {
       "kicker": "KENAPA SEKARANG · THE OPPORTUNITY",
       "title": "Pasar yang besar, eksekutor yang masih langka.",
+      "closing": "Kebutuhan eksekusi program tersebar lintas kementerian, BUMN, dan CSR korporat — dan belum ada pemain dominan di luar Jakarta.",
       "items": [
         {
           "value": "1.400",
@@ -116,8 +117,7 @@
           "label": "UMKM menanti pendampingan",
           "note": "juta unit · kontribusi 60% PDB"
         }
-      ],
-      "closing": "Kebutuhan eksekusi program tersebar lintas kementerian, BUMN, dan CSR korporat — dan belum ada pemain dominan di luar Jakarta."
+      ]
     },
     "commitments": {
       "title": "Komitmen Kami",

@@ -1,8 +1,9 @@
 ---
+import { isAuthenticated } from '../../lib/adminAuth';
+
 export const prerender = false;
 
-const session = Astro.cookies.get('linkar_admin_session')?.value;
-if (session === 'authenticated') {
+if (isAuthenticated(Astro.cookies)) {
   return Astro.redirect('/admin/dashboard');
 }
 ---
@@ -164,7 +165,7 @@ if (session === 'authenticated') {
     <div class="logo-container">
       <img src="/images/brand/linkar-logo.png" alt="LINKAR" class="logo" />
     </div>
-    <h1>Custom Dashboard</h1>
+    <h1>LINKAR CMS</h1>
     <p class="sub">Masuk untuk mengelola konten website</p>
 
     <form id="login-form">

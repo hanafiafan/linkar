@@ -5,7 +5,7 @@ interface Props { content: SiteContent }
 const { content } = Astro.props;
 const { about } = content.home;
 ---
-<section id="about" class="section_scrub-intro" data-bg="#000000">
+<section id="about" class="section_scrub-intro" data-bg="#050a18">
   <div class="wrap about-scrub__inner">
     <!-- Centered Three.js 3D Canvas -->
     <div id="about-3d-container" class="about-scrub__image-wrapper">
@@ -31,11 +31,11 @@ const { about } = content.home;
     position: relative;
     background: #000000;
     color: #ffffff;
-    min-height: 120vh;
+    min-height: 130vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 120px 0;
+    padding: 40px 0 160px 0;
     overflow: hidden;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
@@ -122,21 +122,24 @@ const { about } = content.home;
 <script>
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import initHero3D from '../scripts/hero3d.js';
 
   gsap.registerPlugin(ScrollTrigger);
 
-  // 1. Initialize Three.js logo canvas
+  const motionOK = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+
+  // 1. Initialize Three.js logo canvas — dimuat dinamis & hormati reduced-motion
   const container = document.getElementById('about-3d-container');
   const canvas = document.getElementById('about-canvas');
-  if (container && canvas) {
-    initHero3D(container, canvas).catch((err) => {
-      console.warn('3d logo init error inside About section:', err);
-    });
+  if (container && canvas && motionOK) {
+    import('../scripts/hero3d.js')
+      .then(({ default: initHero3D }) => initHero3D(container, canvas))
+      .catch((err) => {
+        console.warn('3d logo init error inside About section:', err);
+      });
   }
 
   // 2. Build Scroll-Scrub Text Highlight Animation
-  const paragraphs = document.querySelectorAll('.about-scrub__paragraph');
+  const paragraphs = motionOK ? document.querySelectorAll('.about-scrub__paragraph') : [];
   paragraphs.forEach((p) => {
     const text = p.textContent || '';
     // Split by words

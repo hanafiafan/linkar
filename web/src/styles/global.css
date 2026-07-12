@@ -14,12 +14,12 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;overflow-x:hidden}
-section[id]{scroll-margin-top:90px}
+section[id]{scroll-margin-top:0}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--navy);color:var(--text);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
-.section{padding:96px 0}
+.section{padding:40px 0 160px 0}
 .section--light{background:var(--light);color:var(--ink)}
 .section--light .kicker{color:var(--orange)}
 .kicker{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;background:rgba(255,255,255,.06);color:var(--orange);font-weight:700;letter-spacing:2.5px;text-transform:uppercase;font-size:.75rem}
@@ -40,9 +40,10 @@ h1,h2,h3{font-weight:800;letter-spacing:-.02em;line-height:1.12}
    default for no-JS/reduced-motion). When the engine takes over it adds
    body.morph-active, which hands background painting to #bg-morph instead. */
 #bg-morph{ position:fixed; inset:0; z-index:-1; background:var(--navy); }
-body.morph-active .section,
+body.morph-active [data-bg],
 body.morph-active .hero,
-body.morph-active .footer{ background:transparent; }
+body.morph-active .footer-section,
+body.morph-active footer{ background:transparent !important; }
 
 /* Navbar reveal (Step 4): hidden above the fold on the landing page until the
    engine confirms motionOK, then slid down via .is-revealed. Always visible
@@ -271,4 +272,98 @@ body.morph-active .commitments,
 body.morph-active .contact-cta,
 body.morph-active .footer {
   background: transparent !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM CUSTOM CURSOR & MAGNETIC BUTTON STYLES
+   ═══════════════════════════════════════════════════════════════ */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  pointer-events: none;
+  z-index: 999999;
+  transform: translate(-50%, -50%) scale(1);
+  mix-blend-mode: difference;
+  will-change: transform, opacity;
+  transition: transform 0.15s ease, opacity 0.25s ease;
+}
+
+.custom-cursor.is-hovering {
+  transform: translate(-50%, -50%) scale(0);
+  background-color: #ffffff;
+}
+
+.custom-cursor.is-hidden {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  pointer-events: none;
+  z-index: 999998;
+  transform: translate(-50%, -50%) scale(1);
+  will-change: transform, opacity;
+  transition: transform 0.25s cubic-bezier(0.215, 0.61, 0.355, 1), opacity 0.25s ease;
+  mix-blend-mode: difference;
+}
+
+.custom-cursor-ring.is-hovering {
+  transform: translate(-50%, -50%) scale(1.6);
+}
+
+.custom-cursor-ring.is-hidden {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.cursor-ring-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cursor-ring-svg .ring-bg {
+  stroke: rgba(255, 255, 255, 0.2);
+}
+
+.cursor-ring-svg .ring-progress {
+  stroke: #ffffff; /* Use white since mix-blend-mode: difference will color-invert it beautifully on hover */
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+/* Kursor asli hanya disembunyikan saat kursor custom benar-benar aktif
+   (cursor.js menambahkan body.has-cursor) — tanpa ini, pengguna
+   prefers-reduced-motion kehilangan kursor sama sekali */
+@media (pointer: fine) {
+  body.has-cursor, body.has-cursor a, body.has-cursor button, body.has-cursor .btn,
+  body.has-cursor [role="button"], body.has-cursor input, body.has-cursor textarea,
+  body.has-cursor select {
+    cursor: none !important;
+  }
+}
+
+/* Reduced motion: hentikan semua marquee yang berjalan terus-menerus */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .portfolio-marquee-track,
+  .footer-marquee__track {
+    animation: none !important;
+  }
+}
+
+/* Magnetic offset easing */
+[data-magnetic] {
+  display: inline-block;
+  will-change: transform;
 }

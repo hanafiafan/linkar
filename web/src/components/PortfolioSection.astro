@@ -46,7 +46,7 @@ const photos = content.photos;
   <!-- Cursor-Following Photo Preview Box -->
   <div class="portfolio-preview" id="portfolio-preview-box">
     <div class="portfolio-preview__inner">
-      <img src="" id="portfolio-preview-img" alt="Project Preview" />
+      <img id="portfolio-preview-img" alt="" />
     </div>
   </div>
 </section>
@@ -56,7 +56,7 @@ const photos = content.photos;
     position: relative;
     background: #ffffff;
     color: #000000;
-    padding: 120px 0;
+    padding: 40px 0 160px 0;
     overflow: hidden;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
@@ -240,8 +240,12 @@ const photos = content.photos;
   const previewImg = document.getElementById('portfolio-preview-img') as HTMLImageElement;
   const portfolioSec = document.getElementById('portfolio');
   const rows = document.querySelectorAll('.portfolio-row');
+  const motionOK = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
 
-  if (previewBox && previewImg && portfolioSec && rows.length > 0) {
+  if (previewBox && previewImg && portfolioSec && rows.length > 0 && motionOK) {
+    // Move to body to bypass parent transforms which break position: fixed
+    document.body.appendChild(previewBox);
+
     let mouseX = 0;
     let mouseY = 0;
     let boxX = 0;

@@ -1,8 +1,9 @@
 import type { APIRoute } from 'astro';
+import { revokeSession } from '../../lib/adminAuth';
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ cookies }) => {
-  cookies.delete('linkar_admin_session', { path: '/' });
+  revokeSession(cookies);
   return new Response(JSON.stringify({ success: true }), { status: 200 });
 };

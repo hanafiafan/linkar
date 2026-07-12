@@ -6,7 +6,7 @@
   <p class="home-loader_top-left">ECOSYSTEM</p>
   <p class="home-loader_top-right">TECHNOLOGY</p>
   <p class="home-loader_bottom-left">LINKAR®</p>
-  <p class="home-loader_bottom-right"><span>© 2006 - 2026</span></p>
+  <p class="home-loader_bottom-right"><span>© 2026</span></p>
 
   <!-- Centered Percentage Counter -->
   <div class="home-loader_center-wrap">
@@ -34,7 +34,7 @@
     justify-content: center;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     user-select: none;
-    transition: transform 0.85s cubic-bezier(0.85, 0.09, 0.15, 0.91);
+    transition: transform 1.1s cubic-bezier(0.85, 0, 0.15, 1);
   }
 
   .home-loader_component.is-done {
@@ -103,30 +103,39 @@
   const percentText = document.getElementById('loader-percent');
 
   if (loader && percentText) {
-    const data = { val: 0 };
-    
-    // Lock body scroll during loading
-    document.body.style.overflow = 'hidden';
-    
-    // Animate percentage text from 0 to 100
-    gsap.to(data, {
-      val: 100,
-      duration: 1.6,
-      ease: 'power2.out',
-      onUpdate: () => {
-        percentText.textContent = Math.floor(data.val).toString();
-      },
-      onComplete: () => {
-        // Once done, slide loader up
-        setTimeout(() => {
-          loader.classList.add('is-done');
-          // Restore scrolling
-          document.body.style.overflow = '';
+    const hasPlayed = sessionStorage.getItem('linkar-loader-played') === 'true';
+
+    if (hasPlayed) {
+      // Skip loader immediately
+      loader.style.display = 'none';
+      loader.remove();
+    } else {
+      const data = { val: 0 };
+      
+      // Lock body scroll during loading
+      document.body.style.overflow = 'hidden';
+      
+      // Animate percentage text from 0 to 100
+      gsap.to(data, {
+        val: 100,
+        duration: 2.8,
+        ease: 'power3.out',
+        onUpdate: () => {
+          percentText.textContent = Math.floor(data.val).toString();
+        },
+        onComplete: () => {
+          // Once done, slide loader up
           setTimeout(() => {
-            loader.remove();
-          }, 900);
-        }, 300);
-      }
-    });
+            loader.classList.add('is-done');
+            // Restore scrolling
+            document.body.style.overflow = '';
+            sessionStorage.setItem('linkar-loader-played', 'true');
+            setTimeout(() => {
+              loader.remove();
+            }, 1200);
+          }, 400);
+        }
+      });
+    }
   }
 </script>

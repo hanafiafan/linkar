@@ -5,7 +5,8 @@ import type { SiteContent } from '../lib/content';
 interface Props { content: SiteContent }
 const { content } = Astro.props;
 const links = buildNavLinks(content.programs.length, content.posts.length, content.settings.navLabels);
-const year = 2026;
+const social = content.settings.social ?? {};
+const year = new Date().getFullYear();
 ---
 <footer class="footer" data-bg="#000000">
   <div class="wrap">
@@ -13,7 +14,7 @@ const year = 2026;
     <div class="footer-marquee" aria-hidden="true">
       <div class="footer-marquee__track">
         {[...Array(4)].map(() => (
-          <span class="footer-marquee__item">Everyone can be everyone's gateway ✦ </span>
+          <span class="footer-marquee__item">{content.settings.footerTagline || "Everyone can be everyone's gateway"} ✦ </span>
         ))}
       </div>
     </div>
@@ -57,8 +58,8 @@ const year = 2026;
         <h3 class="footer__heading">Hubungi</h3>
         <ul>
           <li><a href={`mailto:${content.settings.formEmail}`} class="footer__link">{content.settings.formEmail}</a></li>
-          <li><a href="https://linkedin.com" target="_blank" class="footer__link">LinkedIn</a></li>
-          <li><a href="https://instagram.com" target="_blank" class="footer__link">Instagram</a></li>
+          {social.linkedin && <li><a href={social.linkedin} target="_blank" rel="noopener noreferrer" class="footer__link">LinkedIn</a></li>}
+          {social.instagram && <li><a href={social.instagram} target="_blank" rel="noopener noreferrer" class="footer__link">Instagram</a></li>}
         </ul>
       </div>
     </div>

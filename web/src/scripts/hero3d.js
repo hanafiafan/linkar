@@ -97,7 +97,7 @@ async function loadMarkGroup() {
   for (const [color, colorPaths] of byColor) {
     const material = materials[color] || fallbackMaterial;
     for (const path of colorPaths) {
-      const shapes = SVGLoader.createShapes(path);
+      const shapes = path.toShapes(true);
       for (const shape of shapes) {
         const geometry = new THREE.ExtrudeGeometry(shape, {
           depth,

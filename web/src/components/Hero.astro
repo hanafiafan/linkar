@@ -17,8 +17,8 @@ const folderPhotos = (hero.folderPhotos && hero.folderPhotos.length > 0)
     <div class="hero__content">
       <span class="kicker">{hero.badge || 'ECOSYSTEM ENABLER'}</span>
 
-      <h1 class="hero__title">
-        <span>Menghubungkan komunitas, korporat, dan pemerintah dalam <span class="hero__nowrap">satu <span class="home-hero_rotating-text-wrapper">
+      <h1 class="hero__title" aria-label="Menghubungkan komunitas, korporat, dan pemerintah dalam satu ekosistem.">
+        <span aria-hidden="true">Menghubungkan komunitas, korporat, dan pemerintah dalam <span class="hero__nowrap">satu <span class="home-hero_rotating-text-wrapper">
           <span class="home-hero_rotating-text is-1">EKOSISTEM.</span>
           <span class="home-hero_rotating-text is-2">KOLABORASI.</span>
           <span class="home-hero_rotating-text is-3">LINGKAR DAMPAK.</span>
@@ -31,8 +31,8 @@ const folderPhotos = (hero.folderPhotos && hero.folderPhotos.length > 0)
       </div>
 
       <div class="hero__actions">
-        <a href="#contact" class="navbar__cta">{hero.primaryCta || 'Ajak Kolaborasi'}</a>
-        <a href="#portfolio" class="hero__action-secondary">{hero.secondaryCta || 'Lihat Portofolio'}</a>
+        <a href="#contact" class="navbar__cta" data-magnetic>{hero.primaryCta || 'Ajak Kolaborasi'}</a>
+        <a href="#portfolio" class="hero__action-secondary" data-magnetic>{hero.secondaryCta || 'Lihat Portofolio'}</a>
       </div>
     </div>
 
@@ -58,7 +58,6 @@ const folderPhotos = (hero.folderPhotos && hero.folderPhotos.length > 0)
 
   <!-- Client Logos Grayscale Marquee -->
   <div class="hero-logo-marquee-wrap">
-    <div class="hero-logo-marquee-title">Mitra & Kolaborator 👉</div>
     <div class="hero-logo-marquee">
       <div class="marquee-track">
         {entities.map((e) => (
@@ -167,6 +166,13 @@ const folderPhotos = (hero.folderPhotos && hero.folderPhotos.length > 0)
     100% { transform: translateY(0); }
   }
 
+  /* Reduced motion: kata pertama tampil statis, sisanya disembunyikan */
+  @media (prefers-reduced-motion: reduce) {
+    .home-hero_rotating-text { animation: none; }
+    .home-hero_rotating-text.is-2,
+    .home-hero_rotating-text.is-3 { display: none; }
+  }
+
   .hero__sub {
     max-width: 620px;
     display: flex;
@@ -249,14 +255,6 @@ const folderPhotos = (hero.folderPhotos && hero.folderPhotos.length > 0)
     padding-top: 30px;
   }
 
-  .hero-logo-marquee-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.4);
-    white-space: nowrap;
-  }
-
   .hero-logo-marquee {
     overflow: hidden;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
@@ -317,12 +315,16 @@ const folderPhotos = (hero.folderPhotos && hero.folderPhotos.length > 0)
 </style>
 
 <script>
-  import initHero3D from '../scripts/hero3d.js';
+  // three.js dimuat dinamis — hanya saat canvas 3D memang dirender
+  // (mode logo3d) dan pengguna mengizinkan animasi
   const canvas = document.getElementById('hero-canvas');
   const container = canvas?.parentElement;
-  if (canvas && container) {
-    initHero3D(container, canvas).catch((err) => {
-      console.warn('Hero 3D load error:', err);
-    });
+  const motionOK = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+  if (canvas && container && motionOK) {
+    import('../scripts/hero3d.js')
+      .then(({ default: initHero3D }) => initHero3D(container, canvas))
+      .catch((err) => {
+        console.warn('Hero 3D load error:', err);
+      });
   }
 </script>

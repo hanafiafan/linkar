@@ -5,9 +5,9 @@ interface Props { content: SiteContent }
 const { content } = Astro.props;
 const { services } = content.home;
 ---
-<div class="delight_section-wrapper">
+<div class="delight_section-wrapper" id="services">
   <!-- Section 1: Matter.js Physics (Autopilot & Capabilities) -->
-  <section id="sectionDrive" class="section_delight_new section--dark" data-bg="#000000">
+  <section id="sectionDrive" class="section_delight_new section--dark" data-bg="#120a1c">
     <div class="matter-canvas_wrapper">
       <canvas id="matter-canvas-target" class="matter-canvas"></canvas>
     </div>
@@ -25,8 +25,11 @@ const { services } = content.home;
     </div>
   </section>
 
+  <!-- Gap/Spacer between sections -->
+  <div class="delight-spacer" data-bg="#120a1c"></div>
+
   <!-- Section 2: Delight Confetti (UX Experts) -->
-  <section id="sectionDelight" class="section_delight_new section--dark" data-bg="#000000" data-cursor="delight">
+  <section id="sectionDelight" class="section_delight_new section--dark" data-bg="#05141c" data-cursor="delight">
     <canvas id="confetti-canvas-target" class="confetti-canvas"></canvas>
     
     <div class="delight_component wrap">
@@ -42,8 +45,11 @@ const { services } = content.home;
     </div>
   </section>
 
+  <!-- Gap/Spacer between sections -->
+  <div class="delight-spacer" data-bg="#05141c"></div>
+
   <!-- Section 3: Lini Bisnis & Model Ekosistem (from database cards) -->
-  <section id="sectionModel" class="section_delight_new section--dark" data-bg="#000000">
+  <section id="sectionModel" class="section_delight_new section--dark" data-bg="#1c0d05">
     <div class="delight_component wrap">
       <div class="delight_content-wrapper">
         <span class="kicker text-color-orange">{services.kicker || 'CARA KAMI BEKERJA'}</span>
@@ -75,12 +81,19 @@ const { services } = content.home;
     background: #000000;
   }
 
+  .delight-spacer {
+    height: 100vh;
+    background: #000000;
+    position: relative;
+  }
+
   .section_delight_new {
     position: relative;
     min-height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    padding: 40px 0 100px 0;
     overflow: hidden;
     background: #000000;
     color: #ffffff;
@@ -176,7 +189,9 @@ const { services } = content.home;
     align-items: flex-start;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     padding-bottom: 30px;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, transform 0.15s ease-out;
+    transform-style: preserve-3d;
+    will-change: transform;
   }
 
   .service-capability-card:hover {
@@ -244,13 +259,14 @@ const { services } = content.home;
 </style>
 
 <script>
-  import Matter from 'matter-js';
-  import confetti from 'canvas-confetti';
+  const motionOK = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
 
   // ═══════════════════════════════════════════════════════════════
   // 1. Matter.js Physics Engine Setup (Section 1: sectionDrive)
+  // matter-js di-load dinamis hanya saat section mendekati viewport
   // ═══════════════════════════════════════════════════════════════
-  const initPhysics = () => {
+  const initPhysics = async () => {
+    const Matter = (await import('matter-js')).default;
     const canvas = document.getElementById('matter-canvas-target') as HTMLCanvasElement;
     if (!canvas) return;
 
@@ -330,14 +346,18 @@ const { services } = content.home;
     });
     Matter.World.add(world, mouseConstraint);
 
-    // Run the engine
-    const runner = Matter.Runner.create();
-    Matter.Runner.run(runner, engine);
-
     // Custom Canvas Renderer loop for text and boxes
     const context = canvas.getContext('2d') as CanvasRenderingContext2D;
 
+    let isPhysicsRunning = false;
+    let animationFrameId: number | null = null;
+
     const renderLoop = () => {
+      if (!isPhysicsRunning) return;
+
+      // Manually step physics engine (runs at 60Hz)
+      Matter.Engine.update(engine, 16.666);
+
       // Clear canvas
       context.clearRect(0, 0, width, height);
 
@@ -375,10 +395,36 @@ const { services } = content.home;
         context.restore();
       });
 
-      requestAnimationFrame(renderLoop);
+      animationFrameId = requestAnimationFrame(renderLoop);
     };
 
-    renderLoop();
+    const startSimulation = () => {
+      if (isPhysicsRunning) return;
+      isPhysicsRunning = true;
+      renderLoop();
+    };
+
+    const stopSimulation = () => {
+      if (!isPhysicsRunning) return;
+      isPhysicsRunning = false;
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+    };
+
+    // Use IntersectionObserver to stop simulation when off-screen (saves CPU)
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          startSimulation();
+        } else {
+          stopSimulation();
+        }
+      });
+    }, { threshold: 0.05 });
+
+    observer.observe(canvas);
 
     // Handle resizing
     const handleResize = () => {
@@ -390,21 +436,35 @@ const { services } = content.home;
 
       // Update static walls positions
       Matter.Body.setPosition(floor, { x: width / 2, y: height + 30 });
+      Matter.Body.setPosition(leftWall, { x: -30, y: height / 2 });
       Matter.Body.setPosition(rightWall, { x: width + 30, y: height / 2 });
     };
 
     window.addEventListener('resize', handleResize);
   };
 
-  // Run on mount
-  initPhysics();
+  // Kotak fisika adalah elemen interaktif inti (bisa digeser/dilempar), bukan
+  // dekorasi yang autoplay — jadi tetap diaktifkan meski prefers-reduced-motion.
+  // matter-js di-load dinamis saat section mendekat viewport (hemat bandwidth).
+  const physCanvas = document.getElementById('matter-canvas-target');
+  if (physCanvas) {
+    const lazyObs = new IntersectionObserver((entries) => {
+      if (entries.some((en) => en.isIntersecting)) {
+        lazyObs.disconnect();
+        initPhysics();
+      }
+    }, { rootMargin: '300px' });
+    lazyObs.observe(physCanvas);
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // 2. Confetti Click Handler (Section 2: sectionDelight)
+  // canvas-confetti di-load dinamis saat klik pertama
   // ═══════════════════════════════════════════════════════════════
   const delightSec = document.getElementById('sectionDelight');
-  if (delightSec) {
-    delightSec.addEventListener('click', (e) => {
+  if (delightSec && motionOK) {
+    delightSec.addEventListener('click', async (e) => {
+      const confetti = (await import('canvas-confetti')).default;
       // Get click coordinate percentages relative to viewport
       const x = e.clientX / window.innerWidth;
       const y = e.clientY / window.innerHeight;
@@ -418,4 +478,26 @@ const { services } = content.home;
       });
     });
   }
+
+  // 3. 3D Parallax Tilt Effect for Capability Cards
+  const cards = motionOK ? document.querySelectorAll('.service-capability-card') : [];
+  cards.forEach((card) => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e as MouseEvent).clientX - rect.left;
+      const y = (e as MouseEvent).clientY - rect.top;
+      
+      const xc = rect.width / 2;
+      const yc = rect.height / 2;
+      
+      const angleX = (yc - y) / 12; // tilt angle (X axis)
+      const angleY = (x - xc) / 18; // tilt angle (Y axis)
+      
+      (card as HTMLElement).style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg) scale3d(1.02, 1.02, 1.02)`;
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      (card as HTMLElement).style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+    });
+  });
 </script>
