@@ -12,7 +12,7 @@ const EXTRUDE_DEPTH_RATIO = 0.1; // ~10% of mark width
 const BEVEL_SIZE_RATIO = 0.015;
 const ROTATE_CLAMP = 0.4; // rad, both axes
 const LERP_SPEED = 0.08;
-const IDLE_SWAY_SPEED = 0.35; // rad/sec through the sway cycle
+const IDLE_ROTATE_SPEED = 0.08; // rad/sec
 const FIT_MARGIN = 1.2; // 20% breathing room around the mesh at max rotation
 
 /**
@@ -97,7 +97,7 @@ async function loadMarkGroup() {
   for (const [color, colorPaths] of byColor) {
     const material = materials[color] || fallbackMaterial;
     for (const path of colorPaths) {
-      const shapes = SVGLoader.createShapes(path);
+      const shapes = path.toShapes(true);
       for (const shape of shapes) {
         const geometry = new THREE.ExtrudeGeometry(shape, {
           depth,
@@ -121,9 +121,6 @@ async function loadMarkGroup() {
   const center = new THREE.Vector3();
   box.getCenter(center);
   group.children.forEach((mesh) => mesh.geometry.translate(-center.x, -center.y, -center.z));
-
-  // SVG y-axis points down; flip to three.js's up-is-positive-Y convention.
-  group.scale.y *= -1;
 
   return group;
 }
@@ -162,9 +159,7 @@ export default async function initHero3D(panelEl, canvas) {
   scene.add(rimLight);
 
   const markGroup = await loadMarkGroup();
-  // multiplyScalar, NOT setScalar — setScalar would wipe the y=-1 SVG flip
-  // applied in loadMarkGroup and render the mark vertically mirrored.
-  markGroup.scale.multiplyScalar(1.6);
+  markGroup.scale.set(1.6, -1.6, 1.6);
   scene.add(markGroup);
 
   // Fit the camera to the mesh's bounding sphere (rotation-invariant) so the mark
@@ -196,18 +191,12 @@ export default async function initHero3D(panelEl, canvas) {
   }
 
   let lastTime = performance.now();
-  let swayT = 0;
   function tick(now) {
     const dt = (now - lastTime) / 1000;
     lastTime = now;
 
-    // Idle motion is a bounded sway, never a full spin — an unbounded spin shows
-    // the mark's mirrored back face, which reads as a flipped logo.
     const idle = Math.abs(targetRotation.x - pointer.x) < 0.001 && Math.abs(targetRotation.y - pointer.y) < 0.001;
-    if (idle) {
-      swayT += dt;
-      targetRotation.y = Math.sin(swayT * IDLE_SWAY_SPEED) * ROTATE_CLAMP * 0.6;
-    }
+    if (idle) targetRotation.y += IDLE_ROTATE_SPEED * dt;
 
     pointer.x += (targetRotation.x - pointer.x) * LERP_SPEED;
     pointer.y += (targetRotation.y - pointer.y) * LERP_SPEED;
@@ -266,10 +255,7 @@ export default async function initHero3D(panelEl, canvas) {
     if (onVisibilityChange) document.removeEventListener('visibilitychange', onVisibilityChange);
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('resize', onResize);
-    markGroup.children.forEach((mesh) => {
-      mesh.geometry.dispose();
-      mesh.material.dispose();
-    });
+    markGroup.children.forEach((mesh) => mesh.geometry.dispose());
     renderer.dispose();
   }
 

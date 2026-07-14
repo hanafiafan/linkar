@@ -6,58 +6,46 @@ interface Props { content: SiteContent }
 const { content } = Astro.props;
 const { hero } = content.home;
 const mode = hero.visualMode ?? 'logo3d';
-
-const highlightIdx = hero.title.toLowerCase().indexOf(hero.highlight.toLowerCase());
-let titleBefore = hero.title;
-let titleHighlight = '';
-let titleAfter = '';
-if (highlightIdx !== -1) {
-  titleBefore = hero.title.slice(0, highlightIdx);
-  titleHighlight = hero.title.slice(highlightIdx, highlightIdx + hero.highlight.length);
-  titleAfter = hero.title.slice(highlightIdx + hero.highlight.length);
-}
+const { entities } = content;
 
 const folderPhotos = (hero.folderPhotos && hero.folderPhotos.length > 0)
   ? hero.folderPhotos
   : content.photos.filter((p) => p.featured).slice(0, 5).map((p) => p.src);
 ---
-<section class="hero" data-bg="#0a1128">
+<section class="hero" data-bg="#000000">
   <div class:list={['wrap hero__inner', { 'hero__inner--full': mode === 'kosong' }]}>
     <div class="hero__content">
-      <span class="kicker" data-reveal="pop">{hero.badge}</span>
+      <span class="kicker">{hero.badge || 'ECOSYSTEM ENABLER'}</span>
 
-      <h1 class="hero__title" data-split>{titleBefore}<span class="accent">{titleHighlight}</span>{titleAfter}</h1>
+      <h1 class="hero__title" aria-label="Menghubungkan komunitas, korporat, dan pemerintah dalam satu ekosistem.">
+        <span aria-hidden="true">Menghubungkan komunitas, korporat, dan pemerintah dalam <span class="hero__nowrap">satu <span class="home-hero_rotating-text-wrapper">
+          <span class="home-hero_rotating-text is-1">EKOSISTEM.</span>
+          <span class="home-hero_rotating-text is-2">KOLABORASI.</span>
+          <span class="home-hero_rotating-text is-3">LINGKAR DAMPAK.</span>
+        </span></span></span>
+      </h1>
 
-      <div class="hero__sub" data-reveal>
+      <div class="hero__sub">
         <p class="hero__sub-en">{hero.subEn}</p>
         <p class="hero__sub-id">{hero.subId}</p>
       </div>
 
-      <div class="hero__actions" data-reveal>
-        <a href="#contact" class="btn btn-primary">{hero.primaryCta}</a>
-        <a href="#portfolio" class="btn btn-ghost">{hero.secondaryCta}</a>
-      </div>
-
-      <div class="hero__stats" data-stagger>
-        {hero.miniStats.map((stat) => (
-          <div class="hero__stat">
-            <span class="hero__stat-value">{stat.value}</span>
-            <span class="hero__stat-label">{stat.label}</span>
-          </div>
-        ))}
+      <div class="hero__actions">
+        <a href="#contact" class="navbar__cta" data-magnetic>{hero.primaryCta || 'Ajak Kolaborasi'}</a>
+        <a href="#portfolio" class="hero__action-secondary" data-magnetic>{hero.secondaryCta || 'Lihat Portofolio'}</a>
       </div>
     </div>
 
+    <!-- Active Visual Mode on the right side -->
     {mode === 'foto' && (
-      <div class="hero-photo" data-morph>
-        <img data-hero-photo src="/images/portfolio/aktivasi-01.jpg" alt="Peserta program Artha Affiliate Kickstart berkumpul usai sesi" />
+      <div class="hero-photo">
+        <img src={hero.heroImage || "/images/portfolio/aktivasi-01.jpg"} alt="Hero Photo Visual" />
       </div>
     )}
 
     {mode === 'logo3d' && (
       <div class="hero-photo hero-photo--3d">
-        <canvas class="hero3d-canvas" hidden></canvas>
-        <span class="hero3d-caption" hidden>LINKAR</span>
+        <canvas class="hero3d-canvas" id="hero-canvas"></canvas>
       </div>
     )}
 
@@ -67,157 +55,276 @@ const folderPhotos = (hero.folderPhotos && hero.folderPhotos.length > 0)
       </div>
     )}
   </div>
+
+  <!-- Client Logos Grayscale Marquee -->
+  <div class="hero-logo-marquee-wrap">
+    <div class="hero-logo-marquee">
+      <div class="marquee-track">
+        {entities.map((e) => (
+          <div class="marquee-logo-card">
+            <img src={e.logo} alt={e.name} loading="lazy" />
+          </div>
+        ))}
+        {entities.map((e) => (
+          <div class="marquee-logo-card" aria-hidden="true">
+            <img src={e.logo} alt={e.name} loading="lazy" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
 </section>
 
 <style>
-  .hero{
-    position:relative;
-    min-height:92vh;
-    display:flex;
-    align-items:center;
-    background:var(--navy);
-    overflow:hidden;
-  }
-  .hero::before{
-    content:'';
-    position:absolute; inset:0;
-    background:radial-gradient(60% 50% at 80% 10%, rgba(242,106,33,.15), transparent);
-    pointer-events:none;
-  }
-
-  .hero__inner{
-    position:relative;
-    z-index:1;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:64px;
-    padding-top:64px;
-    padding-bottom:64px;
-  }
-  .hero__inner--full{ justify-content:flex-start; }
-  .hero__inner--full .hero__content{ max-width:900px; }
-
-  .hero__content{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-    gap:28px;
-    flex:1;
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #000000;
+    color: #ffffff;
+    overflow: hidden;
+    padding-top: 100px;
+    padding-bottom: 60px;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 
-  .hero__title{
-    font-size:clamp(2.4rem, 6vw, 4.6rem);
-    max-width:900px;
-    color:var(--text);
-  }
-  .hero__title .accent{ color:var(--orange); }
-
-  .hero__sub{ max-width:620px; display:flex; flex-direction:column; gap:10px; }
-  .hero__sub-en{ font-style:italic; font-weight:600; color:var(--orange); font-size:1.15rem; }
-  .hero__sub-id{ color:var(--muted); font-size:1rem; }
-
-  .hero__actions{ display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
-
-  .hero__stats{ display:flex; align-items:center; gap:40px; margin-top:8px; flex-wrap:wrap; }
-  .hero__stat{ display:flex; flex-direction:column; gap:4px; }
-  .hero__stat-value{ font-size:2rem; font-weight:800; color:var(--text); line-height:1; }
-  .hero__stat-label{ font-size:.85rem; color:var(--muted); }
-
-  .hero-photo{
-    display:none;
-    position:relative;
-    flex-shrink:0;
-    width:380px;
-    aspect-ratio:4/5;
-    border-radius:var(--radius);
-    background:var(--navy-panel);
-    overflow:hidden;
-  }
-  .hero-photo img{ width:100%; height:100%; object-fit:cover; transition:opacity .5s ease; }
-  .hero-photo img[src=""]{ display:none; }
-
-  /* logo3d mode: no box, no crop — the mesh must be free to rotate past the old frame */
-  .hero-photo--3d{
-    width:560px;
-    height:620px;
-    aspect-ratio:auto;
-    border-radius:0;
-    background:none;
-    overflow:visible;
+  .hero__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    flex: 1;
+    width: 100%;
   }
 
-  .hero3d-canvas{
-    position:absolute; inset:0; width:100%; height:100%;
-    opacity:0; transition:opacity .5s ease;
-  }
-  .hero3d-canvas.is-active{ opacity:1; }
-
-  .hero3d-caption{
-    position:absolute; left:20px; bottom:18px;
-    font-family:'Plus Jakarta Sans', sans-serif; font-weight:800; letter-spacing:.06em;
-    color:#fff; font-size:1.1rem; opacity:0; transition:opacity .5s ease; pointer-events:none;
-  }
-  .hero3d-caption.is-active{ opacity:1; }
-
-  .hero-photo--folder{
-    background:none;
-    border-radius:0;
-    overflow:visible;
+  .hero__inner--full .hero__content {
+    max-width: 900px;
+    flex: 1;
   }
 
-  @media (min-width: 1000px){
-    .hero-photo{ display:block; }
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    flex: 1.4;
+  }
+
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--orange, #F26A21);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+  }
+
+  .hero__title {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    line-height: 1.25;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    max-width: 900px;
+  }
+
+  .hero__nowrap {
+    white-space: nowrap;
+  }
+
+  /* Rotating Text CSS Animation */
+  .home-hero_rotating-text-wrapper {
+    display: inline-block;
+    height: 1.2em;
+    overflow: hidden;
+    vertical-align: top;
+    position: relative;
+  }
+
+  .home-hero_rotating-text {
+    display: block;
+    line-height: 1.2em;
+    font-weight: 900;
+    animation: hero-text-swap 9s infinite ease-in-out;
+  }
+
+  .home-hero_rotating-text.is-1 { color: var(--orange, #F26A21); }
+  .home-hero_rotating-text.is-2 { color: #007AFF; }
+  .home-hero_rotating-text.is-3 { color: var(--orange, #F26A21); }
+
+  @keyframes hero-text-swap {
+    0%, 25% { transform: translateY(0); }
+    33%, 58% { transform: translateY(-100%); }
+    66%, 91% { transform: translateY(-200%); }
+    100% { transform: translateY(0); }
+  }
+
+  /* Reduced motion: kata pertama tampil statis, sisanya disembunyikan */
+  @media (prefers-reduced-motion: reduce) {
+    .home-hero_rotating-text { animation: none; }
+    .home-hero_rotating-text.is-2,
+    .home-hero_rotating-text.is-3 { display: none; }
+  }
+
+  .hero__sub {
+    max-width: 620px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .hero__sub-en {
+    font-style: italic;
+    font-weight: 600;
+    color: var(--orange, #F26A21);
+    font-size: 1.1rem;
+  }
+
+  .hero__sub-id {
+    color: var(--muted, #888888);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .hero__actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 10px;
+  }
+
+  .hero__action-secondary {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.3s ease;
+  }
+
+  .hero__action-secondary:hover {
+    color: #ffffff;
+  }
+
+  /* Right Side Photo / 3D Canvas / Folder */
+  .hero-photo {
+    flex-shrink: 0;
+    width: 440px;
+    aspect-ratio: 4/5;
+    border-radius: 20px;
+    background: #121212;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+  }
+
+  .hero-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-photo--3d {
+    background: none;
+    border: 0;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero3d-canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Client logos marquee */
+  .hero-logo-marquee-wrap {
+    margin-top: 60px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 30px;
+  }
+
+  .hero-logo-marquee {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+    flex: 1;
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: 40px;
+    width: max-content;
+    animation: marquee-run 30s linear infinite;
+  }
+
+  .marquee-logo-card {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: grayscale(1) contrast(0.8) brightness(0.9);
+    opacity: 0.55;
+    transition: filter 0.3s ease, opacity 0.3s ease;
+  }
+
+  .marquee-logo-card:hover {
+    filter: none;
+    opacity: 1;
+  }
+
+  .marquee-logo-card img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+  }
+
+  @keyframes marquee-run {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (max-width: 1024px) {
+    .hero__inner {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 50px;
+    }
+    .hero-photo {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .hero-logo-marquee-wrap {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
   }
 </style>
 
 <script>
-  // Lazy-load the interactive 3D hero logo: only on desktop, once the panel is
-  // in view and the page has settled (load/idle). Falls back silently to the
-  // static photo on any error or unsupported environment.
-  const panel = document.querySelector<HTMLElement>('.hero-photo--3d');
-  const canvas = panel?.querySelector<HTMLCanvasElement>('.hero3d-canvas');
-  const caption = panel?.querySelector<HTMLElement>('.hero3d-caption');
-
-  if (panel && canvas && caption && matchMedia('(min-width: 1000px)').matches) {
-    let triggered = false;
-
-    const activate = () => {
-      if (triggered) return;
-      triggered = true;
-      io.disconnect();
-
-      const start = () =>
-        import('../scripts/hero3d.js')
-          .then(({ default: initHero3D }) => initHero3D(panel, canvas))
-          .then(() => {
-            canvas.hidden = false;
-            caption.hidden = false;
-            requestAnimationFrame(() => {
-              canvas.classList.add('is-active');
-              caption.classList.add('is-active');
-            });
-          })
-          .catch((err) => {
-            console.warn('hero3d: falling back to static photo', err);
-          });
-
-      if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(start, { timeout: 2000 });
-      } else {
-        setTimeout(start, 200);
-      }
-    };
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          if (document.readyState === 'complete') activate();
-          else window.addEventListener('load', activate, { once: true });
-        }
-      },
-      { threshold: 0.1 }
-    );
-    io.observe(panel);
+  // three.js dimuat dinamis — hanya saat canvas 3D memang dirender
+  // (mode logo3d) dan pengguna mengizinkan animasi
+  const canvas = document.getElementById('hero-canvas');
+  const container = canvas?.parentElement;
+  const motionOK = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+  if (canvas && container && motionOK) {
+    import('../scripts/hero3d.js')
+      .then(({ default: initHero3D }) => initHero3D(container, canvas))
+      .catch((err) => {
+        console.warn('Hero 3D load error:', err);
+      });
   }
 </script>

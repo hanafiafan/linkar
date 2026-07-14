@@ -13,7 +13,7 @@ const OPEN_EASE = 'back.out(1.4)';
  * @param {number} spacing - horizontal spacing between photo centers, in px
  * @returns {Array<{ x: number, y: number, rotation: number }>}
  */
-export function computeSpreadLayout(count, spacing = 90) {
+export function computeSpreadLayout(count, spacing = 150) {
   const mid = (count - 1) / 2;
   return Array.from({ length: count }, (_, i) => ({
     x: (i - mid) * spacing,
@@ -32,6 +32,8 @@ export default function initFolderGallery(root) {
   const photos = [...root.querySelectorAll('.folder-gallery__stack-photo')];
   const hint = root.querySelector('[data-folder-hint]');
   if (!trigger || photos.length === 0) return { destroy() {} };
+
+  root.classList.add('js-active');
 
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -127,6 +129,7 @@ export default function initFolderGallery(root) {
   }
 
   function destroy() {
+    root.classList.remove('js-active');
     if (!reducedMotion) trigger.removeEventListener('click', onTriggerClick);
     document.removeEventListener('keydown', onKeydown);
     disableDragging();

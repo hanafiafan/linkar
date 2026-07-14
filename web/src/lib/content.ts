@@ -1,4 +1,6 @@
 import seed from '../content/seed.json';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 export interface Stat { value: string; label: string; note?: string }
 export interface Entity {
@@ -11,10 +13,12 @@ export interface PostDoc { slug: string; title: string; excerpt: string; cover: 
 export interface SiteContent {
   settings: {
     formEmail: string; footerTagline: string; ctaLabel: string; logoColor?: string; logoWhite?: string;
+    social?: { linkedin?: string; instagram?: string };
     navLabels?: Partial<Record<'about' | 'services' | 'portfolio' | 'ecosystem' | 'contact' | 'program' | 'blog', string>>;
   };
   home: {
-    hero: { badge: string; title: string; highlight: string; subEn: string; subId: string; primaryCta: string; secondaryCta: string; miniStats: Stat[]; visualMode?: 'kosong' | 'logo3d' | 'foto' | 'folder'; folderPhotos?: string[] };
+    visibility?: Record<string, boolean>;
+    hero: { badge: string; title: string; highlight: string; subEn: string; subId: string; primaryCta: string; secondaryCta: string; miniStats: Stat[]; visualMode?: 'kosong' | 'logo3d' | 'foto' | 'folder'; folderPhotos?: string[]; showDeco?: boolean; heroImage?: string; };
     marquee: { kicker: string; title: string };
     about: { kicker: string; title: string; paragraphs: string[] };
     portfolio: { titleTop: string; titlePart1: string; titlePart2: string; intro: string };
@@ -27,11 +31,41 @@ export interface SiteContent {
   entities: Entity[]; photos: Photo[]; programs: ProgramDoc[]; posts: PostDoc[];
 }
 
-export async function getContent(): Promise<SiteContent> {
-  const projectId = import.meta.env?.SANITY_PROJECT_ID ?? process.env.SANITY_PROJECT_ID;
-  if (projectId) {
-    const { fetchFromSanity } = await import('./sanity');
-    return fetchFromSanity();
+// Validasi struktur minimum SiteContent — mencegah JSON valid tapi salah
+// bentuk merusak render halaman atau build (dipakai getContent & /api/save).
+export function isSiteContent(c: any): c is SiteContent {
+  const HOME_KEYS = ['hero', 'marquee', 'about', 'portfolio', 'services', 'linkarStats', 'industry', 'commitments', 'cta'];
+  return !!c && typeof c === 'object'
+    && !!c.settings && typeof c.settings.formEmail === 'string'
+    && !!c.home && typeof c.home === 'object'
+    && HOME_KEYS.every((k) => !!c.home[k] && typeof c.home[k] === 'object')
+    && Array.isArray(c.home.about.paragraphs)
+    && Array.isArray(c.home.services.cards)
+    && Array.isArray(c.home.linkarStats.items)
+    && Array.isArray(c.home.industry.items)
+    && Array.isArray(c.home.commitments.cards)
+    && [c.entities, c.photos, c.programs, c.posts].every(Array.isArray);
+}
+
+export async function getContent(isDraft = false): Promise<SiteContent> {
+  if (typeof process !== 'undefined' && process.versions?.node) {
+    try {
+      const fileName = isDraft ? 'draft.json' : 'seed.json';
+      let filePath = path.resolve(process.cwd(), `src/content/${fileName}`);
+
+      if (isDraft && !fs.existsSync(filePath)) {
+        filePath = path.resolve(process.cwd(), 'src/content/seed.json');
+      }
+
+      if (fs.existsSync(filePath)) {
+        const raw = fs.readFileSync(filePath, 'utf-8');
+        const parsed = JSON.parse(raw);
+        if (isSiteContent(parsed)) return parsed;
+        console.warn(`Konten di ${fileName} tidak valid strukturnya — memakai fallback seed.`);
+      }
+    } catch (e) {
+      console.warn('Failed to read content dynamically, using fallback', e);
+    }
   }
   return seed as unknown as SiteContent;
 }

@@ -1,30 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
-import Navbar from '../components/Navbar.astro';
-import Hero from '../components/Hero.astro';
-import EntityMarquee from '../components/EntityMarquee.astro';
-import About from '../components/About.astro';
-import PortfolioSection from '../components/PortfolioSection.astro';
-import Services from '../components/Services.astro';
-import StatsLinkar from '../components/StatsLinkar.astro';
-import IndustryStats from '../components/IndustryStats.astro';
-import Commitments from '../components/Commitments.astro';
-import ContactCta from '../components/ContactCta.astro';
-import Footer from '../components/Footer.astro';
+import HomeSections from '../components/HomeSections.astro';
 import { getContent } from '../lib/content';
 
 const content = await getContent();
 ---
-<Base title="LINKAR">
-  <Navbar content={content} />
-  <Hero content={content} />
-  <EntityMarquee content={content} />
-  <About content={content} />
-  <PortfolioSection content={content} />
-  <Services content={content} />
-  <StatsLinkar content={content} />
-  <IndustryStats content={content} />
-  <Commitments content={content} />
-  <ContactCta content={content} />
-  <Footer content={content} />
+<Base
+  title="LINKAR"
+  description="LINKAR — ecosystem enabler dari Yogyakarta. Merancang, mengeksekusi, dan mengukur program berdampak bagi UMKM, talenta muda, dan komunitas di Jawa Tengah & Jawa Timur."
+>
+  <HomeSections content={content} />
 </Base>
