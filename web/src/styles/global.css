@@ -7,19 +7,19 @@
 /* system-ui fallback applies only if the webfont fails to load */
 
 :root{
-  --navy:#0a1128; --navy-panel:#111a3d; --navy-logo:#1F2B5B;
-  --orange:#F26A21; --light:#fafafa; --text:#eef1f8; --muted:#9aa3bd;
-  --ink:#13182b; --ink-muted:#5a617a;           /* text colors for light bands */
+  --navy:#000000; --navy-panel:#121212; --navy-logo:#1C2A59;
+  --orange:#F26A21; --light:#ffffff; --text:#ffffff; --muted:#888888;
+  --ink:#000000; --ink-muted:#666666;           /* text colors for light bands */
   --radius:16px; --radius-s:12px; --maxw:1180px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;overflow-x:hidden}
-section[id]{scroll-margin-top:24px}
+section[id]{scroll-margin-top:0}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--navy);color:var(--text);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
-.section{padding:96px 0}
+.section{padding:40px 0 160px 0}
 .section--light{background:var(--light);color:var(--ink)}
 .section--light .kicker{color:var(--orange)}
 .kicker{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;background:rgba(255,255,255,.06);color:var(--orange);font-weight:700;letter-spacing:2.5px;text-transform:uppercase;font-size:.75rem}
@@ -40,11 +40,28 @@ h1,h2,h3{font-weight:800;letter-spacing:-.02em;line-height:1.12}
    default for no-JS/reduced-motion). When the engine takes over it adds
    body.morph-active, which hands background painting to #bg-morph instead. */
 #bg-morph{ position:fixed; inset:0; z-index:-1; background:var(--navy); }
-body.morph-active .section,
+body.morph-active [data-bg],
 body.morph-active .hero,
-body.morph-active .footer{ background:transparent; }
+body.morph-active .footer-section,
+body.morph-active footer{ background:transparent !important; }
 
-#lb{border:0;padding:0;background:rgba(6,10,25,.94);width:100vw;height:100vh;max-width:100vw;max-height:100vh;display:none;align-items:center;justify-content:center}
+/* Navbar reveal (Step 4): hidden above the fold on the landing page until the
+   engine confirms motionOK, then slid down via .is-revealed. Always visible
+   otherwise (no-JS/reduced-motion/subpages never get body.navbar-gated).
+   `header.navbar` switches to `position:fixed` for the whole gated lifecycle
+   (hidden AND revealed) instead of the default `sticky` — a fixed header at
+   top:0 looks identical to a "stuck" sticky one, but crucially it never
+   reserves layout space. With `sticky`, the hidden navbar still reserved its
+   full height at the top of the flow (transform doesn't affect layout),
+   pushing the hero section down and leaving an empty flat-color strip above
+   the hero's own gradient background — read as a leftover darker band.
+   (Toggling position:fixed <-> sticky on scroll was tried and rejected: it
+   breaks Chromium's sticky recalculation mid-scroll, leaving the header
+   scrolling away with the page instead of sticking.) */
+body.navbar-gated header.navbar{ position:fixed; top:0; left:0; right:0; transform:translateY(-100%); transition:transform .4s ease; }
+body.navbar-gated header.navbar.is-revealed{ transform:translateY(0); }
+
+#lb{border:0;padding:0;background:rgba(0,0,0,.96);width:100vw;height:100vh;max-width:100vw;max-height:100vh;display:none;align-items:center;justify-content:center}
 #lb[open]{display:flex}
 #lb::backdrop{background:transparent}
 #lb figure{margin:0;max-width:90vw;max-height:84vh;display:flex;flex-direction:column;gap:10px}
@@ -56,3 +73,297 @@ body.morph-active .footer{ background:transparent; }
 #lb .lb-prev{left:20px;top:50%;transform:translateY(-50%)}
 #lb .lb-next{right:20px;top:50%;transform:translateY(-50%)}
 #lb .lb-count{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#9fb0d8;font-size:.85rem}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL UPGRADE — Film Grain / Noise Overlay
+   ═══════════════════════════════════════════════════════════════ */
+body::after{
+  content:'';
+  position:fixed;inset:0;z-index:9999;
+  pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+  opacity:.035;
+  mix-blend-mode:overlay;
+}
+@media (prefers-reduced-motion: reduce){
+  body::after{animation:none}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL UPGRADE — Animated Gradient Text
+   ═══════════════════════════════════════════════════════════════ */
+.gradient-text{
+  background:linear-gradient(90deg,#F26A21,#ffb347,#ff6b6b,#F26A21);
+  background-size:300% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:gradient-shift 4s ease infinite;
+}
+@keyframes gradient-shift{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL UPGRADE — Kicker Badge Pulse
+   ═══════════════════════════════════════════════════════════════ */
+.kicker{
+  position:relative;
+  border:1px solid rgba(242,106,33,.25);
+  animation:pulse-border 3s ease-in-out infinite;
+}
+@keyframes pulse-border{
+  0%,100%{border-color:rgba(242,106,33,.25);box-shadow:0 0 0 0 rgba(242,106,33,0)}
+  50%{border-color:rgba(242,106,33,.5);box-shadow:0 0 16px 2px rgba(242,106,33,.12)}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL UPGRADE — Glassmorphism Card
+   ═══════════════════════════════════════════════════════════════ */
+.glass{
+  background:rgba(18,18,18,.65);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:24px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL UPGRADE — Link Hover Underline Animation
+   ═══════════════════════════════════════════════════════════════ */
+.link-hover{
+  position:relative;
+}
+.link-hover::after{
+  content:'';
+  position:absolute;left:0;bottom:-2px;
+  width:0;height:1.5px;
+  background:var(--orange);
+  transition:width .3s ease;
+}
+.link-hover:hover::after{
+  width:100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL UPGRADE — Custom Cursor
+   ═══════════════════════════════════════════════════════════════ */
+body.has-cursor{cursor:none}
+body.has-cursor a,body.has-cursor button,body.has-cursor [role="button"],
+body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:none}
+
+.cursor{
+  position:fixed;top:0;left:0;z-index:10000;pointer-events:none;
+  mix-blend-mode:difference;
+}
+.cursor__dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#fff;
+  transform:translate(-50%,-50%);
+}
+.cursor__ring{
+  position:absolute;top:50%;left:50%;
+  width:40px;height:40px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.5);
+  transform:translate(-50%,-50%);
+  transition:width .25s ease,height .25s ease,border-color .25s ease;
+}
+.cursor.is-hover .cursor__ring{
+  width:64px;height:64px;
+  border-color:var(--orange);
+}
+.cursor.is-delight .cursor__ring{
+  width:96px;height:96px;
+  background:rgba(242,106,33,0.15);
+  border-color:var(--orange);
+}
+.cursor.is-edit .cursor__ring{
+  width:80px;height:80px;
+  border-color:var(--orange);
+  border-style:dashed;
+}
+.cursor__label{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:#fff;white-space:nowrap;
+  opacity:0;transition:opacity .2s;
+}
+.cursor.is-hover .cursor__label,
+.cursor.is-delight .cursor__label,
+.cursor.is-edit .cursor__label{opacity:1}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL UPGRADE — Preloader
+   ═══════════════════════════════════════════════════════════════ */
+.preloader{
+  position:fixed;inset:0;z-index:99999;
+  background:var(--navy);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;
+  transition:transform .8s cubic-bezier(.76,0,.24,1);
+}
+.preloader.is-done{
+  transform:translateY(-100%);
+}
+.preloader__text{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:clamp(2rem,5vw,3.6rem);font-weight:800;letter-spacing:.08em;
+  color:var(--text);
+  display:flex;gap:2px;
+  overflow:hidden;
+}
+.preloader__char{
+  display:inline-block;
+  transform:translateY(110%);
+  animation:preloader-char .5s cubic-bezier(.23,1,.32,1) forwards;
+}
+@keyframes preloader-char{
+  to{transform:translateY(0)}
+}
+.preloader__bar{
+  width:120px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;
+}
+.preloader__bar-fill{
+  height:100%;width:0;background:var(--orange);border-radius:2px;
+  animation:preloader-fill 1.4s .3s ease-out forwards;
+}
+@keyframes preloader-fill{
+  to{width:100%}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .gradient-text{animation:none}
+  .kicker{animation:none}
+  .preloader__char{animation:none;transform:none}
+  .preloader__bar-fill{animation:none;width:100%}
+  .link-hover::after{transition:none}
+  .cursor__ring{transition:none}
+}
+
+/* Page Transition Curtain */
+.transition-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  background: #000000;
+  transform: translateY(100%);
+  pointer-events: none;
+  transition: transform 0.85s cubic-bezier(0.85, 0.09, 0.15, 0.91);
+}
+.transition-curtain.is-active {
+  transform: translateY(0%);
+  pointer-events: auto;
+}
+
+/* Background Morph Section Transparency Override */
+body.morph-active .hero,
+body.morph-active .ecosystem,
+body.morph-active .section_scrub-intro,
+body.morph-active .portfolio-section,
+body.morph-active .delight_section-wrapper,
+body.morph-active .section_delight_new,
+body.morph-active .stats,
+body.morph-active .opportunity,
+body.morph-active .commitments,
+body.morph-active .contact-cta,
+body.morph-active .footer {
+  background: transparent !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM CUSTOM CURSOR & MAGNETIC BUTTON STYLES
+   ═══════════════════════════════════════════════════════════════ */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  pointer-events: none;
+  z-index: 999999;
+  transform: translate(-50%, -50%) scale(1);
+  mix-blend-mode: difference;
+  will-change: transform, opacity;
+  transition: transform 0.15s ease, opacity 0.25s ease;
+}
+
+.custom-cursor.is-hovering {
+  transform: translate(-50%, -50%) scale(0);
+  background-color: #ffffff;
+}
+
+.custom-cursor.is-hidden {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  pointer-events: none;
+  z-index: 999998;
+  transform: translate(-50%, -50%) scale(1);
+  will-change: transform, opacity;
+  transition: transform 0.25s cubic-bezier(0.215, 0.61, 0.355, 1), opacity 0.25s ease;
+  mix-blend-mode: difference;
+}
+
+.custom-cursor-ring.is-hovering {
+  transform: translate(-50%, -50%) scale(1.6);
+}
+
+.custom-cursor-ring.is-hidden {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.cursor-ring-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cursor-ring-svg .ring-bg {
+  stroke: rgba(255, 255, 255, 0.2);
+}
+
+.cursor-ring-svg .ring-progress {
+  stroke: #ffffff; /* Use white since mix-blend-mode: difference will color-invert it beautifully on hover */
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+/* Kursor asli hanya disembunyikan saat kursor custom benar-benar aktif
+   (cursor.js menambahkan body.has-cursor) — tanpa ini, pengguna
+   prefers-reduced-motion kehilangan kursor sama sekali */
+@media (pointer: fine) {
+  body.has-cursor, body.has-cursor a, body.has-cursor button, body.has-cursor .btn,
+  body.has-cursor [role="button"], body.has-cursor input, body.has-cursor textarea,
+  body.has-cursor select {
+    cursor: none !important;
+  }
+}
+
+/* Reduced motion: hentikan semua marquee yang berjalan terus-menerus */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .portfolio-marquee-track,
+  .footer-marquee__track {
+    animation: none !important;
+  }
+}
+
+/* Magnetic offset easing */
+[data-magnetic] {
+  display: inline-block;
+  will-change: transform;
+}

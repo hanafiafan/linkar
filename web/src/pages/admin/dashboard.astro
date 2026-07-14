@@ -1,0 +1,1891 @@
+---
+import { getContent } from '../../lib/content';
+import { isAuthenticated } from '../../lib/adminAuth';
+
+export const prerender = false;
+
+// Check authentication
+if (!isAuthenticated(Astro.cookies)) {
+  return Astro.redirect('/admin');
+}
+
+// Load draft data first, fallback to seed
+const content = await getContent(true);
+const vis = content.home.visibility ?? {};
+
+// Urutan section = urutan tampil di halaman utama
+const NAV_GROUPS = [
+  {
+    label: 'Konten Halaman Utama',
+    items: [
+      { key: 'hero', num: '1', label: 'Hero (Pembuka)' },
+      { key: 'marquee', num: '2', label: 'Marquee Ekosistem' },
+      { key: 'about', num: '3', label: 'Tentang Kami' },
+      { key: 'portfolio', num: '4', label: 'Portofolio' },
+      { key: 'services', num: '5', label: 'Layanan' },
+      { key: 'stats', num: '6', label: 'Dalam Angka' },
+      { key: 'industry', num: '7', label: 'Peluang Industri' },
+      { key: 'commitments', num: '8', label: 'Komitmen' },
+      { key: 'cta', num: '9', label: 'Form Kontak' },
+    ],
+  },
+  {
+    label: 'Data & Pengaturan',
+    items: [
+      { key: 'entities', num: 'E', label: 'Entitas Ekosistem' },
+      { key: 'programs', num: 'Pr', label: 'Program' },
+      { key: 'posts', num: 'Bl', label: 'Blog' },
+      { key: 'umum', num: 'P', label: 'Pengaturan Umum' },
+    ],
+  },
+];
+---
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LINKAR CMS — Kelola Situs</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0c;
+      --panel: #121216;
+      --orange: #F26A21;
+      --text: #eef1f8;
+      --muted: #9aa3bd;
+      --border: rgba(255, 255, 255, 0.08);
+      --radius: 12px;
+      --error: #ff5d2b;
+      --ok: #2ecc71;
+      --warn: #ffb347;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.6; height: 100vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      font-size: 15px;
+    }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 8px; border: 2px solid var(--bg); }
+    ::-webkit-scrollbar-track { background: transparent; }
+    button { font-family: inherit; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+      outline: 2px solid var(--orange); outline-offset: 1px;
+    }
+
+    /* ===== Header ===== */
+    header {
+      background: var(--panel); border-bottom: 1px solid var(--border);
+      padding: 10px 20px; display: flex; align-items: center; gap: 14px;
+      flex-shrink: 0;
+    }
+    .header__title { display: flex; align-items: center; gap: 12px; }
+    .header__logo { height: 30px; width: auto; background: white; padding: 3px 7px; border-radius: 6px; }
+    .header__name { font-size: 0.98rem; font-weight: 800; display: block; line-height: 1.25; }
+    .header__sub { font-size: 0.68rem; color: var(--muted); display: block; line-height: 1.25; letter-spacing: 0.3px; }
+    .header__spacer { flex: 1; }
+
+    .status {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border); border-radius: 99px;
+      padding: 5px 14px; font-size: 0.75rem; font-weight: 600; color: var(--muted);
+      margin-left: 10px;
+    }
+    .status__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex-shrink: 0; }
+    .status.is-dirty { color: var(--warn); border-color: rgba(255, 179, 71, 0.35); }
+    .status.is-dirty .status__dot { background: var(--warn); }
+
+    .btn-ghost {
+      background: transparent; border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--text); padding: 8px 15px; border-radius: 8px;
+      font-weight: 600; font-size: 0.82rem; cursor: pointer; transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-ghost:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.3); }
+    .btn-primary {
+      background: linear-gradient(135deg, #F26A21, #ffb347); color: #1c0d02; border: 0;
+      padding: 8px 17px; border-radius: 8px; font-weight: 700; font-size: 0.84rem;
+      cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(242, 106, 33, 0.35); }
+    button:disabled { opacity: 0.55; cursor: wait; transform: none !important; box-shadow: none !important; }
+
+    /* Spinner untuk tombol yang sedang memproses */
+    .spin {
+      display: inline-block; width: 12px; height: 12px; margin-right: 7px;
+      border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%;
+      animation: spin 0.7s linear infinite; vertical-align: -1px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== Layout 3 kolom ===== */
+    .main {
+      display: grid; grid-template-columns: 258px minmax(420px, 1fr) minmax(380px, 42%);
+      grid-template-rows: minmax(0, 1fr);
+      flex: 1; min-height: 0; overflow: hidden;
+    }
+    .main > * { min-height: 0; }
+    @media (max-width: 1100px) {
+      body { height: auto; overflow: auto; }
+      .main { grid-template-columns: 1fr; grid-template-rows: none; overflow: visible; }
+      .preview { height: 70vh; border-left: 0; border-top: 1px solid var(--border); }
+    }
+
+    /* ===== Sidebar ===== */
+    .nav {
+      border-right: 1px solid var(--border); background: rgba(14, 16, 24, 0.7);
+      padding: 12px 12px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px;
+    }
+    .nav-group {
+      font-size: 0.64rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+      color: rgba(154, 163, 189, 0.65); padding: 16px 12px 7px;
+    }
+    .nav-btn {
+      background: transparent; border: 0; color: var(--muted);
+      padding: 9px 12px; border-radius: 8px; font-weight: 600; font-size: 0.86rem;
+      text-align: left; cursor: pointer; transition: background 0.2s, color 0.2s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-btn:hover { background: rgba(255, 255, 255, 0.04); color: var(--text); }
+    .nav-btn.is-active { background: rgba(242, 106, 33, 0.12); color: var(--orange); }
+    .num {
+      width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.66rem; font-weight: 800; color: var(--muted);
+    }
+    .nav-btn.is-active .num { background: rgba(242, 106, 33, 0.18); border-color: rgba(242, 106, 33, 0.4); color: var(--orange); }
+    .off-tag {
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.5px; color: var(--muted);
+      border: 1px solid var(--border); padding: 1px 6px; border-radius: 5px; margin-left: auto;
+    }
+    .nav-btn .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--warn);
+      margin-left: auto; flex-shrink: 0; display: none;
+    }
+    .off-tag ~ .dot, .off-tag + .dot { margin-left: 6px; }
+    .nav-btn.is-dirty .dot { display: block; }
+
+    /* ===== Editor ===== */
+    .editor { overflow-y: auto; padding: 26px 30px; }
+    .panel { display: none; flex-direction: column; gap: 20px; max-width: 860px; }
+    .panel.is-active { display: flex; animation: fadein 0.18s ease; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .panel__head { display: flex; align-items: flex-start; gap: 16px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+    .panel__head h2 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; }
+    .panel__desc { color: var(--muted); font-size: 0.84rem; }
+    .panel__head-main { flex: 1; }
+
+    .note {
+      color: var(--muted); font-size: 0.8rem; border: 1px dashed var(--border);
+      border-radius: 8px; padding: 9px 13px; background: rgba(255, 255, 255, 0.015);
+    }
+
+    .field { display: flex; flex-direction: column; gap: 5px; position: relative; }
+    .btn-upload {
+      position: absolute; right: 5px; bottom: 5px;
+      background: rgba(242, 106, 33, 0.14); border: 1px solid rgba(242, 106, 33, 0.4);
+      color: var(--orange); padding: 4px 10px; border-radius: 6px;
+      font-weight: 700; font-size: 0.68rem; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-upload:hover { background: rgba(242, 106, 33, 0.25); }
+    .field:has(.btn-upload) input { padding-right: 78px; }
+    .field .help ~ .btn-upload, .field:has(.help) .btn-upload { bottom: 27px; }
+    .field label { font-size: 0.74rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .field .help { font-size: 0.74rem; color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+    .field input, .field textarea, .field select {
+      background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 13px; color: var(--text);
+      font-family: inherit; font-size: 0.92rem; width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(242, 106, 33, 0.15);
+    }
+    .grid2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    .grid3 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 768px) {
+      .grid2 { grid-template-columns: repeat(2, 1fr); }
+      .grid3 { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* Toggle switch */
+    .vis-switch { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-shrink: 0; }
+    .vis-switch .vis-label { font-size: 0.76rem; font-weight: 700; color: var(--muted); }
+    .switch { position: relative; display: inline-block; width: 42px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0; background-color: rgba(255, 255, 255, 0.12);
+      transition: .25s; border-radius: 22px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 14px; width: 14px; left: 4px; bottom: 4px;
+      background-color: white; transition: .25s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--orange); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    /* Baris CRUD */
+    .rows { display: flex; flex-direction: column; gap: 14px; }
+    .row {
+      display: flex; gap: 16px; align-items: flex-start; position: relative;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px; padding-right: 46px; background: rgba(255, 255, 255, 0.02);
+      transition: border-color 0.2s;
+    }
+    .row:hover { border-color: rgba(255, 255, 255, 0.16); }
+    .row__fields { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .thumb {
+      width: 72px; height: 72px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+      border: 1px solid var(--border); background: #fff;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .thumb--photo { background: var(--bg); }
+    .thumb--photo img { object-fit: cover; }
+    .thumb--missing { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }
+    /* Foto portofolio dapat preview besar */
+    #list-photos > .row > .thumb { width: 116px; height: 116px; }
+
+    /* Field gambar dengan preview di sampingnya */
+    .img-row { display: flex; gap: 10px; align-items: center; }
+    .img-row .thumb { width: 46px; height: 46px; flex-shrink: 0; }
+    .img-row input { flex: 1; }
+
+    /* Strip preview galeri (satu gambar per baris teks) */
+    .gallery-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .gallery-strip img {
+      width: 64px; height: 64px; object-fit: cover; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--bg);
+    }
+    .row-del {
+      position: absolute; top: 12px; right: 12px;
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+      font-size: 0.8rem; line-height: 1; transition: all 0.2s;
+    }
+    .row-del:hover { background: var(--error); border-color: var(--error); color: #fff; }
+    .check { display: flex; align-items: center; gap: 9px; font-size: 0.85rem; cursor: pointer; margin-top: 26px; }
+    .check input { width: 18px; height: 18px; cursor: pointer; }
+
+    .btn-add {
+      background: transparent; border: 1px dashed var(--orange); color: var(--orange);
+      padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.83rem;
+      cursor: pointer; transition: background .2s; align-self: flex-start;
+    }
+    .btn-add:hover { background: rgba(242, 106, 33, 0.08); }
+
+    /* ===== Kartu entitas (collapse/expand) ===== */
+    details.entity { display: block; padding: 0; }
+    .entity__head {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 16px; cursor: pointer; list-style: none; user-select: none;
+    }
+    .entity__head::-webkit-details-marker { display: none; }
+    .entity__head::marker { content: ''; }
+    .thumb--sm { width: 46px; height: 46px; border-radius: 8px; }
+    .entity__title { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.4; }
+    .entity__name { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .entity__role { font-size: 0.74rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .entity__badge {
+      font-size: 0.62rem; font-weight: 800; letter-spacing: 0.5px; flex-shrink: 0;
+      border: 1px solid rgba(242, 106, 33, 0.4); color: var(--orange);
+      padding: 2px 8px; border-radius: 99px;
+    }
+    .entity .row-del { position: static; flex-shrink: 0; }
+    .entity__chev {
+      color: var(--muted); font-size: 0.8rem; flex-shrink: 0;
+      transition: transform 0.2s; margin-left: 2px;
+    }
+    details[open] .entity__chev { transform: rotate(180deg); }
+    details[open] .entity__head { border-bottom: 1px solid var(--border); }
+    .entity__body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+    h3.sub { font-size: 1.02rem; font-weight: 700; color: var(--orange); margin-top: 10px; }
+
+    /* Panel action bar */
+    .panel__actions {
+      display: flex; gap: 12px; align-items: center;
+      border-top: 1px solid var(--border); padding-top: 18px; margin-top: 8px;
+    }
+    .panel__actions .hint { font-size: 0.75rem; color: var(--muted); flex: 1; }
+
+    /* ===== Preview ===== */
+    .preview { border-left: 1px solid var(--border); display: flex; flex-direction: column; background: #08080b; }
+    .preview__bar {
+      display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--panel);
+    }
+    .preview__bar .badge {
+      background: rgba(242, 106, 33, 0.15); border: 1px solid var(--orange);
+      color: var(--orange); font-size: 0.66rem; font-weight: 800;
+      padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+    .preview__bar .info { font-size: 0.7rem; color: var(--muted); flex: 1; min-width: 0; }
+    .preview__bar .btn-ghost { padding: 5px 11px; font-size: 0.72rem; flex-shrink: 0; }
+    .seg { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+    .seg__btn {
+      background: transparent; border: 0; color: var(--muted); cursor: pointer;
+      padding: 5px 11px; font-size: 0.72rem; font-weight: 700; transition: all 0.2s;
+    }
+    .seg__btn + .seg__btn { border-left: 1px solid var(--border); }
+    .seg__btn.is-active { background: rgba(242, 106, 33, 0.15); color: var(--orange); }
+    .preview__stage { flex: 1; display: flex; justify-content: center; overflow: hidden; }
+    .preview iframe { border: 0; width: 100%; height: 100%; background: #000; }
+    .preview.is-mobile .preview__stage { padding: 16px 0; }
+    .preview.is-mobile iframe { width: 390px; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 18px; }
+
+    /* ===== Modal konfirmasi ===== */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal-backdrop.is-open { display: flex; }
+    .modal {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      padding: 26px 28px; width: min(430px, calc(100vw - 40px));
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+      animation: fadein 0.15s ease;
+    }
+    .modal h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; }
+    .modal p { font-size: 0.86rem; color: var(--muted); margin-bottom: 22px; }
+    .modal__actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #0f1f14; border: 1px solid rgba(46, 204, 113, 0.6); color: #d6ffd6;
+      padding: 12px 22px; border-radius: 10px; font-weight: 600; font-size: 0.88rem;
+      opacity: 0; transition: all 0.3s; z-index: 1100; pointer-events: none;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    }
+    .toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.toast--error { background: #1f0f0f; border-color: var(--error); color: #ffd6c9; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header__title">
+      <img src="/images/brand/linkar-logo.png" alt="" class="header__logo" />
+      <div>
+        <span class="header__name">LINKAR CMS</span>
+        <span class="header__sub">Pengelola Konten Situs</span>
+      </div>
+    </div>
+    <div class="status" id="save-status">
+      <span class="status__dot"></span>
+      <span id="save-status-text">Semua perubahan tersimpan</span>
+    </div>
+    <div class="header__spacer"></div>
+    <button class="btn-ghost" id="btn-discard" type="button">Buang Draf</button>
+    <button class="btn-ghost" id="btn-open-site" type="button">Buka Situs Live ↗</button>
+    <button class="btn-primary" id="btn-publish-all" type="button">Terbitkan Semua</button>
+    <button class="btn-ghost" id="btn-logout" type="button">Keluar</button>
+  </header>
+
+  <div class="main">
+    <!-- ===== SIDEBAR: urutan sama dengan halaman utama ===== -->
+    <nav class="nav">
+      {NAV_GROUPS.map((group, gi) => (
+        <>
+          <p class="nav-group">{group.label}</p>
+          {group.items.map((n, i) => (
+            <button class:list={['nav-btn', { 'is-active': gi === 0 && i === 0 }]} data-section={n.key} type="button">
+              <span class="num">{n.num}</span> {n.label}
+              <span class="off-tag" style="display:none">Nonaktif</span>
+              <span class="dot"></span>
+            </button>
+          ))}
+        </>
+      ))}
+    </nav>
+
+    <!-- ===== EDITOR ===== -->
+    <div class="editor" id="editor">
+
+      <!-- HERO -->
+      <section class="panel is-active" id="panel-hero" data-key="hero">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Hero — Bagian Pembuka</h2>
+            <p class="panel__desc">Bagian paling atas situs: teks pembuka besar, deskripsi, dan dua tombol.</p>
+          </div>
+          <label class="vis-switch">
+            <span class="vis-label">Tampil di situs</span>
+            <span class="switch"><input type="checkbox" id="vis-hero" checked={vis.hero !== false} /><span class="slider"></span></span>
+          </label>
+        </div>
+        <div class="field">
+          <label>Teks Badge Kecil (di atas judul)</label>
+          <input type="text" id="hero-badge" value={content.home.hero.badge} />
+        </div>
+        <p class="note">ℹ️ Judul besar hero memakai teks berputar tetap: "Menghubungkan komunitas, korporat, dan pemerintah dalam satu <b>EKOSISTEM. / KOLABORASI. / LINGKAR DAMPAK.</b>" — bagian ini diatur di desain, bukan lewat CMS.</p>
+        <div class="field">
+          <label>Kalimat Bahasa Inggris (miring)</label>
+          <input type="text" id="hero-sub-en" value={content.home.hero.subEn} />
+        </div>
+        <div class="field">
+          <label>Deskripsi Bahasa Indonesia</label>
+          <textarea id="hero-sub-id" rows="3">{content.home.hero.subId}</textarea>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Tombol Utama</label>
+            <input type="text" id="hero-cta-p" value={content.home.hero.primaryCta} />
+          </div>
+          <div class="field">
+            <label>Tombol Kedua</label>
+            <input type="text" id="hero-cta-s" value={content.home.hero.secondaryCta} />
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Visual di Sisi Kanan Hero</label>
+            <select id="hero-visual">
+              <option value="logo3d" selected={content.home.hero.visualMode === 'logo3d'}>Logo 3D Interaktif</option>
+              <option value="foto" selected={content.home.hero.visualMode === 'foto'}>Satu Foto</option>
+              <option value="folder" selected={content.home.hero.visualMode === 'folder'}>Galeri Folder</option>
+              <option value="kosong" selected={content.home.hero.visualMode === 'kosong'}>Kosong</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Gambar Hero (dipakai jika mode "Satu Foto")</label>
+            <div class="img-row">
+              <span class="thumb thumb--photo"><img id="hero-image-thumb" src={content.home.hero.heroImage || '/images/portfolio/aktivasi-01.jpg'} alt="" onerror="this.src='/favicon.png';" /></span>
+              <input type="text" id="hero-image" value={content.home.hero.heroImage || '/images/portfolio/aktivasi-01.jpg'} />
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Foto Galeri Folder (dipakai jika mode "Galeri Folder")</label>
+          <textarea id="hero-folder" data-f="gallery" rows="3">{(content.home.hero.folderPhotos ?? []).join('\n')}</textarea>
+          <span class="help">Satu alamat gambar per baris. Kosongkan untuk otomatis memakai foto unggulan portofolio.</span>
+          <div class="gallery-strip">
+            {(content.home.hero.folderPhotos ?? []).map((g) => <img src={g} alt="" onerror="this.src='/favicon.png';" />)}
+          </div>
+        </div>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="hero">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="hero">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- MARQUEE -->
+      <section class="panel" id="panel-marquee" data-key="marquee">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Marquee Ekosistem</h2>
+            <p class="panel__desc">Judul seksi ekosistem dan baris logo entitas yang berjalan. Daftar logonya diambil dari section "Entitas Ekosistem".</p>
+          </div>
+          <label class="vis-switch">
+            <span class="vis-label">Tampil di situs</span>
+            <span class="switch"><input type="checkbox" id="vis-marquee" checked={vis.marquee !== false} /><span class="slider"></span></span>
+          </label>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Teks Kecil (Kicker)</label>
+            <input type="text" id="marquee-kicker" value={content.home.marquee.kicker} />
+          </div>
+          <div class="field">
+            <label>Judul Seksi</label>
+            <input type="text" id="marquee-title" value={content.home.marquee.title} />
+          </div>
+        </div>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="marquee">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="marquee">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- TENTANG -->
+      <section class="panel" id="panel-about" data-key="about">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Tentang Kami</h2>
+            <p class="panel__desc">Cerita singkat tentang LINKAR. Bisa lebih dari satu paragraf.</p>
+          </div>
+          <label class="vis-switch">
+            <span class="vis-label">Tampil di situs</span>
+            <span class="switch"><input type="checkbox" id="vis-about" checked={vis.about !== false} /><span class="slider"></span></span>
+          </label>
+        </div>
+        <div class="field">
+          <label>Teks Kecil (Kicker)</label>
+          <input type="text" id="about-kicker" value={content.home.about.kicker} />
+        </div>
+        <h3 class="sub">Paragraf</h3>
+        <div class="rows" id="list-paragraphs">
+          {content.home.about.paragraphs.map((para) => (
+            <div class="row">
+              <div class="row__fields">
+                <div class="field">
+                  <label>Isi Paragraf</label>
+                  <textarea data-f="text" rows="3">{para}</textarea>
+                </div>
+              </div>
+              <button type="button" class="row-del" title="Hapus paragraf">✕</button>
+            </div>
+          ))}
+        </div>
+        <button type="button" class="btn-add" data-add="paragraphs">+ Tambah Paragraf</button>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="about">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="about">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- PORTOFOLIO -->
+      <section class="panel" id="panel-portfolio" data-key="portfolio">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Portofolio</h2>
+            <p class="panel__desc">Daftar proyek/aktivasi beserta fotonya. Judul marquee raksasa "RECENT PROJECTS ✦" diatur di desain.</p>
+          </div>
+          <label class="vis-switch">
+            <span class="vis-label">Tampil di situs</span>
+            <span class="switch"><input type="checkbox" id="vis-portfolio" checked={vis.portfolio !== false} /><span class="slider"></span></span>
+          </label>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Teks Kecil (Kicker)</label>
+            <input type="text" id="port-top" value={content.home.portfolio.titleTop} />
+          </div>
+          <div class="field">
+            <label>Kalimat Pengantar</label>
+            <input type="text" id="port-intro" value={content.home.portfolio.intro} />
+          </div>
+        </div>
+        <h3 class="sub">Daftar Foto Proyek</h3>
+        <div class="rows" id="list-photos">
+          {content.photos.map((ph) => (
+            <div class="row">
+              <div class="thumb thumb--photo"><img src={ph.src} alt="" onerror="this.src='/favicon.png';" /></div>
+              <div class="row__fields">
+                <div class="grid2">
+                  <div class="field">
+                    <label>Alamat Gambar</label>
+                    <input type="text" data-f="src" value={ph.src} />
+                  </div>
+                  <div class="field">
+                    <label>Nama Program / Proyek</label>
+                    <input type="text" data-f="program" value={ph.program} />
+                  </div>
+                </div>
+                <div class="grid2">
+                  <div class="field">
+                    <label>Kategori / Keterangan Foto</label>
+                    <input type="text" data-f="alt" value={ph.alt} />
+                  </div>
+                  <label class="check"><input type="checkbox" data-f="featured" checked={ph.featured} /> Jadikan foto unggulan</label>
+                </div>
+              </div>
+              <button type="button" class="row-del" title="Hapus foto">✕</button>
+            </div>
+          ))}
+        </div>
+        <button type="button" class="btn-add" data-add="photos">+ Tambah Foto</button>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="portfolio">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="portfolio">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- LAYANAN -->
+      <section class="panel" id="panel-services" data-key="services">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Layanan</h2>
+            <p class="panel__desc">Tiga lini layanan LINKAR dan kalimat pembeda di bawahnya.</p>
+          </div>
+          <label class="vis-switch">
+            <span class="vis-label">Tampil di situs</span>
+            <span class="switch"><input type="checkbox" id="vis-services" checked={vis.services !== false} /><span class="slider"></span></span>
+          </label>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Teks Kecil (Kicker)</label>
+            <input type="text" id="svc-kicker" value={content.home.services.kicker} />
+          </div>
+          <div class="field">
+            <label>Judul Seksi</label>
+            <input type="text" id="svc-title" value={content.home.services.title} />
+          </div>
+        </div>
+        <div class="field">
+          <label>Kalimat Pembeda (Diferensiasi)</label>
+          <textarea id="svc-diff" rows="2">{content.home.services.differentiator}</textarea>
+        </div>
+        <h3 class="sub">Kartu Layanan</h3>
+        <div class="rows" id="list-svc">
+          {content.home.services.cards.map((card) => (
+            <div class="row">
+              <div class="row__fields">
+                <div class="grid3">
+                  <div class="field">
+                    <label>Nomor</label>
+                    <input type="text" data-f="no" value={card.no} />
+                  </div>
+                  <div class="field">
+                    <label>Judul Layanan</label>
+                    <input type="text" data-f="title" value={card.title} />
+                  </div>
+                  <div class="field">
+                    <label>Dikerjakan Oleh</label>
+                    <input type="text" data-f="who" value={card.who} />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Deskripsi</label>
+                  <textarea data-f="body" rows="2">{card.body}</textarea>
+                </div>
+                <div class="field">
+                  <label>Untuk Siapa / Target</label>
+                  <input type="text" data-f="target" value={card.target} />
+                </div>
+              </div>
+              <button type="button" class="row-del" title="Hapus kartu">✕</button>
+            </div>
+          ))}
+        </div>
+        <button type="button" class="btn-add" data-add="svc">+ Tambah Kartu Layanan</button>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="services">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="services">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- STATISTIK -->
+      <section class="panel" id="panel-stats" data-key="stats">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>LINKAR Dalam Angka</h2>
+            <p class="panel__desc">Angka-angka pencapaian yang tampil dengan animasi berputar.</p>
+          </div>
+          <label class="vis-switch">
+            <span class="vis-label">Tampil di situs</span>
+            <span class="switch"><input type="checkbox" id="vis-linkarStats" checked={vis.linkarStats !== false} /><span class="slider"></span></span>
+          </label>
+        </div>
+        <div class="field">
+          <label>Teks Kecil (Kicker)</label>
+          <input type="text" id="stats-kicker" value={content.home.linkarStats.kicker} />
+        </div>
+        <h3 class="sub">Daftar Angka</h3>
+        <div class="rows" id="list-stats">
+          {content.home.linkarStats.items.map((item) => (
+            <div class="row">
+              <div class="row__fields">
+                <div class="grid2">
+                  <div class="field">
+                    <label>Angka (contoh: 20+)</label>
+                    <input type="text" data-f="value" value={item.value} />
+                  </div>
+                  <div class="field">
+                    <label>Keterangan</label>
+                    <input type="text" data-f="label" value={item.label} />
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="row-del" title="Hapus">✕</button>
+            </div>
+          ))}
+        </div>
+        <button type="button" class="btn-add" data-add="stats">+ Tambah Angka</button>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="stats">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="stats">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- INDUSTRI -->
+      <section class="panel" id="panel-industry" data-key="industry">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Peluang Industri</h2>
+            <p class="panel__desc">Data pasar yang menunjukkan kenapa LINKAR relevan sekarang.</p>
+          </div>
+          <label class="vis-switch">
+            <span class="vis-label">Tampil di situs</span>
+            <span class="switch"><input type="checkbox" id="vis-industry" checked={vis.industry !== false} /><span class="slider"></span></span>
+          </label>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Teks Kecil (Kicker)</label>
+            <input type="text" id="ind-kicker" value={content.home.industry.kicker} />
+          </div>
+          <div class="field">
+            <label>Judul Seksi</label>
+            <input type="text" id="ind-title" value={content.home.industry.title} />
+          </div>
+        </div>
+        <h3 class="sub">Daftar Data</h3>
+        <div class="rows" id="list-ind">
+          {content.home.industry.items.map((item) => (
+            <div class="row">
+              <div class="row__fields">
+                <div class="grid3">
+                  <div class="field">
+                    <label>Angka</label>
+                    <input type="text" data-f="value" value={item.value} />
+                  </div>
+                  <div class="field">
+                    <label>Keterangan</label>
+                    <input type="text" data-f="label" value={item.label} />
+                  </div>
+                  <div class="field">
+                    <label>Catatan Kecil</label>
+                    <input type="text" data-f="note" value={item.note} />
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="row-del" title="Hapus">✕</button>
+            </div>
+          ))}
+        </div>
+        <button type="button" class="btn-add" data-add="ind">+ Tambah Data</button>
+        <div class="field">
+          <label>Kalimat Penutup</label>
+          <textarea id="ind-closing" rows="2">{content.home.industry.closing}</textarea>
+        </div>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="industry">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="industry">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- KOMITMEN -->
+      <section class="panel" id="panel-commitments" data-key="commitments">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Komitmen</h2>
+            <p class="panel__desc">Kartu-kartu komitmen LINKAR terhadap dampak sosial.</p>
+          </div>
+          <label class="vis-switch">
+            <span class="vis-label">Tampil di situs</span>
+            <span class="switch"><input type="checkbox" id="vis-commitments" checked={vis.commitments !== false} /><span class="slider"></span></span>
+          </label>
+        </div>
+        <div class="field">
+          <label>Judul Seksi</label>
+          <input type="text" id="commit-title" value={content.home.commitments.title} />
+        </div>
+        <h3 class="sub">Kartu Komitmen</h3>
+        <div class="rows" id="list-commit">
+          {content.home.commitments.cards.map((card) => (
+            <div class="row">
+              <div class="row__fields">
+                <div class="field">
+                  <label>Judul Kartu</label>
+                  <input type="text" data-f="title" value={card.title} />
+                </div>
+                <div class="field">
+                  <label>Isi Kartu</label>
+                  <textarea data-f="body" rows="3">{card.body}</textarea>
+                </div>
+              </div>
+              <button type="button" class="row-del" title="Hapus kartu">✕</button>
+            </div>
+          ))}
+        </div>
+        <button type="button" class="btn-add" data-add="commit">+ Tambah Kartu Komitmen</button>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="commitments">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="commitments">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- FORM CTA -->
+      <section class="panel" id="panel-cta" data-key="cta">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Form Kontak — Ajakan Kolaborasi</h2>
+            <p class="panel__desc">Bagian penutup dengan form kirim pesan. Email penerimanya diatur di "Pengaturan Umum".</p>
+          </div>
+          <label class="vis-switch">
+            <span class="vis-label">Tampil di situs</span>
+            <span class="switch"><input type="checkbox" id="vis-cta" checked={vis.cta !== false} /><span class="slider"></span></span>
+          </label>
+        </div>
+        <div class="field">
+          <label>Judul Ajakan</label>
+          <input type="text" id="cta-title" value={content.home.cta.title} />
+        </div>
+        <div class="field">
+          <label>Kalimat Bahasa Inggris</label>
+          <input type="text" id="cta-sub-en" value={content.home.cta.subEn} />
+        </div>
+        <div class="field">
+          <label>Kalimat Bahasa Indonesia</label>
+          <textarea id="cta-sub-id" rows="2">{content.home.cta.subId}</textarea>
+        </div>
+        <div class="field">
+          <label>Teks Tombol Kirim</label>
+          <input type="text" id="cta-submit" value={content.home.cta.submitLabel} />
+        </div>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="cta">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="cta">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- ENTITAS -->
+      <section class="panel" id="panel-entities" data-key="entities">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Entitas Ekosistem</h2>
+            <p class="panel__desc">Brand/perusahaan anggota ekosistem LINKAR. Tampil di marquee logo, menu Brand, dan kartu ekosistem.</p>
+          </div>
+        </div>
+        <h3 class="sub">Daftar Entitas ({content.entities.length})</h3>
+        <div class="rows" id="list-entities">
+          {content.entities.map((entity, index) => (
+            <details class="row entity" data-orig={index}>
+              <summary class="entity__head">
+                <span class="thumb thumb--sm"><img src={entity.logo} alt="" onerror="this.src='/favicon.png';" /></span>
+                <span class="entity__title">
+                  <b class="entity__name">{entity.name}</b>
+                  <span class="entity__role">{entity.role}</span>
+                </span>
+                {entity.hasProfile && <span class="entity__badge">Punya Profil</span>}
+                <button type="button" class="row-del" title="Hapus entitas">✕</button>
+                <span class="entity__chev">▾</span>
+              </summary>
+              <div class="entity__body">
+                <div class="grid3">
+                  <div class="field">
+                    <label>Nama</label>
+                    <input type="text" data-f="name" value={entity.name} />
+                  </div>
+                  <div class="field">
+                    <label>Peran</label>
+                    <input type="text" data-f="role" value={entity.role} />
+                  </div>
+                  <div class="field">
+                    <label>Tagline</label>
+                    <input type="text" data-f="tagline" value={entity.tagline} />
+                  </div>
+                </div>
+                <div class="grid2">
+                  <div class="field">
+                    <label>Alamat Logo</label>
+                    <input type="text" data-f="logo" value={entity.logo} />
+                  </div>
+                  <div class="field">
+                    <label>Slug Halaman Profil</label>
+                    <input type="text" data-f="slug" value={entity.slug} />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Deskripsi Singkat</label>
+                  <textarea data-f="description" rows="2">{entity.description}</textarea>
+                </div>
+                <div class="grid2">
+                  <div class="field">
+                    <label>Alamat Website</label>
+                    <input type="text" data-f="website" value={entity.website} />
+                  </div>
+                  <div class="field">
+                    <label>Punya Halaman Profil?</label>
+                    <select data-f="hasProfile" data-bool>
+                      <option value="true" selected={entity.hasProfile === true}>Ya</option>
+                      <option value="false" selected={entity.hasProfile !== true}>Tidak</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </details>
+          ))}
+        </div>
+        <button type="button" class="btn-add" data-add="entities">+ Tambah Entitas</button>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="entities">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="entities">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- PROGRAM -->
+      <section class="panel" id="panel-programs" data-key="programs">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Program &amp; Case Study</h2>
+            <p class="panel__desc">Halaman detail program di /program. Menu "Program" muncul otomatis di navbar begitu ada minimal satu program yang diterbitkan.</p>
+          </div>
+        </div>
+        <h3 class="sub">Daftar Program ({content.programs.length})</h3>
+        {content.programs.length === 0 && (
+          <p class="note">Belum ada program. Klik "+ Tambah Program" untuk membuat yang pertama.</p>
+        )}
+        <div class="rows" id="list-programs">
+          {content.programs.map((p, index) => (
+            <details class="row entity" data-orig={index}>
+              <summary class="entity__head">
+                <span class="thumb thumb--sm thumb--photo"><img src={p.cover} alt="" onerror="this.src='/favicon.png';" /></span>
+                <span class="entity__title">
+                  <b class="entity__name">{p.title}</b>
+                  <span class="entity__role">{[p.partner, p.period].filter(Boolean).join(' · ')}</span>
+                </span>
+                <button type="button" class="row-del" title="Hapus program">✕</button>
+                <span class="entity__chev">▾</span>
+              </summary>
+              <div class="entity__body">
+                <div class="grid2">
+                  <div class="field">
+                    <label>Judul Program</label>
+                    <input type="text" data-f="title" value={p.title} />
+                  </div>
+                  <div class="field">
+                    <label>Slug (alamat halaman)</label>
+                    <input type="text" data-f="slug" value={p.slug} />
+                    <span class="help">Halaman tampil di /program/slug-ini</span>
+                  </div>
+                </div>
+                <div class="grid3">
+                  <div class="field">
+                    <label>Mitra / Partner</label>
+                    <input type="text" data-f="partner" value={p.partner} />
+                  </div>
+                  <div class="field">
+                    <label>Periode</label>
+                    <input type="text" data-f="period" value={p.period} />
+                  </div>
+                  <div class="field">
+                    <label>Lokasi</label>
+                    <input type="text" data-f="location" value={p.location} />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Ringkasan Singkat</label>
+                  <textarea data-f="summary" rows="2">{p.summary}</textarea>
+                </div>
+                <div class="field">
+                  <label>Gambar Cover</label>
+                  <input type="text" data-f="cover" value={p.cover} />
+                </div>
+                <div class="field">
+                  <label>Isi Lengkap</label>
+                  <textarea data-f="body" rows="8">{typeof p.body === 'string' ? p.body : ''}</textarea>
+                  <span class="help">Pisahkan antar paragraf dengan satu baris kosong.</span>
+                </div>
+                <div class="field">
+                  <label>Galeri Foto</label>
+                  <textarea data-f="gallery" rows="3">{(p.gallery ?? []).join('\n')}</textarea>
+                  <span class="help">Satu alamat gambar per baris.</span>
+                  <div class="gallery-strip">
+                    {(p.gallery ?? []).map((g) => <img src={g} alt="" onerror="this.src='/favicon.png';" />)}
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Angka Dampak</label>
+                  <textarea data-f="impact" rows="3">{(p.impact ?? []).map((s) => [s.value, s.label, s.note].filter(Boolean).join(' | ')).join('\n')}</textarea>
+                  <span class="help">Satu per baris, format: angka | keterangan — contoh: 500+ | Peserta terlatih</span>
+                </div>
+              </div>
+            </details>
+          ))}
+        </div>
+        <button type="button" class="btn-add" data-add="programs">+ Tambah Program</button>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="programs">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="programs">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- BLOG -->
+      <section class="panel" id="panel-posts" data-key="posts">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Blog &amp; Artikel</h2>
+            <p class="panel__desc">Halaman artikel di /blog. Menu "Blog" muncul otomatis di navbar begitu ada minimal satu artikel yang diterbitkan.</p>
+          </div>
+        </div>
+        <h3 class="sub">Daftar Artikel ({content.posts.length})</h3>
+        {content.posts.length === 0 && (
+          <p class="note">Belum ada artikel. Klik "+ Tambah Artikel" untuk menulis yang pertama.</p>
+        )}
+        <div class="rows" id="list-posts">
+          {content.posts.map((post, index) => (
+            <details class="row entity" data-orig={index}>
+              <summary class="entity__head">
+                <span class="thumb thumb--sm thumb--photo"><img src={post.cover} alt="" onerror="this.src='/favicon.png';" /></span>
+                <span class="entity__title">
+                  <b class="entity__name">{post.title}</b>
+                  <span class="entity__role">{[post.author, post.date?.slice(0, 10)].filter(Boolean).join(' · ')}</span>
+                </span>
+                <button type="button" class="row-del" title="Hapus artikel">✕</button>
+                <span class="entity__chev">▾</span>
+              </summary>
+              <div class="entity__body">
+                <div class="grid2">
+                  <div class="field">
+                    <label>Judul Artikel</label>
+                    <input type="text" data-f="title" value={post.title} />
+                  </div>
+                  <div class="field">
+                    <label>Slug (alamat halaman)</label>
+                    <input type="text" data-f="slug" value={post.slug} />
+                    <span class="help">Halaman tampil di /blog/slug-ini</span>
+                  </div>
+                </div>
+                <div class="grid2">
+                  <div class="field">
+                    <label>Penulis</label>
+                    <input type="text" data-f="author" value={post.author} />
+                  </div>
+                  <div class="field">
+                    <label>Tanggal Terbit</label>
+                    <input type="date" data-f="date" value={post.date?.slice(0, 10)} />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Kutipan / Ringkasan</label>
+                  <textarea data-f="excerpt" rows="2">{post.excerpt}</textarea>
+                </div>
+                <div class="field">
+                  <label>Gambar Cover</label>
+                  <input type="text" data-f="cover" value={post.cover} />
+                </div>
+                <div class="field">
+                  <label>Isi Artikel</label>
+                  <textarea data-f="body" rows="10">{typeof post.body === 'string' ? post.body : ''}</textarea>
+                  <span class="help">Pisahkan antar paragraf dengan satu baris kosong.</span>
+                </div>
+              </div>
+            </details>
+          ))}
+        </div>
+        <button type="button" class="btn-add" data-add="posts">+ Tambah Artikel</button>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="posts">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="posts">Terbitkan</button>
+        </div>
+      </section>
+
+      <!-- PENGATURAN UMUM -->
+      <section class="panel" id="panel-umum" data-key="umum">
+        <div class="panel__head">
+          <div class="panel__head-main">
+            <h2>Pengaturan Umum</h2>
+            <p class="panel__desc">Email penerima pesan, teks tombol utama di menu, dan tagline di footer.</p>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Email Penerima Form Kontak</label>
+            <input type="email" id="set-email" value={content.settings.formEmail} />
+            <span class="help">Pesan dari form kontak dikirim ke alamat ini.</span>
+          </div>
+          <div class="field">
+            <label>Teks Tombol Utama (Navbar)</label>
+            <input type="text" id="set-cta" value={content.settings.ctaLabel} />
+          </div>
+        </div>
+        <div class="field">
+          <label>Tagline di Footer</label>
+          <input type="text" id="set-tagline" value={content.settings.footerTagline} />
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Link LinkedIn</label>
+            <input type="text" id="set-linkedin" value={content.settings.social?.linkedin ?? ''} placeholder="https://linkedin.com/company/..." />
+          </div>
+          <div class="field">
+            <label>Link Instagram</label>
+            <input type="text" id="set-instagram" value={content.settings.social?.instagram ?? ''} placeholder="https://instagram.com/..." />
+          </div>
+        </div>
+        <div class="panel__actions">
+          <span class="hint">Simpan Draf dulu → cek pratinjau di kanan → kalau sudah pas, Terbitkan.</span>
+          <button type="button" class="btn-ghost act-save" data-scope="umum">Simpan Draf</button>
+          <button type="button" class="btn-primary act-publish" data-scope="umum">Terbitkan</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== PRATINJAU SITUS ASLI (DRAF) ===== -->
+    <div class="preview" id="preview">
+      <div class="preview__bar">
+        <span class="badge">Pratinjau Draf</span>
+        <span class="info">Situs asli yang dirender dari draf — menyegarkan otomatis setiap Simpan Draf.</span>
+        <div class="seg">
+          <button type="button" class="seg__btn is-active" data-device="desktop">Desktop</button>
+          <button type="button" class="seg__btn" data-device="mobile">HP</button>
+        </div>
+        <button type="button" class="btn-ghost" id="btn-reload-preview">↻</button>
+      </div>
+      <div class="preview__stage">
+        <iframe id="site-preview" src="/admin/preview" title="Pratinjau situs dari draf"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TEMPLATE BARIS BARU (CRUD) ===== -->
+  <template id="tpl-paragraphs">
+    <div class="row">
+      <div class="row__fields">
+        <div class="field">
+          <label>Isi Paragraf</label>
+          <textarea data-f="text" rows="3" placeholder="Tulis paragraf baru..."></textarea>
+        </div>
+      </div>
+      <button type="button" class="row-del" title="Hapus paragraf">✕</button>
+    </div>
+  </template>
+
+  <template id="tpl-photos">
+    <div class="row">
+      <div class="thumb thumb--photo"><img src="/favicon.png" alt="" onerror="this.src='/favicon.png';" /></div>
+      <div class="row__fields">
+        <div class="grid2">
+          <div class="field">
+            <label>Alamat Gambar</label>
+            <input type="text" data-f="src" placeholder="/images/portfolio/nama-file.jpg" />
+          </div>
+          <div class="field">
+            <label>Nama Program / Proyek</label>
+            <input type="text" data-f="program" placeholder="Nama program baru" />
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Kategori / Keterangan Foto</label>
+            <input type="text" data-f="alt" placeholder="Contoh: Aktivasi Komunitas" />
+          </div>
+          <label class="check"><input type="checkbox" data-f="featured" /> Jadikan foto unggulan</label>
+        </div>
+      </div>
+      <button type="button" class="row-del" title="Hapus foto">✕</button>
+    </div>
+  </template>
+
+  <template id="tpl-svc">
+    <div class="row">
+      <div class="row__fields">
+        <div class="grid3">
+          <div class="field"><label>Nomor</label><input type="text" data-f="no" placeholder="04" /></div>
+          <div class="field"><label>Judul Layanan</label><input type="text" data-f="title" placeholder="Judul baru" /></div>
+          <div class="field"><label>Dikerjakan Oleh</label><input type="text" data-f="who" placeholder="Nama entitas" /></div>
+        </div>
+        <div class="field"><label>Deskripsi</label><textarea data-f="body" rows="2" placeholder="Deskripsi layanan..."></textarea></div>
+        <div class="field"><label>Untuk Siapa / Target</label><input type="text" data-f="target" placeholder="Untuk: ..." /></div>
+      </div>
+      <button type="button" class="row-del" title="Hapus kartu">✕</button>
+    </div>
+  </template>
+
+  <template id="tpl-stats">
+    <div class="row">
+      <div class="row__fields">
+        <div class="grid2">
+          <div class="field"><label>Angka (contoh: 20+)</label><input type="text" data-f="value" placeholder="0" /></div>
+          <div class="field"><label>Keterangan</label><input type="text" data-f="label" placeholder="Keterangan angka" /></div>
+        </div>
+      </div>
+      <button type="button" class="row-del" title="Hapus">✕</button>
+    </div>
+  </template>
+
+  <template id="tpl-ind">
+    <div class="row">
+      <div class="row__fields">
+        <div class="grid3">
+          <div class="field"><label>Angka</label><input type="text" data-f="value" placeholder="0" /></div>
+          <div class="field"><label>Keterangan</label><input type="text" data-f="label" placeholder="Keterangan" /></div>
+          <div class="field"><label>Catatan Kecil</label><input type="text" data-f="note" placeholder="Catatan tambahan" /></div>
+        </div>
+      </div>
+      <button type="button" class="row-del" title="Hapus">✕</button>
+    </div>
+  </template>
+
+  <template id="tpl-commit">
+    <div class="row">
+      <div class="row__fields">
+        <div class="field"><label>Judul Kartu</label><input type="text" data-f="title" placeholder="Judul komitmen" /></div>
+        <div class="field"><label>Isi Kartu</label><textarea data-f="body" rows="3" placeholder="Isi komitmen..."></textarea></div>
+      </div>
+      <button type="button" class="row-del" title="Hapus kartu">✕</button>
+    </div>
+  </template>
+
+  <template id="tpl-entities">
+    <details class="row entity" open>
+      <summary class="entity__head">
+        <span class="thumb thumb--sm"><img src="/favicon.png" alt="" onerror="this.src='/favicon.png';" /></span>
+        <span class="entity__title">
+          <b class="entity__name">Entitas Baru</b>
+          <span class="entity__role"></span>
+        </span>
+        <button type="button" class="row-del" title="Hapus entitas">✕</button>
+        <span class="entity__chev">▾</span>
+      </summary>
+      <div class="entity__body">
+        <div class="grid3">
+          <div class="field"><label>Nama</label><input type="text" data-f="name" placeholder="Nama entitas" /></div>
+          <div class="field"><label>Peran</label><input type="text" data-f="role" placeholder="Peran di ekosistem" /></div>
+          <div class="field"><label>Tagline</label><input type="text" data-f="tagline" placeholder="Tagline" /></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Alamat Logo</label><input type="text" data-f="logo" placeholder="/images/entities/logo.png" /></div>
+          <div class="field"><label>Slug Halaman Profil</label><input type="text" data-f="slug" placeholder="nama-entitas" /></div>
+        </div>
+        <div class="field"><label>Deskripsi Singkat</label><textarea data-f="description" rows="2" placeholder="Deskripsi singkat..."></textarea></div>
+        <div class="grid2">
+          <div class="field"><label>Alamat Website</label><input type="text" data-f="website" placeholder="https://..." /></div>
+          <div class="field">
+            <label>Punya Halaman Profil?</label>
+            <select data-f="hasProfile" data-bool>
+              <option value="false" selected>Tidak</option>
+              <option value="true">Ya</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </details>
+  </template>
+
+  <template id="tpl-programs">
+    <details class="row entity" open>
+      <summary class="entity__head">
+        <span class="thumb thumb--sm thumb--photo"><img src="/favicon.png" alt="" onerror="this.src='/favicon.png';" /></span>
+        <span class="entity__title">
+          <b class="entity__name">Program Baru</b>
+          <span class="entity__role"></span>
+        </span>
+        <button type="button" class="row-del" title="Hapus program">✕</button>
+        <span class="entity__chev">▾</span>
+      </summary>
+      <div class="entity__body">
+        <div class="grid2">
+          <div class="field"><label>Judul Program</label><input type="text" data-f="title" placeholder="Nama program" /></div>
+          <div class="field">
+            <label>Slug (alamat halaman)</label>
+            <input type="text" data-f="slug" placeholder="terisi-otomatis-dari-judul" />
+            <span class="help">Halaman tampil di /program/slug-ini</span>
+          </div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label>Mitra / Partner</label><input type="text" data-f="partner" placeholder="Nama mitra" /></div>
+          <div class="field"><label>Periode</label><input type="text" data-f="period" placeholder="2025–2026" /></div>
+          <div class="field"><label>Lokasi</label><input type="text" data-f="location" placeholder="Yogyakarta" /></div>
+        </div>
+        <div class="field"><label>Ringkasan Singkat</label><textarea data-f="summary" rows="2" placeholder="Ringkasan untuk kartu daftar program..."></textarea></div>
+        <div class="field"><label>Gambar Cover</label><input type="text" data-f="cover" placeholder="/images/uploads/cover.jpg" /></div>
+        <div class="field">
+          <label>Isi Lengkap</label>
+          <textarea data-f="body" rows="8" placeholder="Tulis cerita programnya di sini..."></textarea>
+          <span class="help">Pisahkan antar paragraf dengan satu baris kosong.</span>
+        </div>
+        <div class="field">
+          <label>Galeri Foto</label>
+          <textarea data-f="gallery" rows="3" placeholder="/images/uploads/foto-1.jpg"></textarea>
+          <span class="help">Satu alamat gambar per baris.</span>
+          <div class="gallery-strip"></div>
+        </div>
+        <div class="field">
+          <label>Angka Dampak</label>
+          <textarea data-f="impact" rows="3" placeholder="500+ | Peserta terlatih"></textarea>
+          <span class="help">Satu per baris, format: angka | keterangan</span>
+        </div>
+      </div>
+    </details>
+  </template>
+
+  <template id="tpl-posts">
+    <details class="row entity" open>
+      <summary class="entity__head">
+        <span class="thumb thumb--sm thumb--photo"><img src="/favicon.png" alt="" onerror="this.src='/favicon.png';" /></span>
+        <span class="entity__title">
+          <b class="entity__name">Artikel Baru</b>
+          <span class="entity__role"></span>
+        </span>
+        <button type="button" class="row-del" title="Hapus artikel">✕</button>
+        <span class="entity__chev">▾</span>
+      </summary>
+      <div class="entity__body">
+        <div class="grid2">
+          <div class="field"><label>Judul Artikel</label><input type="text" data-f="title" placeholder="Judul artikel" /></div>
+          <div class="field">
+            <label>Slug (alamat halaman)</label>
+            <input type="text" data-f="slug" placeholder="terisi-otomatis-dari-judul" />
+            <span class="help">Halaman tampil di /blog/slug-ini</span>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Penulis</label><input type="text" data-f="author" placeholder="Tim LINKAR" /></div>
+          <div class="field"><label>Tanggal Terbit</label><input type="date" data-f="date" /></div>
+        </div>
+        <div class="field"><label>Kutipan / Ringkasan</label><textarea data-f="excerpt" rows="2" placeholder="Ringkasan untuk kartu daftar blog..."></textarea></div>
+        <div class="field"><label>Gambar Cover</label><input type="text" data-f="cover" placeholder="/images/uploads/cover.jpg" /></div>
+        <div class="field">
+          <label>Isi Artikel</label>
+          <textarea data-f="body" rows="10" placeholder="Tulis artikelnya di sini..."></textarea>
+          <span class="help">Pisahkan antar paragraf dengan satu baris kosong.</span>
+        </div>
+      </div>
+    </details>
+  </template>
+
+  <!-- ===== MODAL KONFIRMASI ===== -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="modal-title">Konfirmasi</h3>
+      <p id="modal-body"></p>
+      <div class="modal__actions">
+        <button type="button" class="btn-ghost" id="modal-cancel">Batal</button>
+        <button type="button" class="btn-primary" id="modal-ok">Ya, Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" style="display:none" />
+
+  <div class="toast" id="toast">Perubahan draf berhasil disimpan!</div>
+
+  <script is:inline type="application/json" id="base-content" set:html={JSON.stringify(content).replace(/</g, '\\u003c')}></script>
+
+  <script>
+    // ===== Base content dari server: payload di-merge dari sini agar data
+    // yang tidak diedit CMS (programs, posts, dll) tidak pernah tertimpa. =====
+    const baseContent = JSON.parse(document.getElementById('base-content')?.textContent || '{}');
+
+    const val = (id: string) => (document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).value;
+    const isOn = (id: string) => (document.getElementById(id) as HTMLInputElement).checked;
+
+    // ===== Navigasi section =====
+    // Selector section di halaman utama — pratinjau ikut scroll ke sini
+    const PREVIEW_ANCHORS: Record<string, string> = {
+      hero: '.hero', marquee: '#ecosystem', about: '#about', portfolio: '#portfolio',
+      services: '#sectionDrive', stats: '#stats', industry: '#opportunity',
+      commitments: '#commitment', cta: '#contact',
+    };
+
+    const navBtns = document.querySelectorAll('.nav-btn');
+    navBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-section') || '';
+        navBtns.forEach(b => b.classList.remove('is-active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        document.getElementById(`panel-${key}`)?.classList.add('is-active');
+        document.getElementById('editor')?.scrollTo({ top: 0 });
+        // Scroll pratinjau ke section yang sedang diedit
+        const sel = PREVIEW_ANCHORS[key];
+        if (sel) {
+          try {
+            (document.getElementById('site-preview') as HTMLIFrameElement)
+              ?.contentDocument?.querySelector(sel)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } catch { /* iframe belum siap — abaikan */ }
+        }
+      });
+    });
+
+    // ===== Status simpan & penanda perubahan (dirty) =====
+    const dirty = new Set<string>();
+    let lastSavedAt = '';
+
+    function updateStatus() {
+      const chip = document.getElementById('save-status');
+      const txt = document.getElementById('save-status-text');
+      if (!chip || !txt) return;
+      if (dirty.size > 0) {
+        chip.classList.add('is-dirty');
+        txt.textContent = `${dirty.size} bagian belum disimpan · tekan Ctrl+S`;
+      } else {
+        chip.classList.remove('is-dirty');
+        txt.textContent = lastSavedAt ? `Draf tersimpan · ${lastSavedAt}` : 'Semua perubahan tersimpan';
+      }
+    }
+
+    function markDirty(el: Element | null) {
+      const key = el?.closest('.panel')?.getAttribute('data-key');
+      if (!key) return;
+      dirty.add(key);
+      document.querySelector(`.nav-btn[data-section="${key}"]`)?.classList.add('is-dirty');
+      updateStatus();
+    }
+    function clearDirty() {
+      dirty.clear();
+      navBtns.forEach(b => b.classList.remove('is-dirty'));
+      lastSavedAt = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      updateStatus();
+    }
+
+    // Ingatkan sebelum menutup tab kalau masih ada perubahan belum disimpan
+    window.addEventListener('beforeunload', (e) => {
+      if (dirty.size > 0) e.preventDefault();
+    });
+
+    // Tag "Nonaktif" di sidebar untuk section yang disembunyikan
+    function syncOffTags() {
+      document.querySelectorAll('.panel').forEach(p => {
+        const cb = p.querySelector('.vis-switch input') as HTMLInputElement | null;
+        const key = p.getAttribute('data-key');
+        const tag = document.querySelector(`.nav-btn[data-section="${key}"] .off-tag`) as HTMLElement | null;
+        if (cb && tag) tag.style.display = cb.checked ? 'none' : '';
+      });
+    }
+
+    document.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      markDirty(t);
+      // Sinkronkan thumbnail saat alamat gambar/logo diubah
+      if (t.dataset?.f === 'src' || t.dataset?.f === 'logo') {
+        const img = t.closest('.row')?.querySelector('.thumb img') as HTMLImageElement | null;
+        if (img && t.value) img.src = t.value;
+      }
+      // Sinkronkan judul kartu (entitas/program/artikel) saat diketik
+      if (t.dataset?.f === 'name' || t.dataset?.f === 'title') {
+        const head = t.closest('.entity')?.querySelector('.entity__name');
+        if (head) head.textContent = t.value || 'Tanpa Judul';
+      }
+      if (t.dataset?.f === 'role') {
+        const head = t.closest('.entity')?.querySelector('.entity__role');
+        if (head) head.textContent = t.value;
+      }
+      // Cover di kartu program/artikel ikut memperbarui thumbnail
+      if (t.dataset?.f === 'cover') {
+        const img = t.closest('.row')?.querySelector('.thumb img') as HTMLImageElement | null;
+        if (img && t.value) img.src = t.value;
+      }
+      // Preview gambar hero
+      if (t.id === 'hero-image') {
+        const img = document.getElementById('hero-image-thumb') as HTMLImageElement | null;
+        if (img && t.value) img.src = t.value;
+      }
+      // Strip preview galeri mengikuti isi textarea (satu gambar per baris)
+      if (t.dataset?.f === 'gallery') {
+        const strip = t.closest('.field')?.querySelector('.gallery-strip');
+        if (strip) {
+          strip.innerHTML = '';
+          t.value.split('\n').map(s => s.trim()).filter(Boolean).forEach(src => {
+            const img = document.createElement('img');
+            img.src = src;
+            img.onerror = () => { img.src = '/favicon.png'; };
+            strip.appendChild(img);
+          });
+        }
+      }
+      // Slug terisi otomatis dari judul — hanya jika slug masih kosong
+      // atau hasil isian otomatis (tidak menimpa slug lama yang sudah punya URL)
+      if (t.dataset?.f === 'title') {
+        const slug = t.closest('.entity__body')?.querySelector('[data-f="slug"]') as HTMLInputElement | null;
+        if (slug && (slug.value === '' || slug.dataset.auto === '1')) {
+          slug.value = t.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+          slug.dataset.auto = '1';
+        }
+      }
+      // Slug yang diketik manual berhenti mengikuti judul
+      if (t.dataset?.f === 'slug') delete t.dataset.auto;
+    });
+    document.addEventListener('change', (e) => {
+      markDirty(e.target as Element);
+      syncOffTags();
+    });
+    syncOffTags();
+
+    // Tandai thumbnail merah kalau gambarnya tidak ditemukan (404)
+    document.addEventListener('error', (e) => {
+      const img = e.target as HTMLElement;
+      if (img.tagName === 'IMG') img.closest('.thumb')?.classList.add('thumb--missing');
+    }, true);
+    document.addEventListener('load', (e) => {
+      const img = e.target as HTMLImageElement;
+      if (img.tagName === 'IMG' && !img.src.endsWith('/favicon.png')) {
+        img.closest('.thumb')?.classList.remove('thumb--missing');
+      }
+    }, true);
+
+    // ===== Modal konfirmasi (pengganti confirm bawaan browser) =====
+    const modal = document.getElementById('modal');
+    let modalResolve: ((v: boolean) => void) | null = null;
+
+    function confirmDialog(title: string, body: string, okLabel = 'Ya, Lanjutkan'): Promise<boolean> {
+      (document.getElementById('modal-title') as HTMLElement).textContent = title;
+      (document.getElementById('modal-body') as HTMLElement).textContent = body;
+      (document.getElementById('modal-ok') as HTMLElement).textContent = okLabel;
+      modal?.classList.add('is-open');
+      return new Promise(res => { modalResolve = res; });
+    }
+    function closeModal(result: boolean) {
+      modal?.classList.remove('is-open');
+      modalResolve?.(result);
+      modalResolve = null;
+    }
+    document.getElementById('modal-ok')?.addEventListener('click', () => closeModal(true));
+    document.getElementById('modal-cancel')?.addEventListener('click', () => closeModal(false));
+    modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(false); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal?.classList.contains('is-open')) closeModal(false);
+    });
+
+    // ===== Status sibuk pada tombol =====
+    function setBusy(btn: HTMLButtonElement, busy: boolean, busyLabel = 'Memproses…') {
+      if (busy) {
+        btn.dataset.label = btn.textContent || '';
+        btn.innerHTML = `<span class="spin"></span>${busyLabel}`;
+        btn.disabled = true;
+      } else {
+        btn.textContent = btn.dataset.label || btn.textContent;
+        btn.disabled = false;
+      }
+    }
+
+    // ===== Unggah gambar: tombol "Unggah" otomatis di setiap field gambar =====
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    let uploadTarget: HTMLInputElement | null = null;
+
+    function injectUploadButtons() {
+      document.querySelectorAll('input[data-f="src"], input[data-f="logo"], input[data-f="cover"], #hero-image').forEach(el => {
+        const inp = el as HTMLInputElement;
+        if (inp.dataset.hasUpload) return;
+        inp.dataset.hasUpload = '1';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-upload';
+        btn.textContent = 'Unggah';
+        btn.title = 'Unggah gambar dari komputer';
+        btn.addEventListener('click', () => { uploadTarget = inp; fileInput.click(); });
+        inp.insertAdjacentElement('afterend', btn);
+      });
+    }
+    injectUploadButtons();
+
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      fileInput.value = '';
+      if (!file || !uploadTarget) return;
+      const fd = new FormData();
+      fd.append('file', file);
+      showToast('Mengunggah gambar…');
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (res.ok) {
+          uploadTarget.value = data.path;
+          uploadTarget.dispatchEvent(new Event('input', { bubbles: true }));
+          showToast(data.pending
+            ? '✓ Gambar dikirim ke GitHub — akan tampil di pratinjau setelah build selesai (~1-2 menit), lalu Simpan Draf.'
+            : '✓ Gambar terunggah — jangan lupa Simpan Draf.');
+        } else {
+          showToast(data.error || 'Gagal mengunggah gambar', true);
+        }
+      } catch {
+        showToast('Gagal menghubungi server', true);
+      }
+    });
+
+    // ===== CRUD: tambah & hapus baris =====
+    document.querySelectorAll('.btn-add').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const name = btn.getAttribute('data-add');
+        const tpl = document.getElementById(`tpl-${name}`) as HTMLTemplateElement;
+        const list = document.getElementById(`list-${name}`);
+        if (tpl && list) {
+          list.appendChild(tpl.content.cloneNode(true));
+          markDirty(btn);
+          injectUploadButtons();
+          (list.lastElementChild?.querySelector('input, textarea') as HTMLElement)?.focus();
+        }
+      });
+    });
+
+    document.addEventListener('click', async (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('row-del')) {
+        e.preventDefault(); // jangan buka/tutup kartu <details> saat tombol hapus diklik
+        const row = target.closest('.row');
+        if (row && await confirmDialog('Hapus item ini?', 'Item akan hilang dari draf setelah kamu menekan Simpan Draf. Situs live tidak berubah sampai kamu menerbitkannya.', 'Ya, Hapus')) {
+          markDirty(row);
+          row.remove();
+        }
+      }
+    });
+
+    // ===== Kumpulkan data baris CRUD =====
+    function rowData(row: Element) {
+      const o: Record<string, unknown> = {};
+      row.querySelectorAll('[data-f]').forEach((el) => {
+        const input = el as HTMLInputElement;
+        const key = input.dataset.f as string;
+        if (input.type === 'checkbox') o[key] = input.checked;
+        else if (input.dataset.bool !== undefined) o[key] = input.value === 'true';
+        else o[key] = input.value;
+      });
+      return o;
+    }
+    const listRows = (name: string) => Array.from(document.querySelectorAll(`#list-${name} > .row`));
+    const listData = (name: string) => listRows(name).map(rowData);
+
+    // ===== Susun payload lengkap (merge dari baseContent) =====
+    function getPayload() {
+      const payload = structuredClone(baseContent);
+
+      Object.assign(payload.settings, {
+        formEmail: val('set-email'),
+        footerTagline: val('set-tagline'),
+        ctaLabel: val('set-cta'),
+        social: {
+          linkedin: val('set-linkedin').trim(),
+          instagram: val('set-instagram').trim(),
+        },
+      });
+
+      payload.home.visibility = {
+        hero: isOn('vis-hero'),
+        marquee: isOn('vis-marquee'),
+        about: isOn('vis-about'),
+        portfolio: isOn('vis-portfolio'),
+        services: isOn('vis-services'),
+        linkarStats: isOn('vis-linkarStats'),
+        industry: isOn('vis-industry'),
+        commitments: isOn('vis-commitments'),
+        cta: isOn('vis-cta'),
+      };
+
+      Object.assign(payload.home.hero, {
+        badge: val('hero-badge'),
+        subEn: val('hero-sub-en'),
+        subId: val('hero-sub-id'),
+        primaryCta: val('hero-cta-p'),
+        secondaryCta: val('hero-cta-s'),
+        visualMode: val('hero-visual'),
+        heroImage: val('hero-image'),
+        folderPhotos: val('hero-folder').split('\n').map(s => s.trim()).filter(Boolean),
+      });
+
+      payload.home.marquee = { kicker: val('marquee-kicker'), title: val('marquee-title') };
+
+      payload.home.about.kicker = val('about-kicker');
+      payload.home.about.paragraphs = listData('paragraphs').map(o => o.text);
+
+      payload.home.portfolio.titleTop = val('port-top');
+      payload.home.portfolio.intro = val('port-intro');
+      payload.photos = listData('photos');
+
+      Object.assign(payload.home.services, {
+        kicker: val('svc-kicker'),
+        title: val('svc-title'),
+        differentiator: val('svc-diff'),
+        cards: listData('svc'),
+      });
+
+      payload.home.linkarStats = { kicker: val('stats-kicker'), items: listData('stats') };
+
+      payload.home.industry = {
+        kicker: val('ind-kicker'),
+        title: val('ind-title'),
+        closing: val('ind-closing'),
+        items: listData('ind'),
+      };
+
+      payload.home.commitments = { title: val('commit-title'), cards: listData('commit') };
+
+      payload.home.cta = {
+        title: val('cta-title'),
+        subEn: val('cta-sub-en'),
+        subId: val('cta-sub-id'),
+        submitLabel: val('cta-submit'),
+      };
+
+      // Entitas: pertahankan field lama yang tidak ada di form (mis. heroImage, body)
+      payload.entities = listRows('entities').map(row => {
+        const origIdx = (row as HTMLElement).dataset.orig;
+        const orig = origIdx !== undefined ? baseContent.entities[+origIdx] ?? {} : {};
+        return { ...orig, ...rowData(row) };
+      });
+
+      // Program: galeri = satu path per baris; dampak = "angka | keterangan | catatan" per baris
+      payload.programs = listRows('programs').map(row => {
+        const origIdx = (row as HTMLElement).dataset.orig;
+        const orig = origIdx !== undefined ? baseContent.programs[+origIdx] ?? {} : {};
+        const d = rowData(row);
+        return {
+          ...orig, ...d,
+          gallery: String(d.gallery ?? '').split('\n').map(s => s.trim()).filter(Boolean),
+          impact: String(d.impact ?? '').split('\n').map(s => s.trim()).filter(Boolean).map(line => {
+            const [value = '', label = '', note = ''] = line.split('|').map(s => s.trim());
+            return note ? { value, label, note } : { value, label };
+          }),
+        };
+      });
+
+      payload.posts = listRows('posts').map(row => {
+        const origIdx = (row as HTMLElement).dataset.orig;
+        const orig = origIdx !== undefined ? baseContent.posts[+origIdx] ?? {} : {};
+        return { ...orig, ...rowData(row) };
+      });
+
+      return payload;
+    }
+
+    // ===== Toast =====
+    const toast = document.getElementById('toast');
+    function showToast(message: string, isError = false) {
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.toggle('toast--error', isError);
+      toast.classList.add('is-visible');
+      setTimeout(() => toast.classList.remove('is-visible'), 3000);
+    }
+
+    // Di dev, menulis seed.json memicu reload halaman (HMR) yang bisa menelan
+    // toast sukses — simpan pesannya supaya tetap tampil setelah reload.
+    function showToastPersist(message: string) {
+      sessionStorage.setItem('cms-toast', JSON.stringify({ message, at: Date.now() }));
+      showToast(message);
+    }
+    try {
+      const pending = JSON.parse(sessionStorage.getItem('cms-toast') || 'null');
+      sessionStorage.removeItem('cms-toast');
+      if (pending && Date.now() - pending.at < 10_000) showToast(pending.message);
+    } catch { /* abaikan */ }
+
+    // ===== Pratinjau =====
+    const previewFrame = document.getElementById('site-preview') as HTMLIFrameElement;
+    function reloadPreview() {
+      previewFrame.src = '/admin/preview?t=' + Date.now();
+    }
+    document.getElementById('btn-reload-preview')?.addEventListener('click', reloadPreview);
+    document.getElementById('btn-open-site')?.addEventListener('click', () => window.open('/', '_blank'));
+
+    // Toggle ukuran layar pratinjau (desktop / HP)
+    document.querySelectorAll('.seg__btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.seg__btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        document.getElementById('preview')?.classList.toggle('is-mobile', btn.getAttribute('data-device') === 'mobile');
+      });
+    });
+
+    // ===== Simpan draf =====
+    async function saveDraft(): Promise<boolean> {
+      try {
+        const res = await fetch('/api/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(getPayload()),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          showToast(data.error || 'Gagal menyimpan draf', true);
+          return false;
+        }
+        clearDirty();
+        reloadPreview();
+        return true;
+      } catch {
+        showToast('Gagal menghubungi server', true);
+        return false;
+      }
+    }
+
+    document.querySelectorAll('.act-save').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const b = btn as HTMLButtonElement;
+        setBusy(b, true, 'Menyimpan…');
+        if (await saveDraft()) showToast('✓ Draf tersimpan — cek pratinjau di kanan.');
+        setBusy(b, false);
+      });
+    });
+
+    // Ctrl+S / Cmd+S = simpan draf
+    document.addEventListener('keydown', async (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (await saveDraft()) showToast('✓ Draf tersimpan — cek pratinjau di kanan.');
+      }
+    });
+
+    // ===== Terbitkan =====
+    async function publish(scope: string): Promise<void> {
+      if (!(await saveDraft())) return;
+      try {
+        const res = await fetch('/api/publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scope, draft: getPayload() }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          showToastPersist(data.github === 'pushed'
+            ? '✓ Diterbitkan & dikirim ke GitHub — situs live ter-update setelah build selesai.'
+            : '✓ Berhasil diterbitkan ke situs live.');
+        } else {
+          showToast(data.error || 'Gagal menerbitkan', true);
+        }
+      } catch {
+        showToast('Gagal menghubungi server', true);
+      }
+    }
+
+    document.querySelectorAll('.act-publish').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const b = btn as HTMLButtonElement;
+        const scope = b.getAttribute('data-scope') || '';
+        if (!(await confirmDialog('Terbitkan bagian ini?', 'Draf terbaru bagian ini akan langsung tampil untuk semua pengunjung situs.', 'Ya, Terbitkan'))) return;
+        setBusy(b, true, 'Menerbitkan…');
+        await publish(scope);
+        setBusy(b, false);
+      });
+    });
+
+    document.getElementById('btn-publish-all')?.addEventListener('click', async () => {
+      const b = document.getElementById('btn-publish-all') as HTMLButtonElement;
+      if (!(await confirmDialog('Terbitkan semua perubahan?', 'Seluruh isi draf akan menggantikan konten situs live — termasuk semua section, foto, dan entitas.', 'Ya, Terbitkan Semua'))) return;
+      setBusy(b, true, 'Menerbitkan…');
+      await publish('all');
+      setBusy(b, false);
+    });
+
+    // ===== Buang draf: kembalikan draf ke isi situs live =====
+    document.getElementById('btn-discard')?.addEventListener('click', async () => {
+      const b = document.getElementById('btn-discard') as HTMLButtonElement;
+      if (!(await confirmDialog('Buang semua perubahan draf?', 'Draf akan dikembalikan persis seperti isi situs live sekarang. Perubahan yang belum diterbitkan akan hilang.', 'Ya, Buang Draf'))) return;
+      setBusy(b, true, 'Membuang…');
+      try {
+        const res = await fetch('/api/discard', { method: 'POST' });
+        if (res.ok) {
+          dirty.clear(); // jangan memicu peringatan beforeunload saat reload
+          window.location.reload();
+        } else {
+          const data = await res.json().catch(() => ({}));
+          showToast(data.error || 'Gagal membuang draf', true);
+          setBusy(b, false);
+        }
+      } catch {
+        showToast('Gagal menghubungi server', true);
+        setBusy(b, false);
+      }
+    });
+
+    // ===== Keluar =====
+    document.getElementById('btn-logout')?.addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/admin';
+    });
+  </script>
+</body>
+</html>

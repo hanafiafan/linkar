@@ -6,129 +6,230 @@ const { content } = Astro.props;
 const { cta } = content.home;
 const web3formsKey = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '';
 ---
-<section id="contact" class="section contact-cta" data-bg="#0a1128">
-  <div class="wrap">
-    <h2 data-split>{cta.title}</h2>
-    <p class="sub-en" data-reveal>{cta.subEn}</p>
-    <p class="sub-id" data-reveal>{cta.subId}</p>
+<section id="contact" class="section contact-cta" data-bg="#000000">
+  <div class="wrap contact-cta__inner">
+    <div class="contact-cta__header">
+      <span class="kicker contact-cta__kicker">MULAI KOLABORASI</span>
+      <h2 class="contact-cta__title">{cta.title || "Let's work together."}</h2>
+      <p class="contact-cta__sub-en">{cta.subEn}</p>
+      <p class="contact-cta__sub-id">{cta.subId}</p>
+    </div>
 
-    <form id="contact-form" data-key={web3formsKey} novalidate data-reveal>
-      <div class="field">
-        <label for="f-name">Nama<span class="req">*</span></label>
-        <input id="f-name" type="text" name="name" autocomplete="name" />
-      </div>
-      <div class="field">
-        <label for="f-org">Instansi/Perusahaan</label>
-        <input id="f-org" type="text" name="org" autocomplete="organization" />
-      </div>
-      <div class="field">
-        <label for="f-email">Email<span class="req">*</span></label>
-        <input id="f-email" type="email" name="email" autocomplete="email" />
-      </div>
-      <div class="field">
-        <label for="f-wa">No. WhatsApp</label>
-        <input id="f-wa" type="tel" name="wa" autocomplete="tel" />
-      </div>
-      <div class="field field--full">
-        <label for="f-need">Ceritakan kebutuhan Anda<span class="req">*</span></label>
-        <textarea id="f-need" name="need" rows="5"></textarea>
-      </div>
+    <div class="contact-form-wrap">
+      <form id="contact-form" data-key={web3formsKey} novalidate>
+        <div class="field">
+          <label for="f-name">Nama Lengkap <span class="req">*</span></label>
+          <input id="f-name" type="text" name="name" autocomplete="name" placeholder="Siapa nama Anda?" />
+        </div>
+        <div class="field">
+          <label for="f-org">Perusahaan / Instansi</label>
+          <input id="f-org" type="text" name="org" autocomplete="organization" placeholder="Nama instansi atau komunitas Anda?" />
+        </div>
+        <div class="field">
+          <label for="f-email">Email Bisnis <span class="req">*</span></label>
+          <input id="f-email" type="email" name="email" autocomplete="email" placeholder="alamat@domain.com" />
+        </div>
+        <div class="field">
+          <label for="f-wa">Nomor WhatsApp</label>
+          <input id="f-wa" type="tel" name="wa" autocomplete="tel" placeholder="0812xxxxxx" />
+        </div>
+        <div class="field field--full">
+          <label for="f-need">Bagaimana kami bisa membantu Anda? <span class="req">*</span></label>
+          <textarea id="f-need" name="need" rows="4" placeholder="Ceritakan tujuan, kebutuhan, atau ide kolaborasi Anda..."></textarea>
+        </div>
 
-      <div style="display:none" aria-hidden="true">
-        <input type="text" name="botcheck" tabindex="-1" autocomplete="off" />
-      </div>
+        <div style="display:none" aria-hidden="true">
+          <input type="text" name="botcheck" tabindex="-1" autocomplete="off" />
+        </div>
 
-      <button type="submit" class="btn btn-primary">{cta.submitLabel}</button>
-      <p class="form-status" role="status" aria-live="polite"></p>
-    </form>
+        <button type="submit" class="contact-submit-btn">
+          <span class="btn-text">{cta.submitLabel || 'Kirim Pesan'}</span>
+          <span class="btn-arrow">→</span>
+        </button>
+        <p class="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
   </div>
 </section>
 
 <style>
-  .contact-cta{
-    padding:110px 0;
-    background:var(--navy);
-    border-top:1px solid rgba(255,255,255,.08);
-    text-align:center;
-  }
-  .contact-cta h2{
-    color:var(--text);
-    font-size:clamp(1.8rem, 3.4vw, 2.6rem);
-    max-width:720px;
-    margin:0 auto;
-  }
-  .sub-en{
-    font-style:italic;
-    color:var(--orange);
-    margin-top:18px;
-  }
-  .sub-id{
-    color:var(--muted);
-    max-width:640px;
-    margin:12px auto 0;
+  .contact-cta {
+    position: relative;
+    background: #000000;
+    color: #ffffff;
+    padding: 40px 0 160px 0;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 
-  form{
-    max-width:640px;
-    margin:48px auto 0;
-    display:grid;
-    grid-template-columns:1fr;
-    gap:18px;
-    text-align:left;
-  }
-  @media (min-width:700px){
-    form{ grid-template-columns:1fr 1fr; }
-    .field--full{ grid-column:1 / -1; }
+  .contact-cta__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 60px;
   }
 
-  .field label{
-    display:block;
-    font-size:.9rem;
-    font-weight:600;
-    color:var(--text);
-    margin-bottom:8px;
+  @media (min-width: 900px) {
+    .contact-cta__inner {
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 80px;
+    }
   }
-  .req{ color:var(--orange); margin-left:2px; }
+
+  .contact-cta__header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .contact-cta__kicker {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--orange, #F26A21);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 99px;
+  }
+
+  .contact-cta__title {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .contact-cta__sub-en {
+    font-style: italic;
+    font-weight: 600;
+    color: var(--orange, #F26A21);
+    font-size: 1.1rem;
+  }
+
+  .contact-cta__sub-id {
+    color: var(--muted, #888888);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* Form Styling */
+  .contact-form-wrap {
+    width: 100%;
+  }
+
+  form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  @media (min-width: 600px) {
+    form {
+      grid-template-columns: 1fr 1fr;
+    }
+    .field--full {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .field label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.65); /* kontras WCAG AA di latar hitam */
+  }
+
+  .req {
+    color: var(--orange, #F26A21);
+    margin-left: 2px;
+  }
 
   .field input,
-  .field textarea{
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:10px;
-    padding:13px 16px;
-    color:var(--text);
-    width:100%;
-    font-family:inherit;
-    font-size:1rem;
-    transition:border-color .2s;
+  .field textarea {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+    padding: 12px 0;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 1rem;
+    border-radius: 0;
+    transition: border-color 0.3s ease;
+    width: 100%;
   }
+
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
   .field input:focus,
-  .field textarea:focus{
-    outline:none;
-    border-color:var(--orange);
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--orange, #F26A21);
   }
+
+  .field:focus-within label {
+    color: #007AFF;
+    transition: color 0.3s ease;
+  }
+
   .field input.err,
-  .field textarea.err{
-    border-color:#ff5d2b;
+  .field textarea.err {
+    border-color: #ff3b30;
   }
 
-  form .btn{
-    grid-column:1 / -1;
-    width:100%;
-    text-align:center;
+  /* Submit Button */
+  .contact-submit-btn {
+    grid-column: 1 / -1;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 99px;
+    padding: 16px 36px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s, color 0.3s;
+    width: 100%;
+    margin-top: 10px;
   }
 
-  .form-status{
-    grid-column:1 / -1;
-    min-height:1.5em;
-    color:var(--muted);
-    font-size:.9rem;
-    text-align:center;
-    margin:0;
+  .contact-submit-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
   }
 
-  @media (prefers-reduced-motion: reduce){
-    .field input,
-    .field textarea{ transition:none; }
+  .btn-arrow {
+    transition: transform 0.3s ease;
+  }
+
+  .contact-submit-btn:hover .btn-arrow {
+    transform: translateX(6px);
+  }
+
+  .form-status {
+    grid-column: 1 / -1;
+    min-height: 1.5em;
+    color: var(--orange, #F26A21);
+    font-size: 0.9rem;
+    text-align: center;
+    margin: 0;
   }
 </style>

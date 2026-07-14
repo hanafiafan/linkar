@@ -26,6 +26,8 @@ if (typeof window !== 'undefined') {
       return;
     }
     status.textContent = 'Mengirim…';
+    const submitBtn = form.querySelector('[type=submit]');
+    if (submitBtn) submitBtn.disabled = true;              // cegah kirim dobel
     try {
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -34,5 +36,6 @@ if (typeof window !== 'undefined') {
       status.textContent = res.ok ? 'Terima kasih! Pesan Anda sudah kami terima — tim LINKAR akan segera menghubungi Anda.' : 'Maaf, terjadi kendala. Silakan coba lagi.';
       if (res.ok) form.reset();
     } catch { status.textContent = 'Maaf, terjadi kendala jaringan. Silakan coba lagi.'; }
+    finally { if (submitBtn) submitBtn.disabled = false; }
   });
 }

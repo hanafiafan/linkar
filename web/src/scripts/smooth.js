@@ -26,7 +26,22 @@ if (motionOK) {
     const target = document.getElementById(hash);
     if (!target) return;
     e.preventDefault();
-    lenis.scrollTo(target, { offset: -90 });
+
+    // Instantly morph background color to the target section's color to prevent text visibility bugs
+    const targetBg = target.getAttribute('data-bg');
+    if (targetBg) {
+      const bg = document.getElementById('bg-morph');
+      if (bg) {
+        gsap.to(bg, { backgroundColor: targetBg, duration: 0.8, ease: 'power2.out' });
+      }
+    }
+
+    lenis.scrollTo(target, { 
+      offset: 0,
+      onComplete: () => {
+        ScrollTrigger.refresh();
+      }
+    });
   });
 }
 
